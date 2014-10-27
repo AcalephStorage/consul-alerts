@@ -133,6 +133,7 @@ func builtinNotifiers() []notifier.Notifier {
 	emailConfig := consulClient.EmailConfig()
 	logConfig := consulClient.LogConfig()
 	influxdbConfig := consulClient.InfluxdbConfig()
+	slackConfig := consulClient.SlackConfig()
 
 	notifiers := []notifier.Notifier{}
 	if emailConfig.Enabled {
@@ -164,6 +165,18 @@ func builtinNotifiers() []notifier.Notifier {
 			SeriesName: influxdbConfig.SeriesName,
 		}
 		notifiers = append(notifiers, influxdbNotifier)
+	}
+	if slackConfig.Enabled {
+		slackNotifier := &notifier.SlackNotifier{
+			ClusterName: slackConfig.ClusterName,
+			Team:        slackConfig.Team,
+			Token:       slackConfig.Token,
+			Channel:     slackConfig.Channel,
+			Username:    slackConfig.Username,
+			IconUrl:     slackConfig.IconUrl,
+			IconEmoji:   slackConfig.IconEmoji,
+		}
+		notifiers = append(notifiers, slackNotifier)
 	}
 
 	return notifiers

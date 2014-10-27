@@ -21,8 +21,8 @@ type SlackNotifier struct {
 	Token       string `json:"-"`
 	Channel     string `json:"channel"`
 	Username    string `json:"username"`
-	iconUrl     string `json:"icon_url"`
-	iconEmoji   string `json:"icon_emoji"`
+	IconUrl     string `json:"icon_url"`
+	IconEmoji   string `json:"icon_emoji"`
 	Text        string `json:"text"`
 }
 

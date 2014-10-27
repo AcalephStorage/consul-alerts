@@ -44,6 +44,7 @@ type NotifiersConfig struct {
 	Email    *EmailNotifierConfig
 	Log      *LogNotifierConfig
 	Influxdb *InfluxdbNotifierConfig
+	Slack    *SlackNotifierConfig
 	Custom   []string
 }
 
@@ -74,6 +75,17 @@ type InfluxdbNotifierConfig struct {
 	SeriesName string
 }
 
+type SlackNotifierConfig struct {
+	Enabled     bool
+	ClusterName string
+	Team        string
+	Token       string
+	Channel     string
+	Username    string
+	IconUrl     string
+	IconEmoji   string
+}
+
 type Status struct {
 	Current          string
 	CurrentTimestamp time.Time
@@ -93,6 +105,7 @@ type Consul interface {
 	EmailConfig() *EmailNotifierConfig
 	LogConfig() *LogNotifierConfig
 	InfluxdbConfig() *InfluxdbNotifierConfig
+	SlackConfig() *SlackNotifierConfig
 
 	CheckChangeThreshold() int
 	UpdateCheckData()
@@ -132,10 +145,16 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 		SeriesName: "consul-alerts",
 	}
 
+	slack := &SlackNotifierConfig{
+		Enabled:     false,
+		ClusterName: "Consul-Alerts",
+	}
+
 	notifiers := &NotifiersConfig{
 		Email:    email,
 		Log:      log,
 		Influxdb: influxdb,
+		Slack:    slack,
 		Custom:   []string{},
 	}
 

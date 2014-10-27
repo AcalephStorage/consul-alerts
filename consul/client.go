@@ -112,6 +112,25 @@ func (c *ConsulAlertClient) LoadConfig() {
 				valErr = loadCustomValue(&config.Notifiers.Influxdb.Database, val, ConfigTypeString)
 			case "consul-alerts/config/notifiers/influxdb/series-name":
 				valErr = loadCustomValue(&config.Notifiers.Influxdb.SeriesName, val, ConfigTypeString)
+
+			// slack notfier config
+			case "consul-alerts/config/notifiers/slack/enabled":
+				valErr = loadCustomValue(&config.Notifiers.Slack.Enabled, val, ConfigTypeBool)
+			case "consul-alerts/config/notifiers/slack/cluster-name":
+				valErr = loadCustomValue(&config.Notifiers.Slack.ClusterName, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/slack/team":
+				valErr = loadCustomValue(&config.Notifiers.Slack.Team, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/slack/token":
+				valErr = loadCustomValue(&config.Notifiers.Slack.Token, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/slack/Channel":
+				valErr = loadCustomValue(&config.Notifiers.Slack.Channel, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/slack/Username":
+				valErr = loadCustomValue(&config.Notifiers.Slack.Username, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/slack/icon-url":
+				valErr = loadCustomValue(&config.Notifiers.Slack.IconUrl, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/slack/icon-emoji":
+				valErr = loadCustomValue(&config.Notifiers.Slack.IconEmoji, val, ConfigTypeString)
+
 			}
 
 			if valErr != nil {
@@ -230,6 +249,10 @@ func (c *ConsulAlertClient) LogConfig() *LogNotifierConfig {
 
 func (c *ConsulAlertClient) InfluxdbConfig() *InfluxdbNotifierConfig {
 	return c.config.Notifiers.Influxdb
+}
+
+func (c *ConsulAlertClient) SlackConfig() *SlackNotifierConfig {
+	return c.config.Notifiers.Slack
 }
 
 func (c *ConsulAlertClient) registerHealthCheck(key string, health *Check) {

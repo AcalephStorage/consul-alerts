@@ -59,7 +59,7 @@ Handlers can be configured by adding them to `consul-alert/config/events/handler
 
 ### Notifiers
 
-There are two builtin notifiers. The logger and the email notifier. The logger is enabled by default while the email notifier is disabled. It's also possible to add custom notifiers similar to adding event handlers.
+There are four builtin notifiers. Only the *Log* notifier is enabled by default. It is also possible to add custom notifiers similar to custom event handlers.
 
 #### Logger
 
@@ -78,7 +78,7 @@ prefix: `consul-alert/config/notifiers/email/`
 | key          | description                                                 |
 |--------------|-------------------------------------------------------------|
 | enabled      | Enable the email notifier. [Default: false]                 |
-| cluster-name | The name of the cluster. [Defaults: "Consul Alerts"]        |
+| cluster-name | The name of the cluster. [Default: "Consul Alerts"]         |
 | url          | The SMTP server url                                         |
 | port         | The SMTP server port                                        |
 | username     | The SMTP username                                           |
@@ -89,6 +89,38 @@ prefix: `consul-alert/config/notifiers/email/`
 | template     | Path to custom email template. [Default: internal template] |
 
 The template can be any go html template. An `EmailData` instance will be passed to the template.
+
+#### InfluxDB
+
+This sends the notifications as series points in influxdb. Set `consul-alert/config/notifiers/influxdb/enabled` to `true` to enabled. InfluxDB details need to be set too.
+
+prefix: `consul-alert/config/notifiers/influxdb/`
+
+| key         | description                                    |
+|-------------|------------------------------------------------|  
+| enabled     | Enable the influxdb notifier. [Default: false] |
+| host        | The influxdb host. (eg. localhost:8086)        |
+| username    | The influxdb username                          |
+| password    | The influxdb password                          |
+| database    | The influxdb database name                     |
+| series-name | The series name for the points                 |
+
+#### Slack
+
+Slack integration is also supported. To enable, set `consul-alert/config/notifiers/slack/enabled` to `true`. Slack details needs to be configured.
+
+prefix: `consul-alert/config/notifiers/slack/`
+
+| key          | description                                         |
+|--------------|-----------------------------------------------------|
+| enabled      | Enable the Slack notifier. [Default: false]         |
+| cluster-name | The name of the cluster. [Default: "Consul Alerts"] |
+| team         | The slack team name                                 |
+| token        | The token for the webhook api                       |
+| channel      | The channel to post the notification                |
+| username     | The username to appear on the post                  |
+| icon-url     | URL of a custom image for the notification          |
+| icon-emoji   | Emoji (if not using icon-url) for the notification  |
 
 ## Health Check via API
 
