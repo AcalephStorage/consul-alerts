@@ -14,7 +14,7 @@ type InfluxdbNotifier struct {
 	SeriesName string
 }
 
-func (influxdb *InfluxdbNotifier) Notify(messages []Message) bool {
+func (influxdb *InfluxdbNotifier) Notify(messages Messages) bool {
 
 	config := &client.ClientConfig{
 		Host:     influxdb.Host,
@@ -41,7 +41,7 @@ func (influxdb *InfluxdbNotifier) Notify(messages []Message) bool {
 	return true
 }
 
-func (influxdb *InfluxdbNotifier) toSeries(messages []Message) []*client.Series {
+func (influxdb *InfluxdbNotifier) toSeries(messages Messages) []*client.Series {
 
 	seriesName := influxdb.SeriesName
 	columns := []string{

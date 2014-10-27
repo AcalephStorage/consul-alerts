@@ -10,7 +10,7 @@ type LogNotifier struct {
 	LogFile string
 }
 
-func (logNotifier *LogNotifier) Notify(alerts []Message) bool {
+func (logNotifier *LogNotifier) Notify(alerts Messages) bool {
 
 	log.Println("logging messages...")
 

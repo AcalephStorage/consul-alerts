@@ -27,24 +27,24 @@ type EmailData struct {
 	FailCount    int
 	WarnCount    int
 	PassCount    int
-	Nodes        map[string][]Message
+	Nodes        map[string]Messages
 }
 
 func (e EmailData) IsCritical() bool {
-	return e.SystemStatus == "CRITICAL"
+	return e.SystemStatus == SYSTEM_CRITICAL
 }
 
 func (e EmailData) IsWarning() bool {
-	return e.SystemStatus == "UNSTABLE"
+	return e.SystemStatus == SYSTEM_UNSTABLE
 }
 
 func (e EmailData) IsPassing() bool {
-	return e.SystemStatus == "OK"
+	return e.SystemStatus == SYSTEM_HEALTHY
 }
 
-func (emailNotifier *EmailNotifier) Notify(alerts []Message) bool {
+func (emailNotifier *EmailNotifier) Notify(alerts Messages) bool {
 
-	overAllStatus, pass, warn, fail := summarize(alerts)
+	overAllStatus, pass, warn, fail := alerts.Summary()
 	nodeMap := mapByNodes(alerts)
 
 	e := EmailData{
@@ -91,34 +91,13 @@ func (emailNotifier *EmailNotifier) Notify(alerts []Message) bool {
 	return true
 }
 
-func summarize(alerts []Message) (overallStatus string, passCount, warnCount, failCount int) {
-	for _, alert := range alerts {
-		switch alert.Status {
-		case "passing":
-			passCount++
-		case "warning":
-			warnCount++
-		case "critical":
-			failCount++
-		}
-	}
-	if failCount != 0 {
-		overallStatus = "CRITICAL"
-	} else if warnCount != 0 {
-		overallStatus = "UNSTABLE"
-	} else {
-		overallStatus = "OK"
-	}
-	return
-}
-
-func mapByNodes(alerts []Message) map[string][]Message {
-	nodeMap := make(map[string][]Message)
+func mapByNodes(alerts Messages) map[string]Messages {
+	nodeMap := make(map[string]Messages)
 	for _, alert := range alerts {
 		nodeName := alert.Node
 		nodeChecks := nodeMap[nodeName]
 		if nodeChecks == nil {
-			nodeChecks = make([]Message, 0)
+			nodeChecks = make(Messages, 0)
 		}
 		nodeChecks = append(nodeChecks, alert)
 		nodeMap[nodeName] = nodeChecks
