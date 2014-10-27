@@ -9,10 +9,11 @@ import (
 	"net/http"
 	"os/exec"
 
+	"github.com/AcalephStorage/consul-alerts/consul"
 	"github.com/AcalephStorage/consul-alerts/notifier"
 )
 
-var checksChannel chan []Check = make(chan []Check, 1)
+var checksChannel chan []consul.Check = make(chan []consul.Check, 1)
 var firstCheckRun = true
 
 func checkHandler(w http.ResponseWriter, r *http.Request) {
@@ -35,13 +36,13 @@ func checkHandler(w http.ResponseWriter, r *http.Request) {
 		<-checksChannel
 	}
 
-	var checks []Check
+	var checks []consul.Check
 	toWatchObject(r.Body, &checks)
 	go startProcess(checks)
 	w.WriteHeader(200)
 }
 
-func startProcess(checks []Check) {
+func startProcess(checks []consul.Check) {
 	checksChannel <- checks
 }
 
@@ -63,7 +64,7 @@ func processChecks() {
 	}
 }
 
-func notify(alerts []Check) {
+func notify(alerts []consul.Check) {
 	messages := make([]notifier.Message, len(alerts))
 	for i, alert := range alerts {
 		messages[i] = notifier.Message{

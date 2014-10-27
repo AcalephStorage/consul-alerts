@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os/signal"
 
+	"github.com/AcalephStorage/consul-alerts/consul"
 	"github.com/AcalephStorage/consul-alerts/notifier"
 
 	"github.com/docopt/docopt-go"
@@ -36,7 +37,7 @@ Options:
 
 `
 
-var consulClient Consul
+var consulClient consul.Consul
 
 func main() {
 	args, _ := docopt.Parse(usage, nil, true, version, false)
@@ -65,7 +66,7 @@ func daemonMode(arguments map[string]interface{}) {
 	watchChecks := arguments["--watch-checks"].(bool)
 	watchEvents := arguments["--watch-events"].(bool)
 
-	consulClient = NewClient(consulAddr, consulDc)
+	consulClient = consul.NewClient(consulAddr, consulDc)
 
 	log.Println("Consul Alerts daemon started")
 	log.Println("Consul Agent:", consulAddr)

@@ -7,9 +7,11 @@ import (
 	"encoding/json"
 	"net/http"
 	"os/exec"
+
+	"github.com/AcalephStorage/consul-alerts/consul"
 )
 
-var eventsChannel chan []Event = make(chan []Event)
+var eventsChannel chan []consul.Event = make(chan []consul.Event)
 
 var firstEventRun bool = true
 
@@ -28,7 +30,7 @@ func eventHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var events []Event
+	var events []consul.Event
 	toWatchObject(r.Body, &events)
 	eventsChannel <- events
 	// set status to OK
@@ -43,7 +45,7 @@ func processEvents() {
 	}
 }
 
-func processEvent(event Event) {
+func processEvent(event consul.Event) {
 	log.Println("----------------------------------------")
 	log.Printf("Proccessing event %s:\n", event.ID)
 	log.Println("----------------------------------------")
@@ -54,7 +56,7 @@ func processEvent(event Event) {
 	log.Printf("Event Processed.\n\n")
 }
 
-func executeEventHandler(event Event, eventHandler string) {
+func executeEventHandler(event consul.Event, eventHandler string) {
 
 	data, err := json.Marshal(&event)
 	if err != nil {
