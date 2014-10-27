@@ -150,7 +150,9 @@ func builtinNotifiers() []notifier.Notifier {
 		notifiers = append(notifiers, emailNotifier)
 	}
 	if logConfig.Enabled {
-		logNotifier := &notifier.LogNotifier{logConfig.Path}
+		logNotifier := &notifier.LogNotifier{
+			LogFile: logConfig.Path,
+		}
 		notifiers = append(notifiers, logNotifier)
 	}
 	if influxdbConfig.Enabled {
