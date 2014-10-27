@@ -129,8 +129,11 @@ func cleanup() {
 }
 
 func builtinNotifiers() []notifier.Notifier {
+
 	emailConfig := consulClient.EmailConfig()
 	logConfig := consulClient.LogConfig()
+	influxdbConfig := consulClient.InfluxdbConfig()
+
 	notifiers := []notifier.Notifier{}
 	if emailConfig.Enabled {
 		emailNotifier := &notifier.EmailNotifier{
@@ -150,5 +153,16 @@ func builtinNotifiers() []notifier.Notifier {
 		logNotifier := &notifier.LogNotifier{logConfig.Path}
 		notifiers = append(notifiers, logNotifier)
 	}
+	if influxdbConfig.Enabled {
+		influxdbNotifier := &notifier.InfluxdbNotifier{
+			Host:       influxdbConfig.Host,
+			Username:   influxdbConfig.Username,
+			Password:   influxdbConfig.Password,
+			Database:   influxdbConfig.Database,
+			SeriesName: influxdbConfig.SeriesName,
+		}
+		notifiers = append(notifiers, influxdbNotifier)
+	}
+
 	return notifiers
 }

@@ -41,9 +41,10 @@ type EventsConfig struct {
 }
 
 type NotifiersConfig struct {
-	Email  *EmailNotifierConfig
-	Log    *LogNotifierConfig
-	Custom []string
+	Email    *EmailNotifierConfig
+	Log      *LogNotifierConfig
+	Influxdb *InfluxdbNotifierConfig
+	Custom   []string
 }
 
 type EmailNotifierConfig struct {
@@ -64,6 +65,15 @@ type LogNotifierConfig struct {
 	Path    string
 }
 
+type InfluxdbNotifierConfig struct {
+	Enabled    bool
+	Host       string
+	Username   string
+	Password   string
+	Database   string
+	SeriesName string
+}
+
 type Status struct {
 	Current          string
 	CurrentTimestamp time.Time
@@ -82,6 +92,7 @@ type Consul interface {
 
 	EmailConfig() *EmailNotifierConfig
 	LogConfig() *LogNotifierConfig
+	InfluxdbConfig() *InfluxdbNotifierConfig
 
 	CheckChangeThreshold() int
 	UpdateCheckData()
@@ -116,10 +127,16 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 		Path:    "/tmp/consul-notifications.log",
 	}
 
+	influxdb := &InfluxdbNotifierConfig{
+		Enabled:    false,
+		SeriesName: "consul-alerts",
+	}
+
 	notifiers := &NotifiersConfig{
-		Email:  email,
-		Log:    log,
-		Custom: []string{},
+		Email:    email,
+		Log:      log,
+		Influxdb: influxdb,
+		Custom:   []string{},
 	}
 
 	return &ConsulAlertConfig{

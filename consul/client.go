@@ -98,6 +98,20 @@ func (c *ConsulAlertClient) LoadConfig() {
 				valErr = loadCustomValue(&config.Notifiers.Log.Enabled, val, ConfigTypeBool)
 			case "consul-alerts/config/notifiers/log/path":
 				valErr = loadCustomValue(&config.Notifiers.Log.Path, val, ConfigTypeString)
+
+			// influxdb notifier config
+			case "consul-alerts/config/notifiers/influxdb/enabled":
+				valErr = loadCustomValue(&config.Notifiers.Influxdb.Enabled, val, ConfigTypeBool)
+			case "consul-alerts/config/notifiers/influxdb/host":
+				valErr = loadCustomValue(&config.Notifiers.Influxdb.Host, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/influxdb/username":
+				valErr = loadCustomValue(&config.Notifiers.Influxdb.Username, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/influxdb/password":
+				valErr = loadCustomValue(&config.Notifiers.Influxdb.Password, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/influxdb/database":
+				valErr = loadCustomValue(&config.Notifiers.Influxdb.Database, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/influxdb/series-name":
+				valErr = loadCustomValue(&config.Notifiers.Influxdb.SeriesName, val, ConfigTypeString)
 			}
 
 			if valErr != nil {
@@ -212,6 +226,10 @@ func (c *ConsulAlertClient) EmailConfig() *EmailNotifierConfig {
 
 func (c *ConsulAlertClient) LogConfig() *LogNotifierConfig {
 	return c.config.Notifiers.Log
+}
+
+func (c *ConsulAlertClient) InfluxdbConfig() *InfluxdbNotifierConfig {
+	return c.config.Notifiers.Influxdb
 }
 
 func (c *ConsulAlertClient) registerHealthCheck(key string, health *Check) {
