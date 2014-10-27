@@ -149,12 +149,12 @@ var defaultTemplate string = `
 				<strong>Node: </strong>
 				<strong>{{ $name }}</strong>
 			</div>
-			
+
 			{{ range $check := $checks }}
 			<div style="margin-top: 15px; padding: 10px; background-color: {{ if $check.IsCritical }}#e13329{{ else if $check.IsWarning }}#eebb00{{ else if $check.IsPassing }}#24c75a{{ end }};">
 				<div style="font-weight: bold; font-size: 1.1em;">
 					{{ with $check.Service }}
-					{{ $check.Service }}:  
+					{{ $check.Service }}:
 					{{ end }}
 					{{ $check.Check }}
 				</div>
@@ -178,7 +178,7 @@ var defaultTemplate string = `
 		</div>
 		{{ end }}
 
-	
+
 	</body>
 
 </html>

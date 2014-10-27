@@ -47,7 +47,7 @@ func processEvents() {
 
 func processEvent(event consul.Event) {
 	log.Println("----------------------------------------")
-	log.Printf("Proccessing event %s:\n", event.ID)
+	log.Printf("Processing event %s:\n", event.ID)
 	log.Println("----------------------------------------")
 	eventHandlers := consulClient.EventHandlers(event.Name)
 	for _, eventHandler := range eventHandlers {
