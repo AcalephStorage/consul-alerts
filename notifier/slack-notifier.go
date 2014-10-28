@@ -3,10 +3,11 @@ package notifier
 import (
 	"bytes"
 	"fmt"
-	"log"
 
 	"encoding/json"
 	"net/http"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 const SlackUrl = "https://%s.slack.com/services/hooks/incoming-webhook?token=%s"

@@ -2,13 +2,14 @@ package main
 
 import (
 	"bytes"
-	"log"
 
 	"encoding/json"
 	"net/http"
 	"os/exec"
 
 	"github.com/AcalephStorage/consul-alerts/consul"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 var eventsChannel = make(chan []consul.Event)

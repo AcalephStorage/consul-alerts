@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"log"
 	"time"
 
 	"encoding/json"
@@ -11,6 +10,8 @@ import (
 
 	"github.com/AcalephStorage/consul-alerts/consul"
 	"github.com/AcalephStorage/consul-alerts/notifier"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 var checksChannel = make(chan []consul.Check, 1)

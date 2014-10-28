@@ -2,13 +2,14 @@ package main
 
 import (
 	"io"
-	"log"
 	"os"
 	"syscall"
 
 	"encoding/json"
 	"io/ioutil"
 	"os/exec"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 func runWatcher(address, datacenter, watchType string) {

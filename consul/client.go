@@ -2,13 +2,13 @@ package consul
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 	"time"
 
 	"encoding/json"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/armon/consul-api"
 )
 

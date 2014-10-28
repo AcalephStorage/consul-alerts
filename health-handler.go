@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"log"
 
 	"net/http"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {

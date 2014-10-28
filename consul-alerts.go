@@ -4,7 +4,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"syscall"
 
@@ -14,6 +13,7 @@ import (
 	"github.com/AcalephStorage/consul-alerts/consul"
 	"github.com/AcalephStorage/consul-alerts/notifier"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/docopt/docopt-go"
 )
 

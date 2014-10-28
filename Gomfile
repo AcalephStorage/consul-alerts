@@ -1,2 +1,3 @@
 gom 'github.com/armon/consul-api', :commit => '045662de1042be0662fe4a1e21b57c8f7669261a'
 gom 'github.com/docopt/docopt-go', :commit => 'c5dac536301992c0371c6115d998fb62944bfad3'
+gom 'github.com/Sirupsen/logrus', :commit => '6ebb4e7b3c24b9fef150d7693e728cb1ebadf1f5'

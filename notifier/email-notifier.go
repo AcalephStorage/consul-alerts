@@ -3,10 +3,11 @@ package notifier
 import (
 	"bytes"
 	"fmt"
-	"log"
 
 	"html/template"
 	"net/smtp"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 type EmailNotifier struct {
