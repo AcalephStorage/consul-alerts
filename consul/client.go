@@ -26,19 +26,27 @@ type ConsulAlertClient struct {
 	config *ConsulAlertConfig
 }
 
-func NewClient(address, dc string) *ConsulAlertClient {
+func NewClient(address, dc string) (*ConsulAlertClient, error) {
 	config := consulapi.DefaultConfig()
 	config.Address = address
 	config.Datacenter = dc
+	config.HttpClient.Timeout = 5 * time.Second
 	api, _ := consulapi.NewClient(config)
 	alertConfig := DefaultAlertConfig()
+
 	client := &ConsulAlertClient{
 		api:    api,
 		config: alertConfig,
 	}
+
+	log.Println("Checking consul agent connection...")
+	if _, err := client.api.Status().Leader(); err != nil {
+		return nil, err
+	}
+
 	client.LoadConfig()
 	client.UpdateCheckData()
-	return client
+	return client, nil
 }
 
 func (c *ConsulAlertClient) LoadConfig() {
@@ -122,9 +130,9 @@ func (c *ConsulAlertClient) LoadConfig() {
 				valErr = loadCustomValue(&config.Notifiers.Slack.Team, val, ConfigTypeString)
 			case "consul-alerts/config/notifiers/slack/token":
 				valErr = loadCustomValue(&config.Notifiers.Slack.Token, val, ConfigTypeString)
-			case "consul-alerts/config/notifiers/slack/Channel":
+			case "consul-alerts/config/notifiers/slack/channel":
 				valErr = loadCustomValue(&config.Notifiers.Slack.Channel, val, ConfigTypeString)
-			case "consul-alerts/config/notifiers/slack/Username":
+			case "consul-alerts/config/notifiers/slack/username":
 				valErr = loadCustomValue(&config.Notifiers.Slack.Username, val, ConfigTypeString)
 			case "consul-alerts/config/notifiers/slack/icon-url":
 				valErr = loadCustomValue(&config.Notifiers.Slack.IconUrl, val, ConfigTypeString)

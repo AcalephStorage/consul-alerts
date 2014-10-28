@@ -66,7 +66,11 @@ func daemonMode(arguments map[string]interface{}) {
 	watchChecks := arguments["--watch-checks"].(bool)
 	watchEvents := arguments["--watch-events"].(bool)
 
-	consulClient = consul.NewClient(consulAddr, consulDc)
+	consulClient, err = consul.NewClient(consulAddr, consulDc)
+	if err != nil {
+		log.Println("Cluster has no leader or is unreacheable.", err)
+		os.Exit(3)
+	}
 
 	log.Println("Consul Alerts daemon started")
 	log.Println("Consul Agent:", consulAddr)

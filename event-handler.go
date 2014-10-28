@@ -11,7 +11,7 @@ import (
 	"github.com/AcalephStorage/consul-alerts/consul"
 )
 
-var eventsChannel chan []consul.Event = make(chan []consul.Event)
+var eventsChannel = make(chan []consul.Event)
 
 var firstEventRun bool = true
 

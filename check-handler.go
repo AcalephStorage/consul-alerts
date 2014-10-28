@@ -13,7 +13,7 @@ import (
 	"github.com/AcalephStorage/consul-alerts/notifier"
 )
 
-var checksChannel chan []consul.Check = make(chan []consul.Check, 1)
+var checksChannel = make(chan []consul.Check, 1)
 var firstCheckRun = true
 
 func checkHandler(w http.ResponseWriter, r *http.Request) {

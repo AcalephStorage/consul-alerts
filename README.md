@@ -3,8 +3,9 @@ consul-alerts
 
 A simple daemon to send notifications based on Consul health checks. 
 
-Requirement:
-consul 0.4+
+## Requirement
+
+[Awesome Consul 0.4+](http://consul.io)
 
 ## Installation
 
@@ -59,7 +60,7 @@ Handlers can be configured by adding them to `consul-alert/config/events/handler
 
 ### Notifiers
 
-There are four builtin notifiers. Only the *Log* notifier is enabled by default. It is also possible to add custom notifiers similar to custom event handlers.
+There are four builtin notifiers. Only the *Log* notifier is enabled by default. It is also possible to add custom notifiers similar to custom event handlers. Custom notifiers can be added in `consul-alerts/config/notifiers/custom`.
 
 #### Logger
 
