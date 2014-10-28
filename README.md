@@ -1,52 +1,56 @@
 consul-alerts
 =============
 
-A simple daemon to send notifications based on Consul health checks. 
+A simple daemon to send notifications based on Consul health checks.
 
 ## Requirement
 
 [Awesome Consul 0.4+](http://consul.io)
 
-## Installation
+Installation
+------------
 
-~~~
+```
 $ make deps
 $ make install-global
-~~~
+```
 
 This should install consul-alerts to `$GOPATH/bin`
 
-## Usage
-~~~
-$ consul-alerts start 
-~~~
+Usage
+-----
+
+```
+$ consul-alerts start
+```
 
 By default, this runs the daemon and API at localhost:9000 and connects to the local consul agent (localhost:8500) and default datacenter (dc1). These can be overriden by the following flags:
-~~~
+
+```
 $ consul-alerts start --alert-addr=localhost:9000 --consul-addr=localhost:8500 --consul-dc=dc1
-~~~
+```
 
 Once the daemon is running, it can act as a handler for consul watches. At the moment only checks and events are supported.
 
-~~~
+```
 $ consul watch -type checks consul-alerts watch checks [--alert-addr=localhost:9000]
 $ consul watch -type event consul-alerts watch event [--alert-addr=localhost:9000]
-~~~
+```
 
 or run the watchers on the agent the daemon connects by adding the following flags during consul-alerts run:
 
-~~~
+```
 $ consul-alerts start --watch-events --watch-checks
-~~~
+```
 
-## Configuration
+Configuration
+-------------
 
 All configurations are stored in consul's KV with the prefix: `consul-alerts/config/`. The daemon is using default values and the KV entries will only override the defaults.
 
 ### Health Checks
 
-Health checking is enabled by default. This also triggers the notification when a check has changed status for a configured duration. Health checks can be disabled by setting the kv 
-`consul-alert/config/checks/enabled` to `false`.
+Health checking is enabled by default. This also triggers the notification when a check has changed status for a configured duration. Health checks can be disabled by setting the kv`consul-alert/config/checks/enabled` to `false`.
 
 To prevent flapping, notifications are only sent when a check status has been stable for a specific time in seconds (60 by default). this value can be changed by adding/changing the kv `consul-alert/config/checks/change-threshold` to an integer greater than and divisible by 10.
 
@@ -98,7 +102,7 @@ This sends the notifications as series points in influxdb. Set `consul-alert/con
 prefix: `consul-alert/config/notifiers/influxdb/`
 
 | key         | description                                    |
-|-------------|------------------------------------------------|  
+|-------------|------------------------------------------------|
 | enabled     | Enable the influxdb notifier. [Default: false] |
 | host        | The influxdb host. (eg. localhost:8086)        |
 | username    | The influxdb username                          |
@@ -123,7 +127,8 @@ prefix: `consul-alert/config/notifiers/slack/`
 | icon-url     | URL of a custom image for the notification          |
 | icon-emoji   | Emoji (if not using icon-url) for the notification  |
 
-## Health Check via API
+Health Check via API
+--------------------
 
 Health status can also be queried via the API. This can be used for compatibility with nagios, sensu, or other monitoring tools. To get the status of a specific check, use the following entrypoint.
 
@@ -133,15 +138,17 @@ This will return the output of the check and the following HTTP codes:
 
 | Status   | Code |
 |----------|------|
-| passsing | 200  |
+| passing  | 200  |
 | warning  | 503  |
 | critical | 503  |
 | unknown  | 404  |
 
-## Contribution
+Contribution
+------------
 
-PRs are more than welcome. Just fork, create a feature branch, and open a PR. We love PRs. :) 
+PRs are more than welcome. Just fork, create a feature branch, and open a PR. We love PRs. :)
 
-## TODO
+TODO
+----
 
 This is a port from a tool we developed recently, there are still a few things missing like loading a custom configuration via command/api instead of manually editing consul's KV. Also need to set up a reminder feature. Needs better doc and some cleanup too. :)
