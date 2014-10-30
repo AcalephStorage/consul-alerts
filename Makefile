@@ -1,7 +1,7 @@
 APP_NAME = consul-alerts
 VERSION = 0.1.0
 
-all: clean package
+all: clean build
 
 clean:
 	@echo "--> Cleaning build"
@@ -17,12 +17,16 @@ format:
 	@echo "--> Formatting source code"
 	@go fmt ./...
 
-test: prepare
+test: prepare format
 	@echo "--> Testing application"
 	@go test -outputdir build/test ./...
 
 build: test
-	@echo "--> Building application"
+	@echo "--> Building local application"
+	@go build -o build/bin/linux-386/${VERSION}/${APP_NAME} -v .
+
+build-all: test
+	@echo "--> Building all application"
 	@echo "... linux-386"
 	@GOOS=linux GOARCH=386 go build -o build/bin/linux-386/${VERSION}/${APP_NAME} -v .
 	@echo "... linux-amd64"
@@ -30,7 +34,7 @@ build: test
 	@echo "... darwin-amd64"
 	@GOOS=darwin GOARCH=amd64 go build -o build/bin/darwin-amd64/${VERSION}/${APP_NAME} -v .
 
-package: build
+package: build-all
 	@echo "--> Packaging application"
 	@tar cf build/tar/${APP_NAME}-${VERSION}-linux-386.tar -C build/bin/linux-386/${VERSION} ${APP_NAME}
 	@tar cf build/tar/${APP_NAME}-${VERSION}-linux-amd64.tar -C build/bin/linux-amd64/${VERSION} ${APP_NAME}
