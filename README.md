@@ -21,7 +21,7 @@ This should install consul-alerts to `$GOPATH/bin`
 or pull the image from `docker`:
 
 ```
-$ docker pull darkcrux/consul-alerts
+$ docker pull acaleph/consul-alerts
 ```
 
 Usage
@@ -34,7 +34,7 @@ $ consul-alerts start
 or using docker:
 
 ```
-$ docker run darkcrux/consul-alerts start
+$ docker run acaleph/consul-alerts start
 ```
 
 By default, this runs the daemon and API at localhost:9000 and connects to the local consul agent (localhost:8500) and default datacenter (dc1). These can be overriden by the following flags:
