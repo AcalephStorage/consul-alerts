@@ -18,6 +18,12 @@ $ go install
 
 This should install consul-alerts to `$GOPATH/bin`
 
+or pull the image from `docker`:
+
+```
+$ docker pull darkcrux/consul-alerts
+```
+
 Usage
 -----
 
@@ -25,11 +31,19 @@ Usage
 $ consul-alerts start
 ```
 
+or using docker:
+
+```
+$ docker run darkcrux/consul-alerts start
+```
+
 By default, this runs the daemon and API at localhost:9000 and connects to the local consul agent (localhost:8500) and default datacenter (dc1). These can be overriden by the following flags:
 
 ```
 $ consul-alerts start --alert-addr=localhost:9000 --consul-addr=localhost:8500 --consul-dc=dc1
 ```
+
+Note: Don't change --alert-addr when using the docker container.
 
 Once the daemon is running, it can act as a handler for consul watches. At the moment only checks and events are supported.
 
