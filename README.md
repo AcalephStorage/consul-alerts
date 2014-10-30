@@ -5,14 +5,15 @@ A simple daemon to send notifications based on Consul health checks.
 
 ## Requirement
 
-[Awesome Consul 0.4+](http://consul.io)
+1. Consul 0.4+. Get it [here](http://consul.io).
+2. Configured `GOPATH`.
 
 Installation
 ------------
 
 ```
-$ make deps
-$ make install-global
+$ go get github.com/AcalephStorage/consul-alerts
+$ go install
 ```
 
 This should install consul-alerts to `$GOPATH/bin`

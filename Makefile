@@ -1,35 +1,37 @@
 APP_NAME = consul-alerts
+VERSION = 0.1
 
-all: clean deps install-global
+all: clean package
 
 clean:
 	@echo "--> Cleaning build"
 	@rm -rf ./build
 
 prepare:
-	@mkdir -p build/bin/${PLATFORM}
+	@mkdir -p build/bin/{linux-386,linux-amd64,darwin-amd64}
 	@mkdir -p build/test
 	@mkdir -p build/doc
 	@mkdir -p build/tar
 
-deps:
-	@echo "--> Getting Dependencies"
-	@go get github.com/mattn/gom
-	@go install github.com/mattn/gom
-	@gom install
-
 format:
 	@echo "--> Formatting source code"
-	@gom exec go fmt ./...
+	@go fmt ./...
 
 test: prepare
 	@echo "--> Testing application"
-	@gom exec go test -outputdir build/test ./...
+	@go test -outputdir build/test ./...
 
 build: test
 	@echo "--> Building application"
-	@gom exec go build -o build/bin/${APP_NAME} -v .
+	@echo "... linux-386"
+	@GOOS=linux GOARCH=386 go build -o build/bin/linux-386/${VERSION}/${APP_NAME} -v .
+	@echo "... linux-amd64"
+	@GOOS=linux GOARCH=amd64 go build -o build/bin/linux-amd64/${VERSION}/${APP_NAME} -v .
+	@echo "... darwin-amd64"
+	@GOOS=darwin GOARCH=amd64 go build -o build/bin/darwin-amd64/${VERSION}/${APP_NAME} -v .
 
-install-global: build
-	@echo "--> Installing app"
-	@gom exec cp build/bin/${APP_NAME} ${GOPATH}/bin/
+package: build
+	@echo "--> Packaging application"
+	@tar cf build/tar/${APP_NAME}-${VERSION}-linux-386.tar -C build/bin/linux-386/${VERSION} ${APP_NAME}
+	@tar cf build/tar/${APP_NAME}-${VERSION}-linux-amd64.tar -C build/bin/linux-amd64/${VERSION} ${APP_NAME}
+	@tar cf build/tar/${APP_NAME}-${VERSION}-darwin-amd64.tar -C build/bin/darwin-amd64/${VERSION} ${APP_NAME}

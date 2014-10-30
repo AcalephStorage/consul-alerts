@@ -13,8 +13,8 @@ import (
 	"github.com/AcalephStorage/consul-alerts/consul"
 	"github.com/AcalephStorage/consul-alerts/notifier"
 
-	log "github.com/Sirupsen/logrus"
-	"github.com/docopt/docopt-go"
+	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
+	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/docopt/docopt-go"
 )
 
 const version = "Consul Alerts 0.1"

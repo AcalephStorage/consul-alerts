@@ -25,3 +25,4 @@ _testmain.go
 
 /_vendor
 /build
+.DS_Store

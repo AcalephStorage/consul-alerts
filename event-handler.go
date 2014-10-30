@@ -9,7 +9,7 @@ import (
 
 	"github.com/AcalephStorage/consul-alerts/consul"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
 )
 
 var eventsChannel = make(chan []consul.Event)

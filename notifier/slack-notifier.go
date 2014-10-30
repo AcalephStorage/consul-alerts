@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
 )
 
 const SlackUrl = "https://%s.slack.com/services/hooks/incoming-webhook?token=%s"
