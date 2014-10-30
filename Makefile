@@ -1,5 +1,5 @@
 APP_NAME = consul-alerts
-VERSION = 0.1
+VERSION = 0.1.0
 
 all: clean package
 
