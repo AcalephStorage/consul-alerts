@@ -52,7 +52,7 @@ func (m Messages) Summary() (overallStatus string, pass, warn, fail int) {
 		}
 	}
 	if hasCritical {
-		overallStatus = SYSTEM_HEALTHY
+		overallStatus = SYSTEM_CRITICAL
 	} else if hasWarnings {
 		overallStatus = SYSTEM_UNSTABLE
 	} else {
