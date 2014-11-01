@@ -65,17 +65,17 @@ All configurations are stored in consul's KV with the prefix: `consul-alerts/con
 
 ### Health Checks
 
-Health checking is enabled by default. This also triggers the notification when a check has changed status for a configured duration. Health checks can be disabled by setting the kv`consul-alert/config/checks/enabled` to `false`.
+Health checking is enabled by default. This also triggers the notification when a check has changed status for a configured duration. Health checks can be disabled by setting the kv`consul-alerts/config/checks/enabled` to `false`.
 
-To prevent flapping, notifications are only sent when a check status has been stable for a specific time in seconds (60 by default). this value can be changed by adding/changing the kv `consul-alert/config/checks/change-threshold` to an integer greater than and divisible by 10.
+To prevent flapping, notifications are only sent when a check status has been stable for a specific time in seconds (60 by default). this value can be changed by adding/changing the kv `consul-alerts/config/checks/change-threshold` to an integer greater than and divisible by 10.
 
-eg. `consul-alert/config/checks/change-threshold` = `30`
+eg. `consul-alerts/config/checks/change-threshold` = `30`
 
 ### Events
 
-Event handling is enabled by default. This delegates any consul event received by the agent to the list of handlers configured. To disable event handling, set `consul-alert/config/events/enabled` to `false`.
+Event handling is enabled by default. This delegates any consul event received by the agent to the list of handlers configured. To disable event handling, set `consul-alerts/config/events/enabled` to `false`.
 
-Handlers can be configured by adding them to `consul-alert/config/events/handlers`. This should be a JSON array of string. Each string should point to any executable. The event data should be read from `stdin`.
+Handlers can be configured by adding them to `consul-alerts/config/events/handlers`. This should be a JSON array of string. Each string should point to any executable. The event data should be read from `stdin`.
 
 ### Notifiers
 
@@ -83,17 +83,17 @@ There are four builtin notifiers. Only the *Log* notifier is enabled by default.
 
 #### Logger
 
-This logs any health check notification to a file. To disable this notifier, set `consul-alert/config/notifiers/log/enabled` to `false`.
+This logs any health check notification to a file. To disable this notifier, set `consul-alerts/config/notifiers/log/enabled` to `false`.
 
-The log file is set to `/tmp/consul-notifications.log` by default. This can be changed by changing `consul-alert/config/notifiers/log/path`.
+The log file is set to `/tmp/consul-notifications.log` by default. This can be changed by changing `consul-alerts/config/notifiers/log/path`.
 
 #### Email
 
-This emails the health notifications. To enable this, set `consul-alert/config/notifiers/email/enabled` to `true`.
+This emails the health notifications. To enable this, set `consul-alerts/config/notifiers/email/enabled` to `true`.
 
 The email and smtp details needs to be configured:
 
-prefix: `consul-alert/config/notifiers/email/`
+prefix: `consul-alerts/config/notifiers/email/`
 
 | key          | description                                                 |
 |--------------|-------------------------------------------------------------|
@@ -112,9 +112,9 @@ The template can be any go html template. An `EmailData` instance will be passed
 
 #### InfluxDB
 
-This sends the notifications as series points in influxdb. Set `consul-alert/config/notifiers/influxdb/enabled` to `true` to enabled. InfluxDB details need to be set too.
+This sends the notifications as series points in influxdb. Set `consul-alerts/config/notifiers/influxdb/enabled` to `true` to enabled. InfluxDB details need to be set too.
 
-prefix: `consul-alert/config/notifiers/influxdb/`
+prefix: `consul-alerts/config/notifiers/influxdb/`
 
 | key         | description                                    |
 |-------------|------------------------------------------------|
@@ -127,9 +127,9 @@ prefix: `consul-alert/config/notifiers/influxdb/`
 
 #### Slack
 
-Slack integration is also supported. To enable, set `consul-alert/config/notifiers/slack/enabled` to `true`. Slack details needs to be configured.
+Slack integration is also supported. To enable, set `consul-alerts/config/notifiers/slack/enabled` to `true`. Slack details needs to be configured.
 
-prefix: `consul-alert/config/notifiers/slack/`
+prefix: `consul-alerts/config/notifiers/slack/`
 
 | key          | description                                         |
 |--------------|-----------------------------------------------------|
