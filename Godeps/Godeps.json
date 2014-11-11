@@ -15,6 +15,10 @@
 			"Rev": "045662de1042be0662fe4a1e21b57c8f7669261a"
 		},
 		{
+			"ImportPath": "github.com/darkcrux/gopherduty",
+			"Rev": "4109bd05b098e838121a112b122f9a4102bcfc43"
+		},
+		{
 			"ImportPath": "github.com/docopt/docopt-go",
 			"Comment": "0.6.1-1-gc5dac53",
 			"Rev": "c5dac536301992c0371c6115d998fb62944bfad3"
