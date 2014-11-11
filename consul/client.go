@@ -139,6 +139,15 @@ func (c *ConsulAlertClient) LoadConfig() {
 			case "consul-alerts/config/notifiers/slack/icon-emoji":
 				valErr = loadCustomValue(&config.Notifiers.Slack.IconEmoji, val, ConfigTypeString)
 
+			case "consul-alerts/config/notifiers/pagerduty/enabled":
+				valErr = loadCustomValue(&config.Notifiers.PagerDuty.Enabled, val, ConfigTypeBool)
+			case "consul-alerts/config/notifiers/pagerduty/service-key":
+				valErr = loadCustomValue(&config.Notifiers.PagerDuty.ServiceKey, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/pagerduty/client-name":
+				valErr = loadCustomValue(&config.Notifiers.PagerDuty.ClientName, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/pagerduty/client-url":
+				valErr = loadCustomValue(&config.Notifiers.PagerDuty.ClientUrl, val, ConfigTypeString)
+
 			}
 
 			if valErr != nil {
@@ -261,6 +270,10 @@ func (c *ConsulAlertClient) InfluxdbConfig() *InfluxdbNotifierConfig {
 
 func (c *ConsulAlertClient) SlackConfig() *SlackNotifierConfig {
 	return c.config.Notifiers.Slack
+}
+
+func (c *ConsulAlertClient) PagerDutyConfig() *PagerDutyNotifierConfig {
+	return c.config.Notifiers.PagerDuty
 }
 
 func (c *ConsulAlertClient) registerHealthCheck(key string, health *Check) {

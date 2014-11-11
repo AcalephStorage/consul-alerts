@@ -9,6 +9,7 @@ const (
 )
 
 type Message struct {
+	Id        string
 	Node      string
 	Service   string
 	Check     string

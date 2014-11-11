@@ -1,0 +1,46 @@
+package notifier
+
+import (
+	"github.com/darkcrux/gopherduty"
+
+	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
+)
+
+type PagerDutyNotifier struct {
+	ServiceKey string
+	ClientName string
+	ClientUrl  string
+}
+
+func (pd *PagerDutyNotifier) Notify(messages Messages) bool {
+
+	client := gopherduty.NewClient(pd.ServiceKey)
+
+	result := true
+
+	for _, message := range messages {
+		incidentKey := message.Id
+		var response *gopherduty.PagerDutyResponse
+		switch {
+		case message.IsPassing():
+			description := incidentKey + " is now HEALTHY"
+			response = client.Resolve(incidentKey, description, message)
+		case message.IsWarning():
+			description := incidentKey + " is UNSTABLE"
+			response = client.Trigger(incidentKey, description, pd.ClientName, pd.ClientUrl, message)
+		case message.IsCritical():
+			description := incidentKey + " is CRITICAL"
+			response = client.Trigger(incidentKey, description, pd.ClientName, pd.ClientUrl, message)
+		}
+
+		if response.HasErrors() {
+			for _, err := range response.Errors {
+				log.Printf("Error sending %s notification to pagerduty: %s\n", incidentKey, err)
+			}
+			result = false
+		}
+	}
+
+	log.Println("PagerDuty notification complete")
+	return result
+}

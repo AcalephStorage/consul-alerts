@@ -41,11 +41,12 @@ type EventsConfig struct {
 }
 
 type NotifiersConfig struct {
-	Email    *EmailNotifierConfig
-	Log      *LogNotifierConfig
-	Influxdb *InfluxdbNotifierConfig
-	Slack    *SlackNotifierConfig
-	Custom   []string
+	Email     *EmailNotifierConfig
+	Log       *LogNotifierConfig
+	Influxdb  *InfluxdbNotifierConfig
+	Slack     *SlackNotifierConfig
+	PagerDuty *PagerDutyNotifierConfig
+	Custom    []string
 }
 
 type EmailNotifierConfig struct {
@@ -86,6 +87,13 @@ type SlackNotifierConfig struct {
 	IconEmoji   string
 }
 
+type PagerDutyNotifierConfig struct {
+	Enabled    bool
+	ServiceKey string
+	ClientName string
+	ClientUrl  string
+}
+
 type Status struct {
 	Current          string
 	CurrentTimestamp time.Time
@@ -106,6 +114,7 @@ type Consul interface {
 	LogConfig() *LogNotifierConfig
 	InfluxdbConfig() *InfluxdbNotifierConfig
 	SlackConfig() *SlackNotifierConfig
+	PagerDutyConfig() *PagerDutyNotifierConfig
 
 	CheckChangeThreshold() int
 	UpdateCheckData()
@@ -150,12 +159,17 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 		ClusterName: "Consul-Alerts",
 	}
 
+	pagerduty := &PagerDutyNotifierConfig{
+		Enabled: false,
+	}
+
 	notifiers := &NotifiersConfig{
-		Email:    email,
-		Log:      log,
-		Influxdb: influxdb,
-		Slack:    slack,
-		Custom:   []string{},
+		Email:     email,
+		Log:       log,
+		Influxdb:  influxdb,
+		Slack:     slack,
+		PagerDuty: pagerduty,
+		Custom:    []string{},
 	}
 
 	return &ConsulAlertConfig{

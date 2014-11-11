@@ -142,6 +142,19 @@ prefix: `consul-alerts/config/notifiers/slack/`
 | icon-url     | URL of a custom image for the notification          |
 | icon-emoji   | Emoji (if not using icon-url) for the notification  |
 
+#### PagerDuty
+
+To enable PagerDuty built-in notifier, set `consul-alerts/config/notifiers/pagerduty/enabled` to `true`. This is disabled by default. Service key and client details also needs to be configured.
+
+prefix: `consul-alerts/config/notifiers/pagerduty/`
+
+| key         | description                                     |
+|-------------|-------------------------------------------------|
+| enabled     | Enable the PagerDuty notifier. [Default: false] |
+| service-key | Service key to access PagerDuty                 |
+| client-name | The monitoring client name                      |
+| client-url  | The monitoring client url                       |
+
 Health Check via API
 --------------------
 

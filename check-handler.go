@@ -69,6 +69,7 @@ func notify(alerts []consul.Check) {
 	messages := make([]notifier.Message, len(alerts))
 	for i, alert := range alerts {
 		messages[i] = notifier.Message{
+			Id:        alert.Node + ":" + alert.CheckID,
 			Node:      alert.Node,
 			Service:   alert.ServiceName,
 			Check:     alert.Name,

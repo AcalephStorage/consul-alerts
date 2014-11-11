@@ -17,7 +17,7 @@ import (
 	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/docopt/docopt-go"
 )
 
-const version = "Consul Alerts 0.1.1"
+const version = "Consul Alerts 0.1.2-dev"
 const usage = `Consul Alerts.
 
 Usage:
@@ -138,6 +138,7 @@ func builtinNotifiers() []notifier.Notifier {
 	logConfig := consulClient.LogConfig()
 	influxdbConfig := consulClient.InfluxdbConfig()
 	slackConfig := consulClient.SlackConfig()
+	pagerdutyConfig := consulClient.PagerDutyConfig()
 
 	notifiers := []notifier.Notifier{}
 	if emailConfig.Enabled {
@@ -181,6 +182,14 @@ func builtinNotifiers() []notifier.Notifier {
 			IconEmoji:   slackConfig.IconEmoji,
 		}
 		notifiers = append(notifiers, slackNotifier)
+	}
+	if pagerdutyConfig.Enabled {
+		pagerdutyNotifier := &notifier.PagerDutyNotifier{
+			ServiceKey: pagerdutyConfig.ServiceKey,
+			ClientName: pagerdutyConfig.ClientName,
+			ClientUrl:  pagerdutyConfig.ClientUrl,
+		}
+		notifiers = append(notifiers, pagerdutyNotifier)
 	}
 
 	return notifiers
