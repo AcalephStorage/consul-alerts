@@ -9,9 +9,10 @@ const (
 )
 
 type Message struct {
-	Id        string
 	Node      string
+	ServiceId string
 	Service   string
+	CheckId   string
 	Check     string
 	Status    string
 	Output    string
