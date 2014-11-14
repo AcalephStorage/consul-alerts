@@ -56,11 +56,13 @@ func (slack *SlackNotifier) Notify(messages Messages) bool {
 		defer res.Body.Close()
 		statusCode := res.StatusCode
 		if statusCode != 200 {
-			body, err := ioutil.ReadAll(res.Body)
-			log.Println("Unable to notify slack:", body, err)
+			body, _ := ioutil.ReadAll(res.Body)
+			log.Println("Unable to notify slack:", string(body))
+			return false
+		} else {
+			log.Println("Slack notification sent.")
+			return true
 		}
-		log.Println("Slack notification sent.")
-		return true
 	}
 
 }
