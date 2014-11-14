@@ -149,7 +149,9 @@ prefix: `consul-alerts/config/notifiers/influxdb/`
 
 #### Slack
 
-Slack integration is also supported. To enable, set `consul-alerts/config/notifiers/slack/enabled` to `true`. Slack details needs to be configured.
+Slack integration is also supported. To enable, set
+`consul-alerts/config/notifiers/slack/enabled` to `true`. Slack details needs to
+be configured.
 
 prefix: `consul-alerts/config/notifiers/slack/`
 
@@ -157,12 +159,16 @@ prefix: `consul-alerts/config/notifiers/slack/`
 |--------------|-----------------------------------------------------|
 | enabled      | Enable the Slack notifier. [Default: false]         |
 | cluster-name | The name of the cluster. [Default: "Consul Alerts"] |
-| team         | The slack team name                                 |
-| token        | The token for the webhook api                       |
-| channel      | The channel to post the notification                |
+| team         | The slack team name (mandatory)                     |
+| token        | The token for the webhook api (mandatory)           |
+| channel      | The channel to post the notification (mandatory)    |
 | username     | The username to appear on the post                  |
 | icon-url     | URL of a custom image for the notification          |
 | icon-emoji   | Emoji (if not using icon-url) for the notification  |
+
+In order to enable slack integration, you have to create a new
+[_Incoming WebHooks_](https://sensiolabs.slack.com/services/new). Then use the
+token created by the previous action.
 
 #### PagerDuty
 
