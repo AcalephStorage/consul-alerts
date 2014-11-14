@@ -33,7 +33,6 @@ func checkHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(checksChannel) == 1 {
-		log.Println("replacing health check request queue.")
 		<-checksChannel
 	}
 
@@ -66,12 +65,9 @@ func processChecks() {
 }
 
 func notify(alerts []consul.Check) {
-
-	blacklist := consulClient.CheckBlackList()
-
-	messages := make([]notifier.Message, 0)
-	for _, alert := range alerts {
-		msg := notifier.Message{
+	messages := make([]notifier.Message, len(alerts))
+	for i, alert := range alerts {
+		messages[i] = notifier.Message{
 			Node:      alert.Node,
 			ServiceId: alert.ServiceID,
 			Service:   alert.ServiceName,
@@ -81,11 +77,6 @@ func notify(alerts []consul.Check) {
 			Output:    alert.Output,
 			Notes:     alert.Notes,
 			Timestamp: time.Now(),
-		}
-		if !blacklisted(msg, blacklist.Nodes, blacklist.Checks) {
-			messages = append(messages, msg)
-		} else {
-			log.Printf("%s:%s:%s is blacklisted. will not notify.", msg.Node, msg.ServiceId, msg.CheckId)
 		}
 	}
 
@@ -123,22 +114,4 @@ func executeHealthNotifier(messages []notifier.Message, notifCmd string) {
 	}
 	log.Println(output)
 
-}
-
-func blacklisted(msg notifier.Message, blacklistedNodes, blacklistedChecks []string) bool {
-	nodeBlacklisted := false
-	checkBlacklisted := false
-	for _, blacklistedNode := range blacklistedNodes {
-		if msg.Node == blacklistedNode {
-			nodeBlacklisted = true
-			break
-		}
-	}
-	for _, blacklistedCheck := range blacklistedChecks {
-		if msg.CheckId == blacklistedCheck {
-			checkBlacklisted = true
-			break
-		}
-	}
-	return nodeBlacklisted || checkBlacklisted
 }

@@ -66,10 +66,6 @@ func (c *ConsulAlertClient) LoadConfig() {
 				valErr = loadCustomValue(&config.Checks.Enabled, val, ConfigTypeBool)
 			case "consul-alerts/config/checks/change-threshold":
 				valErr = loadCustomValue(&config.Checks.ChangeThreshold, val, ConfigTypeInt)
-			case "consul-alerts/config/checks/blacklist/nodes":
-				valErr = loadCustomValue(&config.Checks.Blacklist.Nodes, val, ConfigTypeStrArray)
-			case "consul-alerts/config/checks/blacklist/checks":
-				valErr = loadCustomValue(&config.Checks.Blacklist.Checks, val, ConfigTypeStrArray)
 
 			// events config
 			case "consul-alerts/config/events/enabled":
@@ -203,10 +199,6 @@ func (c *ConsulAlertClient) CheckChangeThreshold() int {
 	return c.config.Checks.ChangeThreshold
 }
 
-func (c *ConsulAlertClient) CheckBlackList() *CheckBlackListConfig {
-	return c.config.Checks.Blacklist
-}
-
 func (c *ConsulAlertClient) UpdateCheckData() {
 	healthApi := c.api.Health()
 	kvApi := c.api.KV()
@@ -256,8 +248,6 @@ func (c *ConsulAlertClient) NewAlerts() []Check {
 
 			if !c.IsBlacklisted(status.HealthCheck) {
 				alerts = append(alerts, *status.HealthCheck)
-			} else {
-				log.Printf("%s:%s:%s is blocklisted. Not adding to alert list.", status.HealthCheck.Node, status.HealthCheck.ServiceID, status.HealthCheck.CheckID)
 			}
 		}
 	}
@@ -420,23 +410,30 @@ func (c *ConsulAlertClient) CheckStatus(node, serviceId, checkId string) (status
 
 func (c *ConsulAlertClient) IsBlacklisted(check *Check) bool {
 	node := check.Node
+	nodeCheckKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/nodes/%s", node)
+	nodeBlacklisted := c.checkKeyExists(nodeCheckKey)
+
 	service := "_"
+	serviceBlacklisted := false
 	if check.ServiceID != "" {
 		service = check.ServiceID
+		serviceCheckKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/services/%s", service)
+		serviceBlacklisted = c.checkKeyExists(serviceCheckKey)
 	}
+
 	checkId := check.CheckID
-	key := fmt.Sprintf("consul-alerts/config/checks/%s/%s/%s/blacklisted", node, service, checkId)
+	checkCheckKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/checks/%s", checkId)
+	checkBlacklisted := c.checkKeyExists(checkCheckKey)
+
+	singleKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/single/%s/%s/%s", node, service, checkId)
+	singleBlacklisted := c.checkKeyExists(singleKey)
+
+	log.Printf("%s:%s:%s is blacklisted by = node: %v, service: %v, check: %v, specific: %v", node, service, checkId, nodeBlacklisted, serviceBlacklisted, checkBlacklisted, singleBlacklisted)
+
+	return nodeBlacklisted || serviceBlacklisted || checkBlacklisted || singleBlacklisted
+}
+
+func (c *ConsulAlertClient) checkKeyExists(key string) bool {
 	kvpair, _, err := c.api.KV().Get(key, nil)
-	if kvpair == nil || err != nil {
-		log.Printf("Unable to check blacklist for %s:%s:%s, return false", node, service, checkId)
-		return false
-	}
-	rawBool := kvpair.Value
-	blacklisted, err := strconv.ParseBool(string(rawBool))
-	if err != nil {
-		log.Printf("Unable to check blacklist for %s:%s:%s, return false", node, service, checkId)
-		return false
-	}
-	fmt.Println(key, blacklisted)
-	return blacklisted
+	return kvpair != nil && err == nil
 }

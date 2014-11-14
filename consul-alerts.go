@@ -17,7 +17,7 @@ import (
 	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/docopt/docopt-go"
 )
 
-const version = "Consul Alerts 0.1.2"
+const version = "Consul Alerts 0.2.0"
 const usage = `Consul Alerts.
 
 Usage:

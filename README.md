@@ -73,25 +73,23 @@ eg. `consul-alerts/config/checks/change-threshold` = `30`
 
 #### Enable/Disable Specific Health Checks
 
-There are three ways to enable/disable health checks: by node blacklist, check black list, and a fine grain method by specifying individual settings to node:service:check.
+There are four ways to enable/disable health check notifications: mark them by node, serviceID, checkID, or mark individually by node/serviceID/checkID. This is done by adding a KV entry in `consul-alerts/config/checks/blacklist/...`. Removing the entry will re-enable the check notifications.
 
-##### Node Blacklist
+##### Disable all notification by node
 
-To disable health checks for a node or nodes, add them to the node black list `consul-alerts/config/checks/blacklist/nodes`. This should be a JSON array of blacklisted nodes.
+Add a KV entry with the key `consul-alerts/config/checks/blacklist/nodes/{{ nodeName }}`. This will disable notifications for the specified `nodeName`.
 
-##### Check Blacklist
+##### Disable all notification by service
 
-To disable health checks for certain checks, add the check ID to the black list `consul-alerts/config/checks/blacklist/checks`. This should be a JSON array of blacklisted checks.
+Add a KV entry with the key `consul-alerts/config/checks/blacklist/services/{{ nodeName }}`. This will disable notifications for the specified `serviceId`.
 
-##### Custom Blacklist
+##### Disable all notification by healthCheck
 
-To have a finer control of blacklisting nodes for notifications, Use the following:
+Add a KV entry with the key `consul-alerts/config/checks/blacklist/checks/{{ checkId }}`. This will disable notifications for the specified `checkId`.
 
-key: `consul-alerts/config/checks/{{ node }}/{{ serviceID }}/{{ checkID }}/blacklisted`
+##### Disable a single health check
 
-value: `true|false`
-
-Just change the `node`, `serviceID`, and `checkID` to the specific health check you want to enable/disable. Use `_` if the check is not part of a service.
+Add a KV entry with the key `consul-alerts/config/checks/blacklist/single/{{ node }}/{{ serviceId }}/{{ checkId }}`. This will disable the specific health check. If the health check is not associated with a service, use the `_` as the serviceId.
 
 ### Events
 
