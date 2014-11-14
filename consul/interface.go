@@ -33,6 +33,12 @@ type ConsulAlertConfig struct {
 type ChecksConfig struct {
 	Enabled         bool
 	ChangeThreshold int
+	Blacklist       *CheckBlackListConfig
+}
+
+type CheckBlackListConfig struct {
+	Nodes  []string
+	Checks []string
 }
 
 type EventsConfig struct {
@@ -117,8 +123,11 @@ type Consul interface {
 	PagerDutyConfig() *PagerDutyNotifierConfig
 
 	CheckChangeThreshold() int
+	CheckBlackList() *CheckBlackListConfig
 	UpdateCheckData()
 	NewAlerts() []Check
+
+	IsBlacklisted(check *Check) bool
 
 	CustomNotifiers() []string
 
@@ -127,9 +136,15 @@ type Consul interface {
 
 func DefaultAlertConfig() *ConsulAlertConfig {
 
+	blacklist := &CheckBlackListConfig{
+		Nodes:  []string{},
+		Checks: []string{},
+	}
+
 	checks := &ChecksConfig{
 		Enabled:         true,
 		ChangeThreshold: 60,
+		Blacklist:       blacklist,
 	}
 
 	events := &EventsConfig{

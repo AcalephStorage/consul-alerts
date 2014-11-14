@@ -66,9 +66,12 @@ func processChecks() {
 }
 
 func notify(alerts []consul.Check) {
-	messages := make([]notifier.Message, len(alerts))
-	for i, alert := range alerts {
-		messages[i] = notifier.Message{
+
+	blacklist := consulClient.CheckBlackList()
+
+	messages := make([]notifier.Message, 0)
+	for _, alert := range alerts {
+		msg := notifier.Message{
 			Node:      alert.Node,
 			ServiceId: alert.ServiceID,
 			Service:   alert.ServiceName,
@@ -79,7 +82,18 @@ func notify(alerts []consul.Check) {
 			Notes:     alert.Notes,
 			Timestamp: time.Now(),
 		}
+		if !blacklisted(msg, blacklist.Nodes, blacklist.Checks) {
+			messages = append(messages, msg)
+		} else {
+			log.Printf("%s:%s:%s is blacklisted. will not notify.", msg.Node, msg.ServiceId, msg.CheckId)
+		}
 	}
+
+	if len(messages) == 0 {
+		log.Println("Nothing to notify.")
+		return
+	}
+
 	for _, n := range builtinNotifiers() {
 		n.Notify(messages)
 	}
@@ -109,4 +123,22 @@ func executeHealthNotifier(messages []notifier.Message, notifCmd string) {
 	}
 	log.Println(output)
 
+}
+
+func blacklisted(msg notifier.Message, blacklistedNodes, blacklistedChecks []string) bool {
+	nodeBlacklisted := false
+	checkBlacklisted := false
+	for _, blacklistedNode := range blacklistedNodes {
+		if msg.Node == blacklistedNode {
+			nodeBlacklisted = true
+			break
+		}
+	}
+	for _, blacklistedCheck := range blacklistedChecks {
+		if msg.CheckId == blacklistedCheck {
+			checkBlacklisted = true
+			break
+		}
+	}
+	return nodeBlacklisted || checkBlacklisted
 }

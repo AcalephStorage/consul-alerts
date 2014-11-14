@@ -71,6 +71,28 @@ To prevent flapping, notifications are only sent when a check status has been st
 
 eg. `consul-alerts/config/checks/change-threshold` = `30`
 
+#### Enable/Disable Specific Health Checks
+
+There are three ways to enable/disable health checks: by node blacklist, check black list, and a fine grain method by specifying individual settings to node:service:check.
+
+##### Node Blacklist
+
+To disable health checks for a node or nodes, add them to the node black list `consul-alerts/config/checks/blacklist/nodes`. This should be a JSON array of blacklisted nodes.
+
+##### Check Blacklist
+
+To disable health checks for certain checks, add the check ID to the black list `consul-alerts/config/checks/blacklist/checks`. This should be a JSON array of blacklisted checks.
+
+##### Custom Blacklist
+
+To have a finer control of blacklisting nodes for notifications, Use the following:
+
+key: `consul-alerts/config/checks/{{ node }}/{{ serviceID }}/{{ checkID }}/blacklisted`
+
+value: `true|false`
+
+Just change the `node`, `serviceID`, and `checkID` to the specific health check you want to enable/disable. Use `_` if the check is not part of a service.
+
 ### Events
 
 Event handling is enabled by default. This delegates any consul event received by the agent to the list of handlers configured. To disable event handling, set `consul-alerts/config/events/enabled` to `false`.

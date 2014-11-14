@@ -61,13 +61,15 @@ func (c *ConsulAlertClient) LoadConfig() {
 
 			var valErr error
 			switch key {
-			// general config
-			case "consul-alerts/config/checks/change-threshold":
-				valErr = loadCustomValue(&config.Checks.ChangeThreshold, val, ConfigTypeInt)
-
 			// checks config
 			case "consul-alerts/config/checks/enabled":
 				valErr = loadCustomValue(&config.Checks.Enabled, val, ConfigTypeBool)
+			case "consul-alerts/config/checks/change-threshold":
+				valErr = loadCustomValue(&config.Checks.ChangeThreshold, val, ConfigTypeInt)
+			case "consul-alerts/config/checks/blacklist/nodes":
+				valErr = loadCustomValue(&config.Checks.Blacklist.Nodes, val, ConfigTypeStrArray)
+			case "consul-alerts/config/checks/blacklist/checks":
+				valErr = loadCustomValue(&config.Checks.Blacklist.Checks, val, ConfigTypeStrArray)
 
 			// events config
 			case "consul-alerts/config/events/enabled":
@@ -201,6 +203,10 @@ func (c *ConsulAlertClient) CheckChangeThreshold() int {
 	return c.config.Checks.ChangeThreshold
 }
 
+func (c *ConsulAlertClient) CheckBlackList() *CheckBlackListConfig {
+	return c.config.Checks.Blacklist
+}
+
 func (c *ConsulAlertClient) UpdateCheckData() {
 	healthApi := c.api.Health()
 	kvApi := c.api.KV()
@@ -243,10 +249,16 @@ func (c *ConsulAlertClient) NewAlerts() []Check {
 		var status Status
 		json.Unmarshal(kvpair.Value, &status)
 		if status.ForNotification {
-			alerts = append(alerts, *status.HealthCheck)
 			status.ForNotification = false
 			data, _ := json.Marshal(status)
 			c.api.KV().Put(&consulapi.KVPair{Key: key, Value: data}, nil)
+			// check if blacklisted
+
+			if !c.IsBlacklisted(status.HealthCheck) {
+				alerts = append(alerts, *status.HealthCheck)
+			} else {
+				log.Printf("%s:%s:%s is blocklisted. Not adding to alert list.", status.HealthCheck.Node, status.HealthCheck.ServiceID, status.HealthCheck.CheckID)
+			}
 		}
 	}
 	return alerts
@@ -404,4 +416,27 @@ func (c *ConsulAlertClient) CheckStatus(node, serviceId, checkId string) (status
 	status = checkStatus.Current
 	output = checkStatus.HealthCheck.Output
 	return
+}
+
+func (c *ConsulAlertClient) IsBlacklisted(check *Check) bool {
+	node := check.Node
+	service := "_"
+	if check.ServiceID != "" {
+		service = check.ServiceID
+	}
+	checkId := check.CheckID
+	key := fmt.Sprintf("consul-alerts/config/checks/%s/%s/%s/blacklisted", node, service, checkId)
+	kvpair, _, err := c.api.KV().Get(key, nil)
+	if err != nil {
+		log.Println("Unable to check blacklist for %s:%s:%s, return false", node, service, checkId)
+		return false
+	}
+	rawBool := kvpair.Value
+	blacklisted, err := strconv.ParseBool(string(rawBool))
+	if err != nil {
+		log.Println("Unable to check blacklist for %s:%s:%s, return false", node, service, checkId)
+		return false
+	}
+	fmt.Println(key, blacklisted)
+	return blacklisted
 }
