@@ -167,7 +167,7 @@ prefix: `consul-alerts/config/notifiers/slack/`
 | icon-emoji   | Emoji (if not using icon-url) for the notification  |
 
 In order to enable slack integration, you have to create a new
-[_Incoming WebHooks_](https://sensiolabs.slack.com/services/new). Then use the
+[_Incoming WebHooks_](https://my.slack.com/services/new/incoming-webhook). Then use the
 token created by the previous action.
 
 #### PagerDuty
