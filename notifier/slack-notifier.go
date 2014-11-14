@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"fmt"
 
+	"io/ioutil"
+
 	"encoding/json"
 	"net/http"
 
@@ -51,7 +53,12 @@ func (slack *SlackNotifier) Notify(messages Messages) bool {
 		log.Println("Unable to send data to slack:", err)
 		return false
 	} else {
-		res.Body.Close()
+		defer res.Body.Close()
+		statusCode := res.StatusCode
+		if statusCode != 200 {
+			body, err := ioutil.ReadAll(res.Body)
+			log.Println("Unable to notify slack:", body, err)
+		}
 		log.Println("Slack notification sent.")
 		return true
 	}
