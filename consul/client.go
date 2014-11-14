@@ -427,14 +427,14 @@ func (c *ConsulAlertClient) IsBlacklisted(check *Check) bool {
 	checkId := check.CheckID
 	key := fmt.Sprintf("consul-alerts/config/checks/%s/%s/%s/blacklisted", node, service, checkId)
 	kvpair, _, err := c.api.KV().Get(key, nil)
-	if err != nil {
-		log.Println("Unable to check blacklist for %s:%s:%s, return false", node, service, checkId)
+	if kvpair == nil || err != nil {
+		log.Printf("Unable to check blacklist for %s:%s:%s, return false", node, service, checkId)
 		return false
 	}
 	rawBool := kvpair.Value
 	blacklisted, err := strconv.ParseBool(string(rawBool))
 	if err != nil {
-		log.Println("Unable to check blacklist for %s:%s:%s, return false", node, service, checkId)
+		log.Printf("Unable to check blacklist for %s:%s:%s, return false", node, service, checkId)
 		return false
 	}
 	fmt.Println(key, blacklisted)
