@@ -81,7 +81,7 @@ Add a KV entry with the key `consul-alerts/config/checks/blacklist/nodes/{{ node
 
 ##### Disable all notification by service
 
-Add a KV entry with the key `consul-alerts/config/checks/blacklist/services/{{ nodeName }}`. This will disable notifications for the specified `serviceId`.
+Add a KV entry with the key `consul-alerts/config/checks/blacklist/services/{{ serviceId }}`. This will disable notifications for the specified `serviceId`.
 
 ##### Disable all notification by healthCheck
 
