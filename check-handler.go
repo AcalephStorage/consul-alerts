@@ -49,6 +49,17 @@ func startProcess(checks []consul.Check) {
 func processChecks() {
 	for {
 		<-checksChannel
+
+		for leaderCandidate.Leader() == "" {
+			log.Println("There is current no consul-alerts leader... waiting for one.")
+			time.Sleep(5 * time.Second)
+		}
+
+		if !leaderCandidate.IsLeader() {
+			log.Println("Currently not the leader. Ignoring checks.")
+			continue
+		}
+
 		log.Println("Running health check.")
 		changeThreshold := consulClient.CheckChangeThreshold()
 		for elapsed := 0; elapsed < changeThreshold; elapsed += 10 {

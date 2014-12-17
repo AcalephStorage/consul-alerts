@@ -14,6 +14,7 @@ import (
 	"github.com/AcalephStorage/consul-alerts/notifier"
 
 	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
+	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/darkcrux/consul-skipper"
 	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/docopt/docopt-go"
 )
 
@@ -38,8 +39,10 @@ Options:
 `
 
 var consulClient consul.Consul
+var leaderCandidate *skipper.Candidate
 
 func main() {
+	log.SetLevel(log.InfoLevel)
 	args, _ := docopt.Parse(usage, nil, true, version, false)
 	switch {
 	case args["start"].(bool):
@@ -72,9 +75,19 @@ func daemonMode(arguments map[string]interface{}) {
 		os.Exit(3)
 	}
 
+	hostname, _ := os.Hostname()
+
 	log.Println("Consul Alerts daemon started")
+	log.Println("Consul Alerts Host:", hostname)
 	log.Println("Consul Agent:", consulAddr)
 	log.Println("Consul Datacenter:", consulDc)
+
+	leaderCandidate = &skipper.Candidate{
+		ConsulAddress:    consulAddr,
+		ConsulDatacenter: consulDc,
+		LeadershipKey:    "consul-alerts/leader",
+	}
+	leaderCandidate.RunForElection()
 
 	if watchChecks {
 		go runWatcher(consulAddr, consulDc, "checks")

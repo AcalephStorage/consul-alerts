@@ -26,3 +26,4 @@ _testmain.go
 /_vendor
 /build
 .DS_Store
+/consul-alerts

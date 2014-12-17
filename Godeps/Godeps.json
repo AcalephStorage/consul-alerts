@@ -1,9 +1,6 @@
 {
 	"ImportPath": "github.com/AcalephStorage/consul-alerts",
-	"GoVersion": "go1.3.3",
-	"Packages": [
-		"./..."
-	],
+	"GoVersion": "go1.4",
 	"Deps": [
 		{
 			"ImportPath": "github.com/Sirupsen/logrus",
@@ -13,6 +10,10 @@
 		{
 			"ImportPath": "github.com/armon/consul-api",
 			"Rev": "045662de1042be0662fe4a1e21b57c8f7669261a"
+		},
+		{
+			"ImportPath": "github.com/darkcrux/consul-skipper",
+			"Rev": "e90ecea3b7a5b2a4b4e895d4db1e07216cf66145"
 		},
 		{
 			"ImportPath": "github.com/darkcrux/gopherduty",
