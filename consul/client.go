@@ -220,6 +220,11 @@ func (c *ConsulAlertClient) UpdateCheckData() {
 
 		localHealth := Check(*health)
 
+		if c.IsBlacklisted(&localHealth) {
+			log.Printf("%s:%s:%s is blacklisted.", node, service, check)
+			return
+		}
+
 		if !existing {
 			c.registerHealthCheck(key, &localHealth)
 		} else {
@@ -427,8 +432,6 @@ func (c *ConsulAlertClient) IsBlacklisted(check *Check) bool {
 
 	singleKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/single/%s/%s/%s", node, service, checkId)
 	singleBlacklisted := c.checkKeyExists(singleKey)
-
-	log.Printf("%s:%s:%s is blacklisted by = node: %v, service: %v, check: %v, specific: %v", node, service, checkId, nodeBlacklisted, serviceBlacklisted, checkBlacklisted, singleBlacklisted)
 
 	return nodeBlacklisted || serviceBlacklisted || checkBlacklisted || singleBlacklisted
 }
