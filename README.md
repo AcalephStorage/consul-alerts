@@ -157,8 +157,7 @@ prefix: `consul-alerts/config/notifiers/slack/`
 |--------------|-----------------------------------------------------|
 | enabled      | Enable the Slack notifier. [Default: false]         |
 | cluster-name | The name of the cluster. [Default: "Consul Alerts"] |
-| team         | The slack team name (mandatory)                     |
-| token        | The token for the webhook api (mandatory)           |
+| url          | The incoming-webhook url (mandatory)                |
 | channel      | The channel to post the notification (mandatory)    |
 | username     | The username to appear on the post                  |
 | icon-url     | URL of a custom image for the notification          |

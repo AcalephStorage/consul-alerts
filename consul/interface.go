@@ -79,8 +79,7 @@ type InfluxdbNotifierConfig struct {
 type SlackNotifierConfig struct {
 	Enabled     bool
 	ClusterName string
-	Team        string
-	Token       string
+	Url         string
 	Channel     string
 	Username    string
 	IconUrl     string
