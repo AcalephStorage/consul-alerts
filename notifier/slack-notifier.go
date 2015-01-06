@@ -12,7 +12,6 @@ import (
 	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
 )
 
-const SlackUrl = "https://%s.slack.com/services/hooks/incoming-webhook?token=%s"
 const header = `%s is %s.
 
 Fail: %d, Warn: %d, Pass: %d
@@ -20,8 +19,7 @@ Fail: %d, Warn: %d, Pass: %d
 
 type SlackNotifier struct {
 	ClusterName string `json:"-"`
-	Team        string `json:"-"`
-	Token       string `json:"-"`
+	Url         string `json:"-"`
 	Channel     string `json:"channel"`
 	Username    string `json:"username"`
 	IconUrl     string `json:"icon_url"`
@@ -39,7 +37,6 @@ func (slack *SlackNotifier) Notify(messages Messages) bool {
 		text += fmt.Sprintf("\n%s:%s:%s is %s.", message.Node, message.Service, message.Check, message.Status)
 	}
 
-	url := fmt.Sprintf(SlackUrl, slack.Team, slack.Token)
 	slack.Text = text
 
 	data, err := json.Marshal(slack)
@@ -49,7 +46,7 @@ func (slack *SlackNotifier) Notify(messages Messages) bool {
 	}
 
 	b := bytes.NewBuffer(data)
-	if res, err := http.Post(url, "application/json", b); err != nil {
+	if res, err := http.Post(slack.Url, "application/json", b); err != nil {
 		log.Println("Unable to send data to slack:", err)
 		return false
 	} else {

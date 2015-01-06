@@ -124,10 +124,8 @@ func (c *ConsulAlertClient) LoadConfig() {
 				valErr = loadCustomValue(&config.Notifiers.Slack.Enabled, val, ConfigTypeBool)
 			case "consul-alerts/config/notifiers/slack/cluster-name":
 				valErr = loadCustomValue(&config.Notifiers.Slack.ClusterName, val, ConfigTypeString)
-			case "consul-alerts/config/notifiers/slack/team":
-				valErr = loadCustomValue(&config.Notifiers.Slack.Team, val, ConfigTypeString)
-			case "consul-alerts/config/notifiers/slack/token":
-				valErr = loadCustomValue(&config.Notifiers.Slack.Token, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/slack/url":
+				valErr = loadCustomValue(&config.Notifiers.Slack.Url, val, ConfigTypeString)
 			case "consul-alerts/config/notifiers/slack/channel":
 				valErr = loadCustomValue(&config.Notifiers.Slack.Channel, val, ConfigTypeString)
 			case "consul-alerts/config/notifiers/slack/username":

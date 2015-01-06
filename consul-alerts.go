@@ -187,8 +187,7 @@ func builtinNotifiers() []notifier.Notifier {
 	if slackConfig.Enabled {
 		slackNotifier := &notifier.SlackNotifier{
 			ClusterName: slackConfig.ClusterName,
-			Team:        slackConfig.Team,
-			Token:       slackConfig.Token,
+			Url:         slackConfig.Url,
 			Channel:     slackConfig.Channel,
 			Username:    slackConfig.Username,
 			IconUrl:     slackConfig.IconUrl,
