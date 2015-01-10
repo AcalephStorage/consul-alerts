@@ -35,6 +35,7 @@ func (slack *SlackNotifier) Notify(messages Messages) bool {
 
 	for _, message := range messages {
 		text += fmt.Sprintf("\n%s:%s:%s is %s.", message.Node, message.Service, message.Check, message.Status)
+		text += fmt.Sprintf("\n%s", message.Output)
 	}
 
 	slack.Text = text
