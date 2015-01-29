@@ -24,10 +24,20 @@ func runWatcher(address, datacenter, watchType string) {
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
-		exitError, _ := err.(*exec.ExitError)
-		status, _ := exitError.Sys().(syscall.WaitStatus)
-		exitCode := status.ExitStatus()
-		log.Println("Shutting down watcher --> Exit Code: ", exitCode)
+		var exitCode int
+		switch err.(type) {
+		case *exec.ExitError:
+			exitError, _ := err.(*exec.ExitError)
+			status, _ := exitError.Sys().(syscall.WaitStatus)
+			exitCode = status.ExitStatus()
+			log.Println("Shutting down watcher --> Exit Code: ", exitCode)
+		case *exec.Error:
+			exitCode = 1
+			log.Println("Shutting down watcher --> Something went wrong running consul watch: ", err.Error())
+		default:
+			exitCode = 127
+			log.Println("Shutting down watcher --> Unknown error: ", err.Error())
+		}
 		os.Exit(exitCode)
 	} else {
 		log.Printf("Execution complete.")
