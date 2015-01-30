@@ -25,9 +25,14 @@ func runWatcher(address, datacenter, watchType string) {
 
 	if err := cmd.Run(); err != nil {
 		exitError, _ := err.(*exec.ExitError)
-		status, _ := exitError.Sys().(syscall.WaitStatus)
-		exitCode := status.ExitStatus()
-		log.Println("Shutting down watcher --> Exit Code: ", exitCode)
+		exitCode := 1
+		if exitError == nil {
+			log.Println("Shutting down watcher --> ", err.Error())
+		} else {
+			status, _ := exitError.Sys().(syscall.WaitStatus)
+			exitCode := status.ExitStatus()
+			log.Println("Shutting down watcher --> Exit Code: ", exitCode)
+		}
 		os.Exit(exitCode)
 	} else {
 		log.Printf("Execution complete.")
