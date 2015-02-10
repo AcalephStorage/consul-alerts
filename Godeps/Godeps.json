@@ -29,5 +29,9 @@
 			"Comment": "v0.8.5",
 			"Rev": "9485e99796c53635fbf179b3e973c363937de00b"
 		}
+		{
+			"ImportPath": "github.com/andybons/hipchat",
+			"Rev": "0fd4d621380d2b040f1ee141c8653f3fc7346484"
+		}
 	]
 }
