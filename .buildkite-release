@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+go get github.com/AcalephStorage/consul-alerts
+make clean release VERSION=$RELEASE_VERSION
+
+mkdir ./release
+cp build/tar/* ./release/
+
+gh-release create AcalephStorage/consul-alerts $RELEASE_VERSION
