@@ -1,8 +1,8 @@
 FROM google/golang:1.4
 MAINTAINER Acaleph <admin@acale.ph>
 
-WORKDIR /gopath/src/github.com/AcalephStorage/consul-alerts
-ADD . /gopath/src/github.com/AcalephStorage/consul-alerts
+WORKDIR /gopath/src/consul-alerts
+ADD . /gopath/src/consul-alerts
 RUN go get consul-alerts
 
 EXPOSE 9000
