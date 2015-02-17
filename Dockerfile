@@ -1,12 +1,10 @@
-FROM progrium/busybox:latest
+FROM google/golang:1.4
 MAINTAINER Acaleph <admin@acale.ph>
 
-ADD https://dl.bintray.com/mitchellh/consul/0.4.1_linux_amd64.zip /tmp/consul.zip
-RUN cd /bin && unzip /tmp/consul.zip && chmod +x /bin/consul && rm /tmp/consul.zip
-
-ADD http://dl.bintray.com/darkcrux/generic/consul-alerts-0.1.2-linux-amd64.tar /tmp/consul-alerts.tar
-RUN cd /bin && tar -xf /tmp/consul-alerts.tar && chmod +x /bin/consul-alerts && rm /tmp/consul-alerts.tar
+WORKDIR /gopath/src/github.com/AcalephStorage/consul-alerts
+ADD . /gopath/src/github.com/AcalephStorage/consul-alerts
+RUN go get consul-alerts
 
 EXPOSE 9000
-ENTRYPOINT [ "bin/consul-alerts", "--alert-addr=0.0.0.0:9000" ]
 CMD []
+ENTRYPOINT [ "/gopath/bin/consul-alerts", "--alert-addr=0.0.0.0:9000" ]
