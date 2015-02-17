@@ -6,4 +6,4 @@ make clean release VERSION=$RELEASE_VERSION
 mkdir ./release
 cp build/tar/* ./release/
 
-gh-release create AcalephStorage/consul-alerts $RELEASE_VERSION
+$GOPATH/bin/gh-release create AcalephStorage/consul-alerts $RELEASE_VERSION
