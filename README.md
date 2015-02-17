@@ -8,6 +8,16 @@ A simple daemon to send notifications based on Consul health checks.
 1. Consul 0.4+. Get it [here](http://consul.io).
 2. Configured `GOPATH`.
 
+Releases
+--------
+
+Stable release are [here](https://github.com/AcalephStorage/consul-alerts/releases).
+
+Latest release are found here:
+ - [darwin-amd64](https://bintray.com/artifact/download/darkcrux/generic/consul-alerts-latest-darwin-amd64.tar)
+ - [linux-386](https://bintray.com/artifact/download/darkcrux/generic/consul-alerts-latest-linux-386.tar)
+ - [linux-amd64](https://bintray.com/artifact/download/darkcrux/generic/consul-alerts-latest-linux-amd64.tar)
+
 Installation
 ------------
 
