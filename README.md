@@ -1,6 +1,8 @@
 consul-alerts
 =============
 
+[![Join the chat at https://gitter.im/AcalephStorage/consul-alerts](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/AcalephStorage/consul-alerts?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 A simple daemon to send notifications based on Consul health checks.
 
 ## Requirement
