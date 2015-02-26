@@ -211,6 +211,30 @@ Contribution
 
 PRs are more than welcome. Just fork, create a feature branch, and open a PR. We love PRs. :)
 
+Using vagrant
+------------
+
+Just use the existing Vagrantfile
+
+```
+$> vagrant up
+$> vagrant ssh
+#inside the vm
+$> cd src/github.com/AcalephStorage/consul-alerts
+$> go get
+$> go build
+
+#run consul
+$> run-consul 
+$ ps aux|grep consul
+root      5382  0.0  0.4  65732  2092 pts/0    S    00:10   0:00 sudo consul agent -server -bootstrap-expect 1 -data-dir /tmp/consul
+root      5383  0.4  2.2 42303048 10968 pts/0  Sl   00:10   0:00 consul agent -server -bootstrap-expect 1 -data-dir /tmp/consul
+
+```
+
+* /home/vagrant/src/github.com/AcalephStorage/consul-alerts is symlinked from /vagrant
+
+
 TODO
 ----
 

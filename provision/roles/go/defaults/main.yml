@@ -1,0 +1,5 @@
+---
+go_version: 1.4.1
+go_os: linux
+go_arch: amd64
+go_gopath: /home/vagrant

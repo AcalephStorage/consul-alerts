@@ -1,0 +1,11 @@
+---
+#temp directory
+- file: path={{consul_dest}} state=directory
+
+#download
+- get_url: url={{consul_download_url}} dest={{consul_dest}}
+
+#install
+- apt: name=unzip update_cache=yes
+- unarchive: src={{consul_dest}}/{{consul_filename}} dest=/usr/local/bin copy=no
+- copy: src=run-consul dest=/usr/local/bin mode=755

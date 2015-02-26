@@ -1,0 +1,4 @@
+---
+- file: path="{{go_gopath}}/src/github.com/AcalephStorage" state=directory recurse=yes owner=vagrant group=vagrant
+- file: dest="{{go_gopath}}/src/github.com/AcalephStorage/consul-alerts" src=/vagrant state=link
+- file: path="{{go_gopath}}" state=directory owner=vagrant group=vagrant recurse=yes
