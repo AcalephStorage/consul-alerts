@@ -1,0 +1,2 @@
+#!/bin/bash
+nohup sudo consul agent -data-dir /tmp/consul &
