@@ -60,8 +60,8 @@ Note: Don't change --alert-addr when using the docker container.
 Once the daemon is running, it can act as a handler for consul watches. At the moment only checks and events are supported.
 
 ```
-$ consul watch -type checks consul-alerts watch checks [--alert-addr=localhost:9000]
-$ consul watch -type event consul-alerts watch event [--alert-addr=localhost:9000]
+$ consul watch -type checks consul-alerts watch checks --alert-addr=localhost:9000
+$ consul watch -type event consul-alerts watch event --alert-addr=localhost:9000
 ```
 
 or run the watchers on the agent the daemon connects by adding the following flags during consul-alerts run:
