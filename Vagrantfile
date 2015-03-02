@@ -29,9 +29,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.define 'node3', primary: true do |c|
     c.vm.network "private_network", ip: "192.168.100.52"
     c.vm.hostname = "node3"
+
+    c.vm.provision :ansible do |ansible|
+      ansible.playbook = 'provision/provision.yml'
+      ansible.inventory_path = 'provision/hosts'
+      ansible.limit = 'all'
+    end
   end
 
-  config.vm.provision :ansible do |ansible|
-    ansible.playbook = 'provision/provision.yml'
-  end
+
 end

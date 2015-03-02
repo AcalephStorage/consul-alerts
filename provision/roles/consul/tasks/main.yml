@@ -8,5 +8,5 @@
 #install
 - apt: name=unzip update_cache=yes
 - unarchive: src={{consul_dest}}/{{consul_filename}} dest=/usr/local/bin copy=no
-- copy: src=run-consul dest=/usr/local/bin mode=755
-- copy: src=run-consul-client dest=/usr/local/bin mode=755
+- template: src=run-consul dest=/usr/local/bin mode=755
+- template: src=run-consul-client dest=/usr/local/bin mode=755
