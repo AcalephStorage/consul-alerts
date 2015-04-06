@@ -3,6 +3,7 @@ package notifier
 import (
 	"bytes"
 	"fmt"
+	"strings"
 
 	"io/ioutil"
 
@@ -24,16 +25,17 @@ type SlackNotifier struct {
 	Username    string       `json:"username"`
 	IconUrl     string       `json:"icon_url"`
 	IconEmoji   string       `json:"icon_emoji"`
-	Text        string       `json:"text"`
-	Attachments []attachment `json:"attachments"`
+	Text        string       `json:"text,omitempty"`
+	Attachments []attachment `json:"attachments,omitempty"`
 	Detailed    bool         `json:"-"`
 }
 
 type attachment struct {
-	title     string
-	pretext   string
-	text      string
-	mrkdwn_in []string
+	Color    string   `json:"color"`
+	Title    string   `json:"title"`
+	Pretext  string   `json:"pretext"`
+	Text     string   `json:"text"`
+	MrkdwnIn []string `json:"mrkdwn_in"`
 }
 
 func (slack *SlackNotifier) Notify(messages Messages) bool {
@@ -67,14 +69,17 @@ func (slack *SlackNotifier) notifyDetailed(messages Messages) bool {
 
 	overallStatus, pass, warn, fail := messages.Summary()
 
-	var emoji string
+	var emoji, color string
 	switch overallStatus {
 	case SYSTEM_HEALTHY:
 		emoji = ":white_check_mark:"
+		color = "good"
 	case SYSTEM_UNSTABLE:
 		emoji = ":question:"
+		color = "warning"
 	case SYSTEM_CRITICAL:
 		emoji = ":x:"
+		color = "danger"
 	default:
 		emoji = ":question:"
 	}
@@ -82,19 +87,20 @@ func (slack *SlackNotifier) notifyDetailed(messages Messages) bool {
 	pretext := fmt.Sprintf("%s %s is *%s*", emoji, slack.ClusterName, overallStatus)
 
 	detailedBody := ""
-	detailedBody += fmt.Sprintf("*Changes:* Fail = %d, Warn = %d, Pass = %d\n", fail, warn, pass)
+	detailedBody += fmt.Sprintf("*Changes:* Fail = %d, Warn = %d, Pass = %d", fail, warn, pass)
 	detailedBody += fmt.Sprintf("\n")
 
 	for _, message := range messages {
-		detailedBody += fmt.Sprintf("\n%s:%s:%s is *%s.*", message.Node, message.Service, message.Check, message.Status)
-		detailedBody += fmt.Sprintf("\n`%s`", message.Output)
+		detailedBody += fmt.Sprintf("\n*[%s:%s]* %s is *%s.*", message.Node, message.Service, message.Check, message.Status)
+		detailedBody += fmt.Sprintf("\n`%s`", strings.TrimSpace(message.Output))
 	}
 
 	a := attachment{
-		title:     title,
-		pretext:   pretext,
-		text:      detailedBody,
-		mrkdwn_in: []string{"text", "pretext"},
+		Color:    color,
+		Title:    title,
+		Pretext:  pretext,
+		Text:     detailedBody,
+		MrkdwnIn: []string{"text", "pretext"},
 	}
 	slack.Attachments = []attachment{a}
 
