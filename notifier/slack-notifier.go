@@ -64,7 +64,40 @@ func (slack *SlackNotifier) notifySimple(messages Messages) bool {
 }
 
 func (slack *SlackNotifier) notifyDetailed(messages Messages) bool {
-	// TBD
+
+	overallStatus, pass, warn, fail := messages.Summary()
+
+	var emoji string
+	switch overallStatus {
+	case SYSTEM_HEALTHY:
+		emoji = ":white_check_mark:"
+	case SYSTEM_UNSTABLE:
+		emoji = ":question:"
+	case SYSTEM_CRITICAL:
+		emoji = ":x:"
+	default:
+		emoji = ":question:"
+	}
+	title := "Consul monitoring report"
+	pretext := fmt.Sprintf("%s %s is *%s*", emoji, slack.ClusterName, overallStatus)
+
+	detailedBody := ""
+	detailedBody += fmt.Sprintf("Fail: %d, Warn: %d, Pass: %d\n", fail, warn, pass)
+	detailedBody += fmt.Sprintf("\n")
+
+	for _, message := range messages {
+		detailedBody += fmt.Sprintf("\n*%s:%s:%s is %s.*", message.Node, message.Service, message.Check, message.Status)
+		detailedBody += fmt.Sprintf("\n`%s`", message.Output)
+	}
+
+	a := attachment{
+		title:     title,
+		pretext:   pretext,
+		text:      detailedBody,
+		mrkdwn_in: []string{"text", "pretext"},
+	}
+	slack.Attachments = []attachment{a}
+
 	return slack.postToSlack()
 
 }
