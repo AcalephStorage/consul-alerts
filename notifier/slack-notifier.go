@@ -18,22 +18,32 @@ Fail: %d, Warn: %d, Pass: %d
 `
 
 type SlackNotifier struct {
-	ClusterName string `json:"-"`
-	Url         string `json:"-"`
-	Channel     string `json:"channel"`
-	Username    string `json:"username"`
-	IconUrl     string `json:"icon_url"`
-	IconEmoji   string `json:"icon_emoji"`
-	Text        string `json:"text"`
-	Detailed    bool   `json:"-"`
+	ClusterName string       `json:"-"`
+	Url         string       `json:"-"`
+	Channel     string       `json:"channel"`
+	Username    string       `json:"username"`
+	IconUrl     string       `json:"icon_url"`
+	IconEmoji   string       `json:"icon_emoji"`
+	Text        string       `json:"text"`
+	Attachments []attachment `json:"attachments"`
+	Detailed    bool         `json:"-"`
+}
+
+type attachment struct {
+	title     string
+	pretext   string
+	text      string
+	mrkdwn_in []string
 }
 
 func (slack *SlackNotifier) Notify(messages Messages) bool {
+
 	if slack.Detailed {
 		return slack.notifyDetailed(messages)
 	} else {
 		return slack.notifySimple(messages)
 	}
+
 }
 
 func (slack *SlackNotifier) notifySimple(messages Messages) bool {
@@ -48,6 +58,18 @@ func (slack *SlackNotifier) notifySimple(messages Messages) bool {
 	}
 
 	slack.Text = text
+
+	return slack.postToSlack()
+
+}
+
+func (slack *SlackNotifier) notifyDetailed(messages Messages) bool {
+	// TBD
+	return slack.postToSlack()
+
+}
+
+func (slack *SlackNotifier) postToSlack() bool {
 
 	data, err := json.Marshal(slack)
 	if err != nil {
@@ -72,8 +94,4 @@ func (slack *SlackNotifier) notifySimple(messages Messages) bool {
 		}
 	}
 
-}
-
-func (slack *SlackNotifier) notifyDetailed(messages Messages) bool {
-	// TBD
 }
