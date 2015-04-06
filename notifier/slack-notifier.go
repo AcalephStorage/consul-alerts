@@ -25,9 +25,18 @@ type SlackNotifier struct {
 	IconUrl     string `json:"icon_url"`
 	IconEmoji   string `json:"icon_emoji"`
 	Text        string `json:"text"`
+	Detailed    bool   `json:"-"`
 }
 
 func (slack *SlackNotifier) Notify(messages Messages) bool {
+	if slack.Detailed {
+		return slack.notifyDetailed(messages)
+	} else {
+		return slack.notifySimple(messages)
+	}
+}
+
+func (slack *SlackNotifier) notifySimple(messages Messages) bool {
 
 	overallStatus, pass, warn, fail := messages.Summary()
 
@@ -63,4 +72,8 @@ func (slack *SlackNotifier) Notify(messages Messages) bool {
 		}
 	}
 
+}
+
+func (slack *SlackNotifier) notifyDetailed(messages Messages) bool {
+	// TBD
 }

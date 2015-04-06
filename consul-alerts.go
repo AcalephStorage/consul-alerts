@@ -192,6 +192,7 @@ func builtinNotifiers() []notifier.Notifier {
 			Username:    slackConfig.Username,
 			IconUrl:     slackConfig.IconUrl,
 			IconEmoji:   slackConfig.IconEmoji,
+			Detailed:    slackConfig.Detailed,
 		}
 		notifiers = append(notifiers, slackNotifier)
 	}
