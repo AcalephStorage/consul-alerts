@@ -115,6 +115,7 @@ func (slack *SlackNotifier) postToSlack() bool {
 		log.Println("Unable to marshal slack payload:", err)
 		return false
 	}
+	log.Debugf("struct = %+v, json = %s", slack, string(data))
 
 	b := bytes.NewBuffer(data)
 	if res, err := http.Post(slack.Url, "application/json", b); err != nil {
