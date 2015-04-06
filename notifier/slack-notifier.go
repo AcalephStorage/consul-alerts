@@ -82,11 +82,11 @@ func (slack *SlackNotifier) notifyDetailed(messages Messages) bool {
 	pretext := fmt.Sprintf("%s %s is *%s*", emoji, slack.ClusterName, overallStatus)
 
 	detailedBody := ""
-	detailedBody += fmt.Sprintf("Fail: %d, Warn: %d, Pass: %d\n", fail, warn, pass)
+	detailedBody += fmt.Sprintf("*Changes:* Fail = %d, Warn = %d, Pass = %d\n", fail, warn, pass)
 	detailedBody += fmt.Sprintf("\n")
 
 	for _, message := range messages {
-		detailedBody += fmt.Sprintf("\n*%s:%s:%s is %s.*", message.Node, message.Service, message.Check, message.Status)
+		detailedBody += fmt.Sprintf("\n%s:%s:%s is *%s.*", message.Node, message.Service, message.Check, message.Status)
 		detailedBody += fmt.Sprintf("\n`%s`", message.Output)
 	}
 
