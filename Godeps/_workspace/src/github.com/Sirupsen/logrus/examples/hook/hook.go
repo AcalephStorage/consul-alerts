@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
-	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus/hooks/airbrake"
+	"github.com/Sirupsen/logrus"
+	"github.com/Sirupsen/logrus/hooks/airbrake"
 	"github.com/tobi/airbrake-go"
 )
 

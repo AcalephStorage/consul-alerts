@@ -13,9 +13,9 @@ import (
 	"github.com/AcalephStorage/consul-alerts/consul"
 	"github.com/AcalephStorage/consul-alerts/notifier"
 
-	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
-	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/darkcrux/consul-skipper"
-	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/docopt/docopt-go"
+	log "github.com/Sirupsen/logrus"
+	"github.com/darkcrux/consul-skipper"
+	"github.com/docopt/docopt-go"
 )
 
 const version = "Consul Alerts 0.3.0"
@@ -152,6 +152,7 @@ func builtinNotifiers() []notifier.Notifier {
 	influxdbConfig := consulClient.InfluxdbConfig()
 	slackConfig := consulClient.SlackConfig()
 	pagerdutyConfig := consulClient.PagerDutyConfig()
+	hipchatConfig := consulClient.HipChatConfig()
 
 	notifiers := []notifier.Notifier{}
 	if emailConfig.Enabled {
@@ -202,6 +203,15 @@ func builtinNotifiers() []notifier.Notifier {
 			ClientUrl:  pagerdutyConfig.ClientUrl,
 		}
 		notifiers = append(notifiers, pagerdutyNotifier)
+	}
+	if hipchatConfig.Enabled {
+		hipchatNotifier := &notifier.HipChatNotifier{
+			ClusterName: hipchatConfig.ClusterName,
+			RoomId:      hipchatConfig.RoomId,
+			AuthToken:   hipchatConfig.AuthToken,
+			BaseURL:     hipchatConfig.BaseURL,
+		}
+		notifiers = append(notifiers, hipchatNotifier)
 	}
 
 	return notifiers

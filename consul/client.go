@@ -135,6 +135,7 @@ func (c *ConsulAlertClient) LoadConfig() {
 			case "consul-alerts/config/notifiers/slack/icon-emoji":
 				valErr = loadCustomValue(&config.Notifiers.Slack.IconEmoji, val, ConfigTypeString)
 
+			// pager-duty notfier config
 			case "consul-alerts/config/notifiers/pagerduty/enabled":
 				valErr = loadCustomValue(&config.Notifiers.PagerDuty.Enabled, val, ConfigTypeBool)
 			case "consul-alerts/config/notifiers/pagerduty/service-key":
@@ -143,6 +144,18 @@ func (c *ConsulAlertClient) LoadConfig() {
 				valErr = loadCustomValue(&config.Notifiers.PagerDuty.ClientName, val, ConfigTypeString)
 			case "consul-alerts/config/notifiers/pagerduty/client-url":
 				valErr = loadCustomValue(&config.Notifiers.PagerDuty.ClientUrl, val, ConfigTypeString)
+
+			// hipchat notfier config
+			case "consul-alerts/config/notifiers/hipchat/enabled":
+				valErr = loadCustomValue(&config.Notifiers.HipChat.Enabled, val, ConfigTypeBool)
+			case "consul-alerts/config/notifiers/hipchat/cluster-name":
+				valErr = loadCustomValue(&config.Notifiers.HipChat.ClusterName, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/hipchat/room-id":
+				valErr = loadCustomValue(&config.Notifiers.HipChat.RoomId, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/hipchat/auth-token":
+				valErr = loadCustomValue(&config.Notifiers.HipChat.AuthToken, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/hipchat/base-url":
+				valErr = loadCustomValue(&config.Notifiers.HipChat.BaseURL, val, ConfigTypeString)
 
 			}
 
@@ -279,6 +292,10 @@ func (c *ConsulAlertClient) SlackConfig() *SlackNotifierConfig {
 
 func (c *ConsulAlertClient) PagerDutyConfig() *PagerDutyNotifierConfig {
 	return c.config.Notifiers.PagerDuty
+}
+
+func (c *ConsulAlertClient) HipChatConfig() *HipChatNotifierConfig {
+	return c.config.Notifiers.HipChat
 }
 
 func (c *ConsulAlertClient) registerHealthCheck(key string, health *Check) {

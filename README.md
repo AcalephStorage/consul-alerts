@@ -192,6 +192,22 @@ prefix: `consul-alerts/config/notifiers/pagerduty/`
 | client-name | The monitoring client name                      |
 | client-url  | The monitoring client url                       |
 
+#### Hipchat
+
+To enable HipChat builtin notifier, set
+`consul-alerts/config/notifiers/hipchat/enabled` to `true`. Hipchat details
+needs to be configured.
+
+prefix: `consul-alerts/config/notifiers/hipchat/`
+
+| key          | description                                         |
+|--------------|-----------------------------------------------------|
+| enabled      | Enable the Slack notifier. [Default: false]         |
+| cluster-name | The name of the cluster. [Default: "Consul Alerts"] |
+| base-url     | HipChat base url                                    |
+| room-id      | The room to post to                  (mandatory)    |
+| auth-token   | Authentication token                 (mandatory)    |
+
 Health Check via API
 --------------------
 

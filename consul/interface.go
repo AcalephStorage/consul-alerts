@@ -46,6 +46,7 @@ type NotifiersConfig struct {
 	Influxdb  *InfluxdbNotifierConfig
 	Slack     *SlackNotifierConfig
 	PagerDuty *PagerDutyNotifierConfig
+	HipChat   *HipChatNotifierConfig
 	Custom    []string
 }
 
@@ -93,6 +94,14 @@ type PagerDutyNotifierConfig struct {
 	ClientUrl  string
 }
 
+type HipChatNotifierConfig struct {
+	Enabled     bool
+	ClusterName string
+	RoomId      string
+	AuthToken   string
+	BaseURL     string
+}
+
 type Status struct {
 	Current          string
 	CurrentTimestamp time.Time
@@ -114,6 +123,7 @@ type Consul interface {
 	InfluxdbConfig() *InfluxdbNotifierConfig
 	SlackConfig() *SlackNotifierConfig
 	PagerDutyConfig() *PagerDutyNotifierConfig
+	HipChatConfig() *HipChatNotifierConfig
 
 	CheckChangeThreshold() int
 	UpdateCheckData()
@@ -164,12 +174,18 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 		Enabled: false,
 	}
 
+	hipchat := &HipChatNotifierConfig{
+		Enabled:     false,
+		ClusterName: "Consul-Alerts",
+	}
+
 	notifiers := &NotifiersConfig{
 		Email:     email,
 		Log:       log,
 		Influxdb:  influxdb,
 		Slack:     slack,
 		PagerDuty: pagerduty,
+		HipChat:   hipchat,
 		Custom:    []string{},
 	}
 
