@@ -141,6 +141,7 @@ func infoHandler(w http.ResponseWriter, r *http.Request) {
 
 func cleanup() {
 	log.Println("Shutting down...")
+	leaderCandidate.Resign()
 	close(checksChannel)
 	close(eventsChannel)
 }
