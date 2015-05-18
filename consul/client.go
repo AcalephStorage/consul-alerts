@@ -134,6 +134,8 @@ func (c *ConsulAlertClient) LoadConfig() {
 				valErr = loadCustomValue(&config.Notifiers.Slack.IconUrl, val, ConfigTypeString)
 			case "consul-alerts/config/notifiers/slack/icon-emoji":
 				valErr = loadCustomValue(&config.Notifiers.Slack.IconEmoji, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/slack/detailed":
+				valErr = loadCustomValue(&config.Notifiers.Slack.Detailed, val, ConfigTypeBool)
 
 			case "consul-alerts/config/notifiers/pagerduty/enabled":
 				valErr = loadCustomValue(&config.Notifiers.PagerDuty.Enabled, val, ConfigTypeBool)

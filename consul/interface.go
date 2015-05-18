@@ -84,6 +84,7 @@ type SlackNotifierConfig struct {
 	Username    string
 	IconUrl     string
 	IconEmoji   string
+	Detailed    bool
 }
 
 type PagerDutyNotifierConfig struct {
