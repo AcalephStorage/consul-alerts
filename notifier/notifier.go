@@ -8,6 +8,11 @@ const (
 	SYSTEM_CRITICAL string = "CRITICAL"
 )
 
+const header = `%s is %s.
+
+Fail: %d, Warn: %d, Pass: %d
+`
+
 type Message struct {
 	Node      string
 	ServiceId string

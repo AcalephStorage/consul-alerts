@@ -13,11 +13,6 @@ import (
 	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
 )
 
-const header = `%s is %s.
-
-Fail: %d, Warn: %d, Pass: %d
-`
-
 type SlackNotifier struct {
 	ClusterName string       `json:"-"`
 	Url         string       `json:"-"`
