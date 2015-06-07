@@ -203,7 +203,7 @@ prefix: `consul-alerts/config/notifiers/hipchat/`
 
 | key          | description                                         |
 |--------------|-----------------------------------------------------|
-| enabled      | Enable the Slack notifier. [Default: false]         |
+| enabled      | Enable the Hipchat notifier. [Default: false]       |
 | cluster-name | The name of the cluster. [Default: "Consul Alerts"] |
 | base-url     | HipChat base url                                    |
 | room-id      | The room to post to                  (mandatory)    |
