@@ -40,7 +40,7 @@ build-all: test
 package: build-all
 	@echo "--> Packaging application"
 	@for arch in ${BUILD_ARCHS}; do \
-		@tar cf build/tar/${APP_NAME}-${VERSION}-$${arch}.tar -C build/bin/$${arch}/${VERSION} ${APP_NAME} ; \
+		tar cf build/tar/${APP_NAME}-${VERSION}-$${arch}.tar -C build/bin/$${arch}/${VERSION} ${APP_NAME} ; \
 	done
 
 release: package
