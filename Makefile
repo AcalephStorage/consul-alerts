@@ -30,7 +30,7 @@ build: test
 
 build-all: test
 	@echo "--> Building all application"
-	for arch in ${BUILD_ARCHS}; do \
+	@for arch in ${BUILD_ARCHS}; do \
 		echo "... $${arch}"; \
 		GOOS=`echo $${arch} | cut -d '-' -f 1` \
 		GOARCH=`echo $${arch} | cut -d '-' -f 2` \
