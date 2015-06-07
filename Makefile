@@ -1,5 +1,6 @@
 APP_NAME = consul-alerts
 VERSION = latest
+BUILD_ARCHS=linux-386 linux-amd64 darwin-amd64 FreeBSD-amd64
 
 all: clean build
 
@@ -8,7 +9,9 @@ clean:
 	@rm -rf ./build
 
 prepare:
-	@mkdir -p build/bin/{linux-386,linux-amd64,darwin-amd64}
+	@for arch in ${BUILD_ARCHS}; do \
+		mkdir -p build/bin/$${arch}; \
+	done
 	@mkdir -p build/test
 	@mkdir -p build/doc
 	@mkdir -p build/tar
@@ -23,22 +26,22 @@ test: prepare format
 
 build: test
 	@echo "--> Building local application"
-	@go build -o build/bin/linux-386/${VERSION}/${APP_NAME} -v .
+	@go build -o build/bin/`uname -s`-`uname -p`/${VERSION}/${APP_NAME} -v .
 
 build-all: test
 	@echo "--> Building all application"
-	@echo "... linux-386"
-	@GOOS=linux GOARCH=386 go build -o build/bin/linux-386/${VERSION}/${APP_NAME} -v .
-	@echo "... linux-amd64"
-	@GOOS=linux GOARCH=amd64 go build -o build/bin/linux-amd64/${VERSION}/${APP_NAME} -v .
-	@echo "... darwin-amd64"
-	@GOOS=darwin GOARCH=amd64 go build -o build/bin/darwin-amd64/${VERSION}/${APP_NAME} -v .
+	for arch in ${BUILD_ARCHS}; do \
+		echo "... $${arch}"; \
+		GOOS=`echo $${arch} | cut -d '-' -f 1` \
+		GOARCH=`echo $${arch} | cut -d '-' -f 2` \
+		go build -o build/bin/$${arch}/${VERSION}/${APP_NAME} -v . ; \
+	done
 
 package: build-all
 	@echo "--> Packaging application"
-	@tar cf build/tar/${APP_NAME}-${VERSION}-linux-386.tar -C build/bin/linux-386/${VERSION} ${APP_NAME}
-	@tar cf build/tar/${APP_NAME}-${VERSION}-linux-amd64.tar -C build/bin/linux-amd64/${VERSION} ${APP_NAME}
-	@tar cf build/tar/${APP_NAME}-${VERSION}-darwin-amd64.tar -C build/bin/darwin-amd64/${VERSION} ${APP_NAME}
+	@for arch in ${BUILD_ARCHS}; do \
+		@tar cf build/tar/${APP_NAME}-${VERSION}-$${arch}.tar -C build/bin/$${arch}/${VERSION} ${APP_NAME} ; \
+	done
 
 release: package
 ifeq ($(VERSION) , latest)
@@ -47,12 +50,10 @@ ifeq ($(VERSION) , latest)
 	@echo
 endif
 	@echo "--> Releasing version: ${VERSION}"
-	@curl -s -T "build/tar/${APP_NAME}-${VERSION}-linux-386.tar" -u "${ACCESS_KEY}" "https://api.bintray.com/content/darkcrux/generic/${APP_NAME}/${VERSION}/${APP_NAME}-${VERSION}-linux-386.tar"
-	@echo "... linux-386"
-	@curl -s -T "build/tar/${APP_NAME}-${VERSION}-linux-amd64.tar" -u "${ACCESS_KEY}" "https://api.bintray.com/content/darkcrux/generic/${APP_NAME}/${VERSION}/${APP_NAME}-${VERSION}-linux-amd64.tar"
-	@echo "... linux-amd64"
-	@curl -s -T "build/tar/${APP_NAME}-${VERSION}-darwin-amd64.tar" -u "${ACCESS_KEY}" "https://api.bintray.com/content/darkcrux/generic/${APP_NAME}/${VERSION}/${APP_NAME}-${VERSION}-darwin-amd64.tar"
-	@echo "... darwin-amd64"
+	@for arch in ${BUILD_ARCHS}; do \
+		curl -s -T "build/tar/${APP_NAME}-${VERSION}-$${arch}.tar" -u "${ACCESS_KEY}" "https://api.bintray.com/content/darkcrux/generic/${APP_NAME}/${VERSION}/${APP_NAME}-${VERSION}-$${arch}.tar"; \
+		echo "... $${arch}"; \
+	done
 	@echo "--> Publishing version ${VERSION}"
 	@curl -s -X POST -u ${ACCESS_KEY} https://api.bintray.com/content/darkcrux/generic/${APP_NAME}/${VERSION}/publish
-	@echo 
+	@echo

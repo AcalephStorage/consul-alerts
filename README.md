@@ -17,6 +17,7 @@ Stable release are [here](https://github.com/AcalephStorage/consul-alerts/releas
 
 Latest release are found here:
  - [darwin-amd64](https://bintray.com/artifact/download/darkcrux/generic/consul-alerts-latest-darwin-amd64.tar)
+ - [FreeBSD-amd64](https://bintray.com/artifact/download/darkcrux/generic/consul-alerts-latest-FreeBSD-amd64.tar)
  - [linux-386](https://bintray.com/artifact/download/darkcrux/generic/consul-alerts-latest-linux-386.tar)
  - [linux-amd64](https://bintray.com/artifact/download/darkcrux/generic/consul-alerts-latest-linux-amd64.tar)
 
