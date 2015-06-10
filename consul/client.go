@@ -9,7 +9,7 @@ import (
 	"encoding/json"
 
 	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
-	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/armon/consul-api"
+	consulapi "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/hashicorp/consul/api"
 )
 
 const (
@@ -26,11 +26,12 @@ type ConsulAlertClient struct {
 	config *ConsulAlertConfig
 }
 
-func NewClient(address, dc string) (*ConsulAlertClient, error) {
+func NewClient(address, dc, aclToken string) (*ConsulAlertClient, error) {
 	config := consulapi.DefaultConfig()
 	config.Address = address
 	config.Datacenter = dc
 	config.HttpClient.Timeout = 5 * time.Second
+	config.Token = aclToken
 	api, _ := consulapi.NewClient(config)
 	alertConfig := DefaultAlertConfig()
 

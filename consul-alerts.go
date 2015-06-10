@@ -22,12 +22,13 @@ const version = "Consul Alerts 0.3.0"
 const usage = `Consul Alerts.
 
 Usage:
-  consul-alerts start [--alert-addr=<addr>] [--consul-addr=<consuladdr>] [--consul-dc=<dc>] [--watch-checks] [--watch-events]
+  consul-alerts start [--alert-addr=<addr>] [--consul-addr=<consuladdr>] [--consul-dc=<dc>] [--consul-acl-token=<token>] [--watch-checks] [--watch-events]
   consul-alerts watch (checks|event) [--alert-addr=<addr>]
   consul-alerts --help
   consul-alerts --version
 
 Options:
+  --consul-acl-token=<token>   The consul ACL token [default: ""].
   --alert-addr=<addr>          The address for the consul-alert api [default: localhost:9000].
   --consul-addr=<consuladdr>   The consul api address [default: localhost:8500].
   --consul-dc=<dc>             The consul datacenter [default: dc1].
@@ -64,12 +65,13 @@ func daemonMode(arguments map[string]interface{}) {
 		os.Exit(1)
 	}
 
+	consulAclToken := arguments["--consul-acl-token"].(string)
 	consulAddr := arguments["--consul-addr"].(string)
 	consulDc := arguments["--consul-dc"].(string)
 	watchChecks := arguments["--watch-checks"].(bool)
 	watchEvents := arguments["--watch-events"].(bool)
 
-	consulClient, err = consul.NewClient(consulAddr, consulDc)
+	consulClient, err = consul.NewClient(consulAddr, consulDc, consulAclToken)
 	if err != nil {
 		log.Println("Cluster has no leader or is unreacheable.", err)
 		os.Exit(3)
@@ -77,6 +79,7 @@ func daemonMode(arguments map[string]interface{}) {
 
 	hostname, _ := os.Hostname()
 
+	log.Println("Consul ACL Token:", consulAclToken)
 	log.Println("Consul Alerts daemon started")
 	log.Println("Consul Alerts Host:", hostname)
 	log.Println("Consul Agent:", consulAddr)
@@ -85,6 +88,7 @@ func daemonMode(arguments map[string]interface{}) {
 	leaderCandidate = &skipper.Candidate{
 		ConsulAddress:    consulAddr,
 		ConsulDatacenter: consulDc,
+		ConsulAclToken:   consulAclToken,
 		LeadershipKey:    "consul-alerts/leader",
 	}
 	leaderCandidate.RunForElection()

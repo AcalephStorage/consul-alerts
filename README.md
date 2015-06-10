@@ -17,6 +17,7 @@ Stable release are [here](https://github.com/AcalephStorage/consul-alerts/releas
 
 Latest release are found here:
  - [darwin-amd64](https://bintray.com/artifact/download/darkcrux/generic/consul-alerts-latest-darwin-amd64.tar)
+ - [FreeBSD-amd64](https://bintray.com/artifact/download/darkcrux/generic/consul-alerts-latest-FreeBSD-amd64.tar)
  - [linux-386](https://bintray.com/artifact/download/darkcrux/generic/consul-alerts-latest-linux-386.tar)
  - [linux-amd64](https://bintray.com/artifact/download/darkcrux/generic/consul-alerts-latest-linux-amd64.tar)
 
@@ -52,7 +53,7 @@ $ docker run acaleph/consul-alerts start
 By default, this runs the daemon and API at localhost:9000 and connects to the local consul agent (localhost:8500) and default datacenter (dc1). These can be overriden by the following flags:
 
 ```
-$ consul-alerts start --alert-addr=localhost:9000 --consul-addr=localhost:8500 --consul-dc=dc1
+$ consul-alerts start --alert-addr=localhost:9000 --consul-addr=localhost:8500 --consul-dc=dc1 --consul-acl-token=""
 ```
 
 Note: Don't change --alert-addr when using the docker container.
@@ -202,7 +203,7 @@ prefix: `consul-alerts/config/notifiers/hipchat/`
 
 | key          | description                                         |
 |--------------|-----------------------------------------------------|
-| enabled      | Enable the Slack notifier. [Default: false]         |
+| enabled      | Enable the Hipchat notifier. [Default: false]       |
 | cluster-name | The name of the cluster. [Default: "Consul Alerts"] |
 | base-url     | HipChat base url                                    |
 | room-id      | The room to post to                  (mandatory)    |
