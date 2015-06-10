@@ -1,15 +1,18 @@
 {
 	"ImportPath": "github.com/AcalephStorage/consul-alerts",
-	"GoVersion": "go1.4.2",
+	"GoVersion": "go1.4",
+	"Packages": [
+		"./..."
+	],
 	"Deps": [
 		{
 			"ImportPath": "github.com/Sirupsen/logrus",
-			"Comment": "v0.5.1-37-g6ebb4e7",
-			"Rev": "6ebb4e7b3c24b9fef150d7693e728cb1ebadf1f5"
+			"Comment": "v0.8.2-8-ge3eccfa",
+			"Rev": "e3eccfaeb58b95c9ce22aea6867562f07a0d68c7"
 		},
 		{
 			"ImportPath": "github.com/darkcrux/consul-skipper",
-			"Rev": "e90ecea3b7a5b2a4b4e895d4db1e07216cf66145"
+			"Rev": "228bfad16d0ccba384e2c1451fe5b95748e48ca8"
 		},
 		{
 			"ImportPath": "github.com/darkcrux/gopherduty",
@@ -22,7 +25,8 @@
 		},
 		{
 			"ImportPath": "github.com/hashicorp/consul/api",
-			"Rev": "20a2d19198d4b1ba7125317ea005842280a7b473"
+			"Comment": "v0.5.2-72-g5aa9045",
+			"Rev": "5aa90455ce78d4d41578bafc86305e6e6b28d7d2"
 		},
 		{
 			"ImportPath": "github.com/influxdb/influxdb/client",

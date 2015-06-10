@@ -15,6 +15,7 @@ candidate := &skipper.Candidate{
     ConsulAddress:    "10.0.0.10:8500",
     ConsulDatacenter: "dc1",
     LeadershipKey:    "app/leader",
+    ConsulAclToken:   "",               // Optional
 }
 candidate.RunForElection()
 ```

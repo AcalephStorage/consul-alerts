@@ -3,7 +3,7 @@ package examples
 import (
 	"fmt"
 
-	"github.com/influxdb/influxdb/client"
+	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/influxdb/influxdb/client"
 )
 
 func main() {
