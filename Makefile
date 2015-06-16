@@ -1,6 +1,6 @@
 APP_NAME = consul-alerts
 VERSION = latest
-BUILD_ARCHS=linux-386 linux-amd64 darwin-amd64 FreeBSD-amd64
+BUILD_ARCHS=linux-386 linux-amd64 darwin-amd64 freebsd-amd64
 
 all: clean build
 
