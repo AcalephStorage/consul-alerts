@@ -139,8 +139,8 @@ func watchMode(arguments map[string]interface{}) {
 }
 
 func infoHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(201)
 	w.Header().Add("version", version)
+	w.WriteHeader(201)
 }
 
 func cleanup() {
