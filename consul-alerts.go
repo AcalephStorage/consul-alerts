@@ -58,7 +58,7 @@ func daemonMode(arguments map[string]interface{}) {
 
 	url := fmt.Sprintf("http://%s/v1/info", addr)
 	resp, err := http.Get(url)
-	if err == nil && resp.StatusCode == 200 {
+	if err == nil && resp.StatusCode == 201 {
 		version := resp.Header.Get("version")
 		resp.Body.Close()
 		log.Printf("consul-alert daemon already running version: %s", version)
