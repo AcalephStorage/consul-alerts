@@ -1,0 +1,8 @@
+---
+- hosts: all
+  sudo: yes
+  roles:
+    - git
+    - go
+    - consul
+    - consul-alerts

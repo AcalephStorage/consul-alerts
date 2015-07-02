@@ -1,0 +1,4 @@
+
+node1 ansible_ssh_host=192.168.100.50 consul_interface=eth1
+node2 ansible_ssh_host=192.168.100.51
+node3 ansible_ssh_host=192.168.100.52

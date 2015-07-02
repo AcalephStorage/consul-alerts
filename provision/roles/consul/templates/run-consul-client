@@ -1,0 +1,4 @@
+#!/bin/bash
+nohup sudo consul agent -data-dir /tmp/consul -bind {{ ansible_eth1.ipv4.address }} &
+sleep 3
+consul join {{ hostvars.node1['ansible_' + hostvars.node1.consul_interface].ipv4.address }}

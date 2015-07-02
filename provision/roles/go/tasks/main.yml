@@ -1,0 +1,20 @@
+---
+- name: Get Go binaries
+  get_url:
+    url: "https://storage.googleapis.com/golang/go{{ go_version }}.{{ go_os }}-{{ go_arch }}.tar.gz"
+    dest: "/opt/go{{ go_version }}.{{ go_os }}-{{ go_arch }}.tar.gz"
+  register: new_version_downloaded
+
+- name: Extract Go binaries
+  command: tar -C /usr/local -xzf /opt/go{{ go_version }}.{{ go_os }}-{{ go_arch }}.tar.gz
+  when: new_version_downloaded.changed
+
+- name: Set PATH and GOPATH
+  lineinfile: 
+    line: "{{ item }}"
+    dest: /etc/profile
+    state: present
+  with_items:
+    - export GOPATH={{go_gopath}}
+    - export PATH=$PATH:/usr/local/go/bin
+

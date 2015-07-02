@@ -1,0 +1,2 @@
+#!/bin/bash
+nohup sudo consul agent -server -bootstrap-expect 1 -data-dir /tmp/consul -bind {{ hostvars.node1['ansible_' + hostvars.node1.consul_interface].ipv4.address }} &

@@ -230,6 +230,49 @@ Contribution
 
 PRs are more than welcome. Just fork, create a feature branch, and open a PR. We love PRs. :)
 
+Using vagrant
+------------
+
+Just use the existing Vagrantfile
+
+```
+$> vagrant up
+```
+
+Setup go on all nodes:
+
+```
+$> vagrant ssh node1 #use node2 or node3 for other nodes
+
+$> cd src/github.com/AcalephStorage/consul-alerts
+$> go get
+$> go build
+```
+
+do this for all nodes.
+
+On node1, run consul-server:
+
+```
+#run consul server
+$> run-consul 
+$ ps aux|grep consul
+root      5382  0.0  0.4  65732  2092 pts/0    S    00:10   0:00 sudo consul agent -server -bootstrap-expect 1 -data-dir /tmp/consul
+root      5383  0.4  2.2 42303048 10968 pts/0  Sl   00:10   0:00 consul agent -server -bootstrap-expect 1 -data-dir /tmp/consul
+```
+
+On node2 and node3, run consul client and join the cluster:
+
+```
+$> run-consul-client
+$> consul members #verify membership status
+```
+
+* /home/vagrant/src/github.com/AcalephStorage/consul-alerts is symlinked from /vagrant
+* more info at https://github.com/AcalephStorage/consul-alerts/pull/49
+
+--
+
 TODO
 ----
 

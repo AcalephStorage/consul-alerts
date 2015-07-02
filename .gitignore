@@ -27,3 +27,5 @@ _testmain.go
 /build
 .DS_Store
 /consul-alerts
+.vagrant
+nohup.out

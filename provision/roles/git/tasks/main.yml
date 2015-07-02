@@ -1,0 +1,6 @@
+---
+- name: Install git
+  apt:
+    name: git
+    update_cache: yes
+    state: present
