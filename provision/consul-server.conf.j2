@@ -1,0 +1,15 @@
+# Consul Agent (Upstart unit)
+description "Consul Server Agent"
+start on (local-filesystems and net-device-up IFACE!=lo)
+stop on stopping network
+stop on starting shutdown
+
+# Make sure to use all our CPUs, because Consul can block a scheduler thread
+export GOMAXPROCS=`nproc`
+
+# Needed on first server -bootstrap
+exec /usr/local/bin/consul agent -server -bootstrap-expect 3 -config-dir /etc/consul.d -data-dir /var/lib/consul -ui-dir /opt/consul/ui/dist -bind {{ ansible_eth1.ipv4.address }} -client 0.0.0.0
+
+respawn
+respawn limit 10 10
+kill timeout 10

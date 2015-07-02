@@ -1,0 +1,10 @@
+{
+  "datacenter": "dc1",
+  "data_dir": "/var/lib/consul",
+  "log_level": "INFO",
+  "domain": "consul.",
+  "recursor": "8.8.8.8",
+  "encrypt": "XOo6dThdD/2/bNaRNx1avQ==",
+  "server": true,
+  "disable_update_check": true
+}
