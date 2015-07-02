@@ -85,13 +85,7 @@ func daemonMode(arguments map[string]interface{}) {
 	log.Println("Consul Agent:", consulAddr)
 	log.Println("Consul Datacenter:", consulDc)
 
-	leaderCandidate = &skipper.Candidate{
-		ConsulAddress:    consulAddr,
-		ConsulDatacenter: consulDc,
-		ConsulAclToken:   consulAclToken,
-		LeadershipKey:    "consul-alerts/leader",
-	}
-	leaderCandidate.RunForElection()
+	startLeaderElection(consulClient)
 
 	if watchChecks {
 		go runWatcher(consulAddr, consulDc, "checks")
