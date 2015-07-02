@@ -236,7 +236,7 @@ func (c *ConsulAlertClient) UpdateCheckData() {
 
 		if c.IsBlacklisted(&localHealth) {
 			log.Printf("%s:%s:%s is blacklisted.", node, service, check)
-			return
+			continue
 		}
 
 		if !existing {
