@@ -135,6 +135,7 @@ type Consul interface {
 	CustomNotifiers() []string
 
 	CheckStatus(node, statusId, checkId string) (status, output string)
+	CheckKeyExists(key string) bool
 }
 
 func DefaultAlertConfig() *ConsulAlertConfig {

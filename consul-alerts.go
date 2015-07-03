@@ -14,7 +14,6 @@ import (
 	"github.com/AcalephStorage/consul-alerts/notifier"
 
 	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
-	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/darkcrux/consul-skipper"
 	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/docopt/docopt-go"
 )
 
@@ -40,7 +39,7 @@ Options:
 `
 
 var consulClient consul.Consul
-var leaderCandidate *skipper.Candidate
+var leaderCandidate *LeaderElection
 
 func main() {
 	log.SetLevel(log.InfoLevel)
@@ -85,7 +84,7 @@ func daemonMode(arguments map[string]interface{}) {
 	log.Println("Consul Agent:", consulAddr)
 	log.Println("Consul Datacenter:", consulDc)
 
-	startLeaderElection(consulClient)
+	leaderCandidate = startLeaderElection(consulAddr, consulDc, consulAclToken)
 
 	if watchChecks {
 		go runWatcher(consulAddr, consulDc, "checks")
@@ -104,7 +103,7 @@ func daemonMode(arguments map[string]interface{}) {
 	go http.ListenAndServe(addr, nil)
 
 	ch := make(chan os.Signal)
-	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
+	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-ch
 	cleanup()
 }
@@ -139,7 +138,7 @@ func infoHandler(w http.ResponseWriter, r *http.Request) {
 
 func cleanup() {
 	log.Println("Shutting down...")
-	leaderCandidate.Resign()
+	leaderCandidate.stop()
 	close(checksChannel)
 	close(eventsChannel)
 }

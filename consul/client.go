@@ -30,7 +30,6 @@ func NewClient(address, dc, aclToken string) (*ConsulAlertClient, error) {
 	config := consulapi.DefaultConfig()
 	config.Address = address
 	config.Datacenter = dc
-	config.HttpClient.Timeout = 5 * time.Second
 	config.Token = aclToken
 	api, _ := consulapi.NewClient(config)
 	alertConfig := DefaultAlertConfig()
@@ -434,27 +433,27 @@ func (c *ConsulAlertClient) CheckStatus(node, serviceId, checkId string) (status
 func (c *ConsulAlertClient) IsBlacklisted(check *Check) bool {
 	node := check.Node
 	nodeCheckKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/nodes/%s", node)
-	nodeBlacklisted := c.checkKeyExists(nodeCheckKey)
+	nodeBlacklisted := c.CheckKeyExists(nodeCheckKey)
 
 	service := "_"
 	serviceBlacklisted := false
 	if check.ServiceID != "" {
 		service = check.ServiceID
 		serviceCheckKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/services/%s", service)
-		serviceBlacklisted = c.checkKeyExists(serviceCheckKey)
+		serviceBlacklisted = c.CheckKeyExists(serviceCheckKey)
 	}
 
 	checkId := check.CheckID
 	checkCheckKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/checks/%s", checkId)
-	checkBlacklisted := c.checkKeyExists(checkCheckKey)
+	checkBlacklisted := c.CheckKeyExists(checkCheckKey)
 
 	singleKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/single/%s/%s/%s", node, service, checkId)
-	singleBlacklisted := c.checkKeyExists(singleKey)
+	singleBlacklisted := c.CheckKeyExists(singleKey)
 
 	return nodeBlacklisted || serviceBlacklisted || checkBlacklisted || singleBlacklisted
 }
 
-func (c *ConsulAlertClient) checkKeyExists(key string) bool {
+func (c *ConsulAlertClient) CheckKeyExists(key string) bool {
 	kvpair, _, err := c.api.KV().Get(key, nil)
 	return kvpair != nil && err == nil
 }

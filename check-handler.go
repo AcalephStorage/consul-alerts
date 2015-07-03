@@ -50,12 +50,18 @@ func processChecks() {
 	for {
 		<-checksChannel
 
-		for leaderCandidate.Leader() == "" {
+		// if there's no leader, let's retry for at least 30 seconds in 5 second intervals.
+		retryCount := 0
+		for !hasLeader() {
+			if retryCount >= 6 {
+				continue
+			}
 			log.Println("There is current no consul-alerts leader... waiting for one.")
 			time.Sleep(5 * time.Second)
+			retryCount++
 		}
 
-		if !leaderCandidate.IsLeader() {
+		if !leaderCandidate.leader {
 			log.Println("Currently not the leader. Ignoring checks.")
 			continue
 		}

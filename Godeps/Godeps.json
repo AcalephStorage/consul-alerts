@@ -11,10 +11,6 @@
 			"Rev": "e3eccfaeb58b95c9ce22aea6867562f07a0d68c7"
 		},
 		{
-			"ImportPath": "github.com/darkcrux/consul-skipper",
-			"Rev": "228bfad16d0ccba384e2c1451fe5b95748e48ca8"
-		},
-		{
 			"ImportPath": "github.com/darkcrux/gopherduty",
 			"Rev": "4109bd05b098e838121a112b122f9a4102bcfc43"
 		},

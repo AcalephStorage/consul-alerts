@@ -2,17 +2,13 @@ package main
 
 import (
 	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
-	"os"
-	"syscall"
-	"time"
-
-	"os/signal"
-
 	consulapi "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/hashicorp/consul/api"
 )
 
+const LockKey = "consul-alerts/leader"
+
 type LeaderElection struct {
-	lock           *api.Lock
+	lock           *consulapi.Lock
 	cleanupChannel chan struct{}
 	stopChannel    chan struct{}
 	leader         bool
@@ -25,14 +21,14 @@ func (l *LeaderElection) start() {
 		case <-l.cleanupChannel:
 			clean = true
 		default:
-			log.Debugln("Acquiring Leadership")
+			log.Infoln("Running for leader election...")
 			intChan, _ := l.lock.Lock(l.stopChannel)
 			if intChan != nil {
-				log.Debugln("Leadership Acquired")
+				log.Infoln("Now acting as leader.")
 				l.leader = true
 				<-intChan
 				l.leader = false
-				fmt.Println("Leadership Lost")
+				log.Infoln("Lost leadership.")
 				l.lock.Unlock()
 				l.lock.Destroy()
 			}
@@ -41,17 +37,22 @@ func (l *LeaderElection) start() {
 }
 
 func (l *LeaderElection) stop() {
-	fmt.Println("Cleaning up leadership")
+	log.Infoln("cleaning up")
 	l.cleanupChannel <- struct{}{}
 	l.stopChannel <- struct{}{}
 	l.lock.Unlock()
 	l.lock.Destroy()
 	l.leader = false
-	fmt.Print("cleanup done")
+	log.Infoln("cleanup done")
 }
 
-func startLeaderElection(client *consulapi.Client) *LeaderElection {
-	lock, _ := client.LockKey("consul-alerts/leader")
+func startLeaderElection(addr, dc, acl string) *LeaderElection {
+	config := consulapi.DefaultConfig()
+	config.Address = addr
+	config.Datacenter = dc
+	config.Token = acl
+	client, _ := consulapi.NewClient(config)
+	lock, _ := client.LockKey(LockKey)
 
 	leader := &LeaderElection{
 		lock:           lock,
@@ -62,4 +63,8 @@ func startLeaderElection(client *consulapi.Client) *LeaderElection {
 	go leader.start()
 
 	return leader
+}
+
+func hasLeader() bool {
+	return consulClient.CheckKeyExists(LockKey)
 }
