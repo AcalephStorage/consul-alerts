@@ -38,8 +38,11 @@ Options:
 
 `
 
+type stopable interface {
+	stop()
+}
+
 var consulClient consul.Consul
-var leaderCandidate *LeaderElection
 
 func main() {
 	log.SetLevel(log.InfoLevel)
@@ -84,7 +87,7 @@ func daemonMode(arguments map[string]interface{}) {
 	log.Println("Consul Agent:", consulAddr)
 	log.Println("Consul Datacenter:", consulDc)
 
-	leaderCandidate = startLeaderElection(consulAddr, consulDc, consulAclToken)
+	leaderCandidate := startLeaderElection(consulAddr, consulDc, consulAclToken)
 	notifEngine := startNotifEngine()
 
 	if watchChecks {
@@ -94,19 +97,19 @@ func daemonMode(arguments map[string]interface{}) {
 		go runWatcher(consulAddr, consulDc, "event")
 	}
 
-	go processEvents()
-	go processChecks(notifEngine)
+	ep := startEventProcessor()
+	cp := startCheckProcessor(leaderCandidate, notifEngine)
 
 	http.HandleFunc("/v1/info", infoHandler)
-	http.HandleFunc("/v1/process/events", eventHandler)
-	http.HandleFunc("/v1/process/checks", checkHandler)
+	http.HandleFunc("/v1/process/events", ep.eventHandler)
+	http.HandleFunc("/v1/process/checks", cp.checkHandler)
 	http.HandleFunc("/v1/health", healthHandler)
 	go http.ListenAndServe(addr, nil)
 
 	ch := make(chan os.Signal)
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-ch
-	cleanup(notifEngine)
+	cleanup(notifEngine, cp, ep, leaderCandidate)
 }
 
 func watchMode(arguments map[string]interface{}) {
@@ -137,12 +140,11 @@ func infoHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(201)
 }
 
-func cleanup(notifEngine *NotifEngine) {
+func cleanup(stopables ...stopable) {
 	log.Println("Shutting down...")
-	leaderCandidate.stop()
-	close(checksChannel)
-	close(eventsChannel)
-	notifEngine.stop()
+	for _, s := range stopables {
+		s.stop()
+	}
 }
 
 func builtinNotifiers() []notifier.Notifier {
