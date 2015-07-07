@@ -85,6 +85,7 @@ func daemonMode(arguments map[string]interface{}) {
 	log.Println("Consul Datacenter:", consulDc)
 
 	leaderCandidate = startLeaderElection(consulAddr, consulDc, consulAclToken)
+	notifEngine := startNotifEngine()
 
 	if watchChecks {
 		go runWatcher(consulAddr, consulDc, "checks")
@@ -94,7 +95,7 @@ func daemonMode(arguments map[string]interface{}) {
 	}
 
 	go processEvents()
-	go processChecks()
+	go processChecks(notifEngine)
 
 	http.HandleFunc("/v1/info", infoHandler)
 	http.HandleFunc("/v1/process/events", eventHandler)
@@ -105,7 +106,7 @@ func daemonMode(arguments map[string]interface{}) {
 	ch := make(chan os.Signal)
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-ch
-	cleanup()
+	cleanup(notifEngine)
 }
 
 func watchMode(arguments map[string]interface{}) {
@@ -136,11 +137,12 @@ func infoHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(201)
 }
 
-func cleanup() {
+func cleanup(notifEngine *NotifEngine) {
 	log.Println("Shutting down...")
 	leaderCandidate.stop()
 	close(checksChannel)
 	close(eventsChannel)
+	notifEngine.stop()
 }
 
 func builtinNotifiers() []notifier.Notifier {

@@ -1,12 +1,9 @@
 package main
 
 import (
-	"bytes"
 	"time"
 
-	"encoding/json"
 	"net/http"
-	"os/exec"
 
 	"github.com/AcalephStorage/consul-alerts/consul"
 	"github.com/AcalephStorage/consul-alerts/notifier"
@@ -46,7 +43,7 @@ func startProcess(checks []consul.Check) {
 	checksChannel <- checks
 }
 
-func processChecks() {
+func processChecks(notifEngine *NotifEngine) {
 	for {
 		<-checksChannel
 
@@ -76,12 +73,12 @@ func processChecks() {
 		log.Println("Processing health checks for notification.")
 		alerts := consulClient.NewAlerts()
 		if len(alerts) > 0 {
-			notify(alerts)
+			notify(notifEngine, alerts)
 		}
 	}
 }
 
-func notify(alerts []consul.Check) {
+func notify(notifEngine *NotifEngine, alerts []consul.Check) {
 	messages := make([]notifier.Message, len(alerts))
 	for i, alert := range alerts {
 		messages[i] = notifier.Message{
@@ -102,33 +99,5 @@ func notify(alerts []consul.Check) {
 		return
 	}
 
-	for _, n := range builtinNotifiers() {
-		n.Notify(messages)
-	}
-	for _, n := range consulClient.CustomNotifiers() {
-		executeHealthNotifier(messages, n)
-	}
-}
-
-func executeHealthNotifier(messages []notifier.Message, notifCmd string) {
-	data, err := json.Marshal(&messages)
-	if err != nil {
-		log.Println("Unable to read messages: ", err)
-		return
-	}
-
-	input := bytes.NewReader(data)
-	output := new(bytes.Buffer)
-	cmd := exec.Command(notifCmd)
-	cmd.Stdin = input
-	cmd.Stdout = output
-	cmd.Stderr = output
-
-	if err := cmd.Run(); err != nil {
-		log.Println("error running notifier: ", err)
-	} else {
-		log.Println(">>> notification sent to:", notifCmd)
-	}
-	log.Println(output)
-
+	notifEngine.queueMessages(messages)
 }
