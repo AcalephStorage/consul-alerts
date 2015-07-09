@@ -24,6 +24,14 @@
 			"Rev": "c5dac536301992c0371c6115d998fb62944bfad3"
 		},
 		{
+			"ImportPath": "github.com/franela/goreq",
+			"Rev": "41f8ae0dfac5ef5d94708e02dfc19fab3e66bbf4"
+		},
+		{
+			"ImportPath": "github.com/google/go-querystring/query",
+			"Rev": "547ef5ac979778feb2f760cdb5f4eae1a2207b86"
+		},
+		{
 			"ImportPath": "github.com/hashicorp/consul/api",
 			"Comment": "v0.5.2-72-g5aa9045",
 			"Rev": "5aa90455ce78d4d41578bafc86305e6e6b28d7d2"
@@ -32,6 +40,26 @@
 			"ImportPath": "github.com/influxdb/influxdb/client",
 			"Comment": "v0.8.5",
 			"Rev": "9485e99796c53635fbf179b3e973c363937de00b"
+		},
+		{
+			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/alerts",
+			"Rev": "92d8515116e39efe733e3ca3ec5a1787d086f439"
+		},
+		{
+			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/client",
+			"Rev": "92d8515116e39efe733e3ca3ec5a1787d086f439"
+		},
+		{
+			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/heartbeat",
+			"Rev": "92d8515116e39efe733e3ca3ec5a1787d086f439"
+		},
+		{
+			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/integration",
+			"Rev": "92d8515116e39efe733e3ca3ec5a1787d086f439"
+		},
+		{
+			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/policy",
+			"Rev": "92d8515116e39efe733e3ca3ec5a1787d086f439"
 		},
 		{
 			"ImportPath": "github.com/tbruyelle/hipchat-go/hipchat",
