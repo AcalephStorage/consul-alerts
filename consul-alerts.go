@@ -158,6 +158,7 @@ func builtinNotifiers() []notifier.Notifier {
 	slackConfig := consulClient.SlackConfig()
 	pagerdutyConfig := consulClient.PagerDutyConfig()
 	hipchatConfig := consulClient.HipChatConfig()
+	opsgenieConfig := consulClient.OpsGenieConfig()
 
 	notifiers := []notifier.Notifier{}
 	if emailConfig.Enabled {
@@ -218,6 +219,13 @@ func builtinNotifiers() []notifier.Notifier {
 			BaseURL:     hipchatConfig.BaseURL,
 		}
 		notifiers = append(notifiers, hipchatNotifier)
+	}
+	if opsgenieConfig.Enabled {
+		opsgenieNotifier := &notifier.OpsGenieNotifier{
+			ClusterName: opsgenieConfig.ClusterName,
+			ApiKey:      opsgenieConfig.ApiKey,
+		}
+		notifiers = append(notifiers, opsgenieNotifier)
 	}
 
 	return notifiers
