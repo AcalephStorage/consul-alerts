@@ -209,6 +209,20 @@ prefix: `consul-alerts/config/notifiers/hipchat/`
 | room-id      | The room to post to                  (mandatory)    |
 | auth-token   | Authentication token                 (mandatory)    |
 
+#### OpsGenie
+
+To enable OpsGenie builtin notifier, set
+`consul-alerts/config/notifiers/opsgenie/enabled` to `true`. OpsGenie details
+needs to be configured.
+
+prefix: `consul-alerts/config/notifiers/opsgenie/`
+
+| key          | description                                         |
+|--------------|-----------------------------------------------------|
+| enabled      | Enable the OpsGenie notifier. [Default: false]      |
+| cluster-name | The name of the cluster. [Default: "Consul Alerts"] |
+| api-key      | API Key                              (mandatory)    |
+
 Health Check via API
 --------------------
 
