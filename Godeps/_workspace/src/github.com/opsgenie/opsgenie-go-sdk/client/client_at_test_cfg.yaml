@@ -1,0 +1,11 @@
+alert:
+    apiKey: your api key
+    user: sample user
+    team: sample team
+    actions:
+        - ping
+        - pong
+
+heartbeat:
+    apiKey: heartbeat api key
+

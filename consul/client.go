@@ -159,6 +159,14 @@ func (c *ConsulAlertClient) LoadConfig() {
 			case "consul-alerts/config/notifiers/hipchat/base-url":
 				valErr = loadCustomValue(&config.Notifiers.HipChat.BaseURL, val, ConfigTypeString)
 
+			// OpsGenie notifier config
+			case "consul-alerts/config/notifiers/opsgenie/enabled":
+				valErr = loadCustomValue(&config.Notifiers.OpsGenie.Enabled, val, ConfigTypeBool)
+			case "consul-alerts/config/notifiers/opsgenie/cluster-name":
+				valErr = loadCustomValue(&config.Notifiers.OpsGenie.ClusterName, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/opsgenie/api-key":
+				valErr = loadCustomValue(&config.Notifiers.OpsGenie.ApiKey, val, ConfigTypeString)
+
 			}
 
 			if valErr != nil {
@@ -298,6 +306,10 @@ func (c *ConsulAlertClient) PagerDutyConfig() *PagerDutyNotifierConfig {
 
 func (c *ConsulAlertClient) HipChatConfig() *HipChatNotifierConfig {
 	return c.config.Notifiers.HipChat
+}
+
+func (c *ConsulAlertClient) OpsGenieConfig() *OpsGenieNotifierConfig {
+	return c.config.Notifiers.OpsGenie
 }
 
 func (c *ConsulAlertClient) registerHealthCheck(key string, health *Check) {
