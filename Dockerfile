@@ -6,6 +6,8 @@ RUN cd /bin && unzip /tmp/consul.zip && chmod +x /bin/consul && rm /tmp/consul.z
 
 WORKDIR /gopath/src/consul-alerts
 ADD . /gopath/src/consul-alerts
+RUN go get github.com/tools/godep
+RUN godep restore
 RUN go get consul-alerts
 
 EXPOSE 9000
