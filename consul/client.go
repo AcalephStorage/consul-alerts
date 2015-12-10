@@ -39,9 +39,20 @@ func NewClient(address, dc, aclToken string) (*ConsulAlertClient, error) {
 		config: alertConfig,
 	}
 
-	log.Println("Checking consul agent connection...")
-	if _, err := client.api.Status().Leader(); err != nil {
-		return nil, err
+	try := 1
+	for {
+		try += try
+		log.Println("Checking consul agent connection...")
+		_, err := client.api.Status().Leader()
+		if err != nil {
+			log.Println("Waiting for consul:", err)
+			if try > 10 {
+				return nil, err
+			}
+			time.Sleep(10000 * time.Millisecond)
+		} else {
+			break
+		}
 	}
 
 	client.LoadConfig()
