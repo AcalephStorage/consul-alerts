@@ -58,7 +58,7 @@ func main() {
 }
 
 func daemonMode(arguments map[string]interface{}) {
-	loglevelString, _ := args["--log-level"].(string)
+	loglevelString, _ := arguments["--log-level"].(string)
 
 	if loglevelString != "" {
 		loglevel, err := log.ParseLevel(loglevelString)
@@ -126,7 +126,7 @@ func daemonMode(arguments map[string]interface{}) {
 }
 
 func watchMode(arguments map[string]interface{}) {
-	loglevelString, _ := args["--log-level"].(string)
+	loglevelString, _ := arguments["--log-level"].(string)
 
 	if loglevelString != "" {
 		loglevel, err := log.ParseLevel(loglevelString)
