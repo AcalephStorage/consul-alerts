@@ -22,7 +22,7 @@ const usage = `Consul Alerts.
 
 Usage:
   consul-alerts start [--alert-addr=<addr>] [--consul-addr=<consuladdr>] [--consul-dc=<dc>] [--consul-acl-token=<token>] [--watch-checks] [--watch-events] [--log-level=<level>]
-  consul-alerts watch (checks|event) [--alert-addr=<addr>]
+  consul-alerts watch (checks|event) [--alert-addr=<addr>] [--log-level=<level>]
   consul-alerts --help
   consul-alerts --version
 
@@ -33,8 +33,7 @@ Options:
   --consul-dc=<dc>             The consul datacenter [default: dc1].
   --watch-checks               Run check watcher.
   --watch-events               Run event watcher.
-	--log-level=<level>          Set the logging level - valid values are "debug",
-												         "info", "warn" (default), and "err".
+	--log-level=<level>          Set the logging level - valid values are "debug", "info", "warn" (default), and "err".
   --help                       Show this screen.
   --version                    Show version.
 
@@ -50,7 +49,16 @@ func main() {
 	log.SetLevel(log.InfoLevel)
 	args, _ := docopt.Parse(usage, nil, true, version, false)
 
-	loglevelString := args["--log-level"].(string)
+	switch {
+	case args["start"].(bool):
+		daemonMode(args)
+	case args["watch"].(bool):
+		watchMode(args)
+	}
+}
+
+func daemonMode(arguments map[string]interface{}) {
+	loglevelString, _ := args["--log-level"].(string)
 
 	if loglevelString != "" {
 		loglevel, err := log.ParseLevel(loglevelString)
@@ -61,15 +69,6 @@ func main() {
 		}
 	}
 
-	switch {
-	case args["start"].(bool):
-		daemonMode(args)
-	case args["watch"].(bool):
-		watchMode(args)
-	}
-}
-
-func daemonMode(arguments map[string]interface{}) {
 	addr := arguments["--alert-addr"].(string)
 
 	url := fmt.Sprintf("http://%s/v1/info", addr)
@@ -127,6 +126,17 @@ func daemonMode(arguments map[string]interface{}) {
 }
 
 func watchMode(arguments map[string]interface{}) {
+	loglevelString, _ := args["--log-level"].(string)
+
+	if loglevelString != "" {
+		loglevel, err := log.ParseLevel(loglevelString)
+		if err == nil {
+			log.SetLevel(loglevel)
+		} else {
+			log.Println("Log level not set:", err)
+		}
+	}
+
 	checkMode := arguments["checks"].(bool)
 	eventMode := arguments["event"].(bool)
 	addr := arguments["--alert-addr"].(string)
