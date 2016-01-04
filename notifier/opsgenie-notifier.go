@@ -11,7 +11,7 @@ import (
 
 type OpsGenieNotifier struct {
 	ClusterName string
-	ApiKey   string
+	ApiKey      string
 }
 
 func (opsgenie *OpsGenieNotifier) Notify(messages Messages) bool {
@@ -50,10 +50,10 @@ func (opsgenie *OpsGenieNotifier) Notify(messages Messages) bool {
 
 func (opsgenie *OpsGenieNotifier) Send(alertCli *ogcli.OpsGenieAlertClient, message string, content string) (*alerts.CreateAlertResponse, error) {
 	req := alerts.CreateAlertRequest{
-		Message:         message,
-		Description:     content,
-		Source:          "consul",
-		Entity:          opsgenie.ClusterName,
+		Message:     message,
+		Description: content,
+		Source:      "consul",
+		Entity:      opsgenie.ClusterName,
 	}
 	return alertCli.Create(req)
 }

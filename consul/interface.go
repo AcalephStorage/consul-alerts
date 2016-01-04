@@ -107,7 +107,7 @@ type HipChatNotifierConfig struct {
 type OpsGenieNotifierConfig struct {
 	Enabled     bool
 	ClusterName string
-	ApiKey   string
+	ApiKey      string
 }
 
 type Status struct {
