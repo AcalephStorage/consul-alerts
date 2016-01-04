@@ -33,7 +33,7 @@ Options:
   --consul-dc=<dc>             The consul datacenter [default: dc1].
   --watch-checks               Run check watcher.
   --watch-events               Run event watcher.
-	--log-level=<level>          Set the logging level - valid values are "debug", "info", "warn" (default), and "err".
+  --log-level=<level>          Set the logging level - valid values are "debug", "info", "warn" (default), and "err".
   --help                       Show this screen.
   --version                    Show version.
 
