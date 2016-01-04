@@ -1,6 +1,6 @@
 {
 	"ImportPath": "github.com/AcalephStorage/consul-alerts",
-	"GoVersion": "go1.4",
+	"GoVersion": "go1.5.1",
 	"Packages": [
 		"./..."
 	],
@@ -9,6 +9,11 @@
 			"ImportPath": "github.com/Sirupsen/logrus",
 			"Comment": "v0.8.2-8-ge3eccfa",
 			"Rev": "e3eccfaeb58b95c9ce22aea6867562f07a0d68c7"
+		},
+		{
+			"ImportPath": "github.com/cihub/seelog",
+			"Comment": "v2.6-1-g3549fbb",
+			"Rev": "3549fbb0ea07f15a54dba3d16ccb22785a813d30"
 		},
 		{
 			"ImportPath": "github.com/darkcrux/gopherduty",
@@ -39,28 +44,32 @@
 		},
 		{
 			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/alerts",
-			"Rev": "92d8515116e39efe733e3ca3ec5a1787d086f439"
+			"Rev": "89e68948bffac4a7d62d1b8fc1ab5ee99d8a3cd8"
 		},
 		{
 			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/client",
-			"Rev": "92d8515116e39efe733e3ca3ec5a1787d086f439"
+			"Rev": "89e68948bffac4a7d62d1b8fc1ab5ee99d8a3cd8"
 		},
 		{
 			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/heartbeat",
-			"Rev": "92d8515116e39efe733e3ca3ec5a1787d086f439"
+			"Rev": "89e68948bffac4a7d62d1b8fc1ab5ee99d8a3cd8"
 		},
 		{
 			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/integration",
-			"Rev": "92d8515116e39efe733e3ca3ec5a1787d086f439"
+			"Rev": "89e68948bffac4a7d62d1b8fc1ab5ee99d8a3cd8"
+		},
+		{
+			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/logging",
+			"Rev": "89e68948bffac4a7d62d1b8fc1ab5ee99d8a3cd8"
 		},
 		{
 			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/policy",
-			"Rev": "92d8515116e39efe733e3ca3ec5a1787d086f439"
+			"Rev": "89e68948bffac4a7d62d1b8fc1ab5ee99d8a3cd8"
 		},
 		{
 			"ImportPath": "github.com/tbruyelle/hipchat-go/hipchat",
 			"Comment": "v1.0-7-g1dd13e1",
-			"Rev": "1dd13e154219c15e2611fe46adbb6bf65db419b7"
+			"Rev": "89e68948bffac4a7d62d1b8fc1ab5ee99d8a3cd8"
 		}
 	]
 }
