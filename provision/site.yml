@@ -5,13 +5,14 @@
     - name: Install Unzip
       apt:
         pkg: unzip    
+        update_cache: yes
     - name: Download Consul
       get_url:
         url: https://dl.bintray.com/mitchellh/consul/0.5.2_linux_amd64.zip
-        dest: /tmp/consul-0.5.2_linux_amd64.zip
+        dest: /tmp/consul-0.6.0_linux_amd64.zip
     - name: Unzip Consul
       unarchive:
-        src: /tmp/consul-0.5.2_linux_amd64.zip
+        src: /tmp/consul-0.6.0_linux_amd64.zip
         dest: /usr/local/bin
         copy: no
         group: root
@@ -40,15 +41,15 @@
         mode: 0644
     - name: Download Consul UI
       get_url:
-        url: https://dl.bintray.com/mitchellh/consul/0.5.2_web_ui.zip
-        dest: /tmp/consul-0.5.2_web_ui.zip
+        url: https://dl.bintray.com/mitchellh/consul/0.6.0_web_ui.zip
+        dest: /tmp/consul-0.6.0_web_ui.zip
     - name: Create consul-ui dir
       file:
         name: /opt/consul/ui
         state: directory
     - name: Unzip Consul-UI
       unarchive:
-        src: /tmp/consul-0.5.2_web_ui.zip
+        src: /tmp/consul-0.6.0_web_ui.zip
         dest: /opt/consul/ui
         copy: no
     - name: Copy the consul server init
