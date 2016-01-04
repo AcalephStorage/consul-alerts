@@ -12,14 +12,14 @@ import (
 	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
 )
 
-func runWatcher(address, datacenter, watchType string) {
+func runWatcher(consulAddr, datacenter, alertAddr, logLevel, watchType string) {
 	consulAlert := os.Args[0]
 	cmd := exec.Command(
 		"consul", "watch",
-		"-http-addr", address,
+		"-http-addr", consulAddr,
 		"-datacenter", datacenter,
 		"-type", watchType,
-		consulAlert, "watch", watchType)
+		consulAlert, "watch", watchType, "--alert-addr", alertAddr, "--log-level", logLevel)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 

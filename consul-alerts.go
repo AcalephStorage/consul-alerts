@@ -103,13 +103,6 @@ func daemonMode(arguments map[string]interface{}) {
 	leaderCandidate := startLeaderElection(consulAddr, consulDc, consulAclToken)
 	notifEngine := startNotifEngine()
 
-	if watchChecks {
-		go runWatcher(consulAddr, consulDc, "checks")
-	}
-	if watchEvents {
-		go runWatcher(consulAddr, consulDc, "event")
-	}
-
 	ep := startEventProcessor()
 	cp := startCheckProcessor(leaderCandidate, notifEngine)
 
@@ -117,12 +110,29 @@ func daemonMode(arguments map[string]interface{}) {
 	http.HandleFunc("/v1/process/events", ep.eventHandler)
 	http.HandleFunc("/v1/process/checks", cp.checkHandler)
 	http.HandleFunc("/v1/health", healthHandler)
-	go http.ListenAndServe(addr, nil)
+	go startAPI(addr)
+
+	log.Println("Started Consul-Alerts API")
+
+	if watchChecks {
+		go runWatcher(consulAddr, consulDc, addr, loglevelString, "checks")
+	}
+	if watchEvents {
+		go runWatcher(consulAddr, consulDc, addr, loglevelString, "event")
+	}
 
 	ch := make(chan os.Signal)
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-ch
 	cleanup(notifEngine, cp, ep, leaderCandidate)
+}
+
+func startAPI(addr string) {
+	err := http.ListenAndServe(addr, nil)
+	if err != nil {
+		log.Println("Error starting Consul-Alerts API", err)
+		os.Exit(1)
+	}
 }
 
 func watchMode(arguments map[string]interface{}) {
@@ -152,7 +162,7 @@ func watchMode(arguments map[string]interface{}) {
 	url := fmt.Sprintf("http://%s/v1/process/%s", addr, watchType)
 	resp, err := http.Post(url, "text/json", os.Stdin)
 	if err != nil {
-		log.Println("consul-alert daemon is not running.")
+		log.Println("consul-alert daemon is not running.", err)
 		os.Exit(2)
 	} else {
 		resp.Body.Close()
