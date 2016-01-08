@@ -3,7 +3,7 @@ consul-alerts
 
 [![Join the chat at https://gitter.im/AcalephStorage/consul-alerts](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/AcalephStorage/consul-alerts?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-A simple daemon to send notifications based on Consul health checks.
+A highly available daemon to send notifications and reminders based on Consul health checks.  Including profile selection based on service, check, or host that enables specific handlers and reminder intervals.
 
 ## Requirement
 
@@ -84,6 +84,15 @@ To prevent flapping, notifications are only sent when a check status has been st
 
 eg. `consul-alerts/config/checks/change-threshold` = `30`
 
+#### Enable Profiles Selection
+Profiles may be configured as keys in consul-alerts/config/notif-profiles/.  The key name is the name of the profile and the value should be a JSON object with an "Interval" key set to an int in minutes and a key "NotifList" that should be an object of profile names as keys and true for the value. 
+
+Profile selection is done by setting keys in consul-alerts/config/notif-selection/services/, consul-alerts/config/notif-selection/checks/, or consul-alerts/config/notif-selection/hosts/ with the appropriate service, check, or host name as the key and the selected profile name as the value.
+
+Reminders are processed every five minutes.  Interval values should be a multiple of five.  If the Interval value is 0 or not set then reminders will not be set.
+
+The default profile may be set as the fallback to any checks that do not match a selection.  If there is no default profile set then the full list of enabled notifiers will be used and no reminders.
+
 #### Enable/Disable Specific Health Checks
 
 There are four ways to enable/disable health check notifications: mark them by node, serviceID, checkID, or mark individually by node/serviceID/checkID. This is done by adding a KV entry in `consul-alerts/config/checks/blacklist/...`. Removing the entry will re-enable the check notifications.
@@ -112,7 +121,7 @@ Handlers can be configured by adding them to `consul-alerts/config/events/handle
 
 ### Notifiers
 
-There are four builtin notifiers. Only the *Log* notifier is enabled by default. It is also possible to add custom notifiers similar to custom event handlers. Custom notifiers can be added in `consul-alerts/config/notifiers/custom`.
+There are four builtin notifiers. Only the *Log* notifier is enabled by default. It is also possible to add custom notifiers similar to custom event handlers. Custom notifiers can be added as keys with command path string values in `consul-alerts/config/notifiers/custom/`. The keys will be used as notifier names in the profiles.
 
 #### Logger
 
@@ -247,4 +256,4 @@ PRs are more than welcome. Just fork, create a feature branch, and open a PR. We
 TODO
 ----
 
-This is a port from a tool we developed recently, there are still a few things missing like loading a custom configuration via command/api instead of manually editing consul's KV. Also need to set up a reminder feature. Needs better doc and some cleanup too. :)
+Needs better doc and some cleanup too. :)

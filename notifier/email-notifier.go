@@ -93,6 +93,7 @@ func (emailNotifier *EmailNotifier) Notify(alerts Messages) bool {
 		log.Println("Unable to send notification:", err)
 		return false
 	}
+	log.Println("Email notification sent.")
 	return true
 }
 

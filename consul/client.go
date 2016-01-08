@@ -485,36 +485,30 @@ func (c *ConsulAlertClient) CheckStatus(node, serviceId, checkId string) (status
 }
 
 func (c *ConsulAlertClient) GetProfileInfo(node, serviceId, checkId string) (notifiersList map[string]bool, interval int) {
-	key := fmt.Sprintf("consul-alerts/config/notif-selection/services/%s", serviceId)
-	kvPair, _, _ := c.api.KV().Get(key, nil)
 	log.Println("Getting profile for node: ", node, " service: ", serviceId, " check: ", checkId)
 
 	var profile string
 
-	if kvPair == nil {
-		log.Println("service selection key not found.")
-		key = fmt.Sprintf("consul-alerts/config/notif-selection/check/%s", checkId)
-		kvPair, _, _ = c.api.KV().Get(key, nil)
+	kvPair, _, _ := c.api.KV().Get(fmt.Sprintf("consul-alerts/config/notif-selection/services/%s", serviceId), nil)
+	if kvPair != nil {
 		profile = string(kvPair.Value)
-		if kvPair == nil {
-			log.Println("check selection key not found.")
-			key = fmt.Sprintf("consul-alerts/config/notif-selection/host/%s", checkId)
-			kvPair, _, _ = c.api.KV().Get(key, nil)
-			profile = string(kvPair.Value)
-			if kvPair == nil {
-				log.Println("no selection key found.")
-				profile = "default"
-			}
-		}
+		log.Println("service selection key found.")
+	} else if kvPair, _, _ = c.api.KV().Get(fmt.Sprintf("consul-alerts/config/notif-selection/checks/%s", checkId), nil); kvPair != nil {
+		profile = string(kvPair.Value)
+		log.Println("check selection key found.")
+	} else if kvPair, _, _ = c.api.KV().Get(fmt.Sprintf("consul-alerts/config/notif-selection/hosts/%s", node), nil); kvPair != nil {
+		profile = string(kvPair.Value)
+		log.Println("host selection key found.")
 	} else {
-		profile = string(kvPair.Value)
+		profile = "default"
 	}
 
-	key = fmt.Sprintf("consul-alerts/config/notif-profiles/%s", profile)
+	key := fmt.Sprintf("consul-alerts/config/notif-profiles/%s", profile)
 	log.Println("profile key: ", key)
 	kvPair, _, _ = c.api.KV().Get(key, nil)
 	if kvPair == nil {
 		log.Println("profile key not found.")
+		return
 	}
 	var checkProfile ProfileInfo
 	json.Unmarshal(kvPair.Value, &checkProfile)
