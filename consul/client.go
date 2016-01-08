@@ -268,8 +268,9 @@ func (c *ConsulAlertClient) UpdateCheckData() {
 }
 
 func (c *ConsulAlertClient) GetReminders() []notifier.Message {
+	// Returns list of reminders
 	remindersList, _, _ := c.api.KV().List("consul-alerts/reminders", nil)
-	messages := make([]notifier.Message, 0)
+	var messages []notifier.Message
 	for _, kvpair := range remindersList {
 		var message notifier.Message
 		json.Unmarshal(kvpair.Value, &message)
@@ -280,6 +281,7 @@ func (c *ConsulAlertClient) GetReminders() []notifier.Message {
 }
 
 func (c *ConsulAlertClient) SetReminder(m notifier.Message) {
+	// sets a reminder
 	data, _ := json.Marshal(m)
 	key := fmt.Sprintf("consul-alerts/reminders/%s", m.Node)
 	c.api.KV().Put(&consulapi.KVPair{Key: key, Value: data}, nil)
@@ -287,14 +289,16 @@ func (c *ConsulAlertClient) SetReminder(m notifier.Message) {
 }
 
 func (c *ConsulAlertClient) DeleteReminder(node string) {
+	// deletes a reminder
 	key := fmt.Sprintf("consul-alerts/reminders/%s", node)
 	c.api.KV().Delete(key, nil)
 	log.Println("Deleting reminder for node: ", node)
 }
 
 func (c *ConsulAlertClient) NewAlerts() []Check {
+	// Returns a list of checks marked for notification
 	allChecks, _, _ := c.api.KV().List("consul-alerts/checks", nil)
-	alerts := make([]Check, 0)
+	var alerts []Check
 	for _, kvpair := range allChecks {
 		key := kvpair.Key
 		if strings.HasSuffix(key, "/") {
@@ -317,6 +321,7 @@ func (c *ConsulAlertClient) NewAlerts() []Check {
 }
 
 func (c *ConsulAlertClient) CustomNotifiers() ( customNotifs map[string]string ) {
+	// returns a map of all custom notifiers and command path as the key value
 	if kvPairs, _, err := c.api.KV().List("consul-alerts/config/notifiers/custom", nil); err == nil {
 		for _, kvPair := range kvPairs {
 			custNotifName := filepath.Base(kvPair.Key)
@@ -484,16 +489,17 @@ func (c *ConsulAlertClient) CheckStatus(node, serviceId, checkId string) (status
 	return
 }
 
-func (c *ConsulAlertClient) GetProfileInfo(node, serviceId, checkId string) (notifiersList map[string]bool, interval int) {
-	log.Println("Getting profile for node: ", node, " service: ", serviceId, " check: ", checkId)
+func (c *ConsulAlertClient) GetProfileInfo(node, serviceID, checkID string) (notifiersList map[string]bool, interval int) {
+	// Returns profile info for check
+	log.Println("Getting profile for node: ", node, " service: ", serviceID, " check: ", checkID)
 
 	var profile string
 
-	kvPair, _, _ := c.api.KV().Get(fmt.Sprintf("consul-alerts/config/notif-selection/services/%s", serviceId), nil)
+	kvPair, _, _ := c.api.KV().Get(fmt.Sprintf("consul-alerts/config/notif-selection/services/%s", serviceID), nil)
 	if kvPair != nil {
 		profile = string(kvPair.Value)
 		log.Println("service selection key found.")
-	} else if kvPair, _, _ = c.api.KV().Get(fmt.Sprintf("consul-alerts/config/notif-selection/checks/%s", checkId), nil); kvPair != nil {
+	} else if kvPair, _, _ = c.api.KV().Get(fmt.Sprintf("consul-alerts/config/notif-selection/checks/%s", checkID), nil); kvPair != nil {
 		profile = string(kvPair.Value)
 		log.Println("check selection key found.")
 	} else if kvPair, _, _ = c.api.KV().Get(fmt.Sprintf("consul-alerts/config/notif-selection/hosts/%s", node), nil); kvPair != nil {
@@ -520,6 +526,7 @@ func (c *ConsulAlertClient) GetProfileInfo(node, serviceId, checkId string) (not
 }
 
 func (c *ConsulAlertClient) IsBlacklisted(check *Check) bool {
+	// check blacklist status of check
 	node := check.Node
 	nodeCheckKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/nodes/%s", node)
 	nodeBlacklisted := c.CheckKeyExists(nodeCheckKey)
