@@ -203,12 +203,14 @@ func builtinNotifiers() []notifier.Notifier {
 			Receivers:   emailConfig.Receivers,
 			Template:    emailConfig.Template,
 			ClusterName: emailConfig.ClusterName,
+			NotifName:   "email",
 		}
 		notifiers = append(notifiers, emailNotifier)
 	}
 	if logConfig.Enabled {
 		logNotifier := &notifier.LogNotifier{
 			LogFile: logConfig.Path,
+			NotifName:   "log",
 		}
 		notifiers = append(notifiers, logNotifier)
 	}
@@ -219,6 +221,7 @@ func builtinNotifiers() []notifier.Notifier {
 			Password:   influxdbConfig.Password,
 			Database:   influxdbConfig.Database,
 			SeriesName: influxdbConfig.SeriesName,
+			NotifName:   "influx",
 		}
 		notifiers = append(notifiers, influxdbNotifier)
 	}
@@ -231,6 +234,7 @@ func builtinNotifiers() []notifier.Notifier {
 			IconUrl:     slackConfig.IconUrl,
 			IconEmoji:   slackConfig.IconEmoji,
 			Detailed:    slackConfig.Detailed,
+			NotifName:   "slack",
 		}
 		notifiers = append(notifiers, slackNotifier)
 	}
@@ -239,6 +243,7 @@ func builtinNotifiers() []notifier.Notifier {
 			ServiceKey: pagerdutyConfig.ServiceKey,
 			ClientName: pagerdutyConfig.ClientName,
 			ClientUrl:  pagerdutyConfig.ClientUrl,
+			NotifName:   "pagerduty",
 		}
 		notifiers = append(notifiers, pagerdutyNotifier)
 	}
@@ -248,6 +253,7 @@ func builtinNotifiers() []notifier.Notifier {
 			RoomId:      hipchatConfig.RoomId,
 			AuthToken:   hipchatConfig.AuthToken,
 			BaseURL:     hipchatConfig.BaseURL,
+			NotifName:   "hipchat",
 		}
 		notifiers = append(notifiers, hipchatNotifier)
 	}
@@ -255,6 +261,7 @@ func builtinNotifiers() []notifier.Notifier {
 		opsgenieNotifier := &notifier.OpsGenieNotifier{
 			ClusterName: opsgenieConfig.ClusterName,
 			ApiKey:      opsgenieConfig.ApiKey,
+			NotifName:   "opsgenie",
 		}
 		notifiers = append(notifiers, opsgenieNotifier)
 	}

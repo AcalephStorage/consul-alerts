@@ -1,6 +1,10 @@
 package consul
 
-import "time"
+import (
+	"time"
+
+	"github.com/AcalephStorage/consul-alerts/notifier"
+)
 
 type Event struct {
 	ID            string
@@ -119,6 +123,11 @@ type Status struct {
 	ForNotification  bool
 }
 
+type ProfileInfo struct {
+	Interval  int
+	NotifList map[string]bool
+}
+
 type Consul interface {
 	LoadConfig()
 
@@ -140,10 +149,16 @@ type Consul interface {
 
 	IsBlacklisted(check *Check) bool
 
-	CustomNotifiers() []string
+	CustomNotifiers() map[string]string
 
 	CheckStatus(node, statusId, checkId string) (status, output string)
 	CheckKeyExists(key string) bool
+
+	GetProfileInfo(node, serviceId, checkId string) (notifiersList map[string]bool, interval int)
+	
+	GetReminders() []notifier.Message
+	SetReminder(m notifier.Message)
+	DeleteReminder(node string)
 }
 
 func DefaultAlertConfig() *ConsulAlertConfig {

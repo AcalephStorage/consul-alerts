@@ -23,6 +23,7 @@ type SlackNotifier struct {
 	Text        string       `json:"text,omitempty"`
 	Attachments []attachment `json:"attachments,omitempty"`
 	Detailed    bool         `json:"-"`
+	NotifName   string
 }
 
 type attachment struct {
@@ -31,6 +32,10 @@ type attachment struct {
 	Pretext  string   `json:"pretext"`
 	Text     string   `json:"text"`
 	MrkdwnIn []string `json:"mrkdwn_in"`
+}
+
+func (slack *SlackNotifier) NotifierName() string {
+	return slack.NotifName
 }
 
 func (slack *SlackNotifier) Notify(messages Messages) bool {

@@ -10,6 +10,11 @@ import (
 
 type LogNotifier struct {
 	LogFile string
+	NotifName   string
+}
+
+func (logNotifier *LogNotifier) NotifierName() string {
+	return logNotifier.NotifName
 }
 
 func (logNotifier *LogNotifier) Notify(alerts Messages) bool {

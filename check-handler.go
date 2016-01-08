@@ -35,6 +35,43 @@ func (c *CheckProcessor) stop() {
 	close(c.closeChan)
 }
 
+func (c *CheckProcessor) reminderStart() {
+	cleanup := false
+	remindTicker := time.NewTicker(time.Second * 300).C
+	for !cleanup {
+		select {
+		case <-remindTicker:
+			c.reminderRun()
+		case <-c.closeChan:
+			cleanup = true
+		}
+	}
+}
+
+func (c *CheckProcessor) reminderRun() {
+	if !c.leaderElection.leader {
+		log.Println("Currently not the leader. Ignoring reminders.")
+		return
+	}
+	log.Println("Running reminder check.")
+	messages := consulClient.GetReminders()
+	filteredMessages := make(notifier.Messages, 0)
+	for _, message := range messages {
+		duration := time.Since(message.Timestamp)
+		durMins := int(duration.Minutes())
+		log.Println("Reminder message duration minutes: ", durMins)
+		totalInterval := message.IntCount * message.Interval
+		if durMins >= totalInterval {
+			message.IntCount++
+			consulClient.SetReminder(message)
+			filteredMessages = append(filteredMessages, message)
+		}
+	}
+	if len(filteredMessages) > 0 {
+		c.notifEngine.queueMessages(filteredMessages)
+	}
+}
+
 func (c *CheckProcessor) handleChecks(checks []consul.Check) {
 	consulClient.LoadConfig()
 
@@ -71,6 +108,7 @@ func (c *CheckProcessor) handleChecks(checks []consul.Check) {
 func (c *CheckProcessor) notify(alerts []consul.Check) {
 	messages := make([]notifier.Message, len(alerts))
 	for i, alert := range alerts {
+		notifMap, interval := consulClient.GetProfileInfo(alert.Node, alert.ServiceID, alert.CheckID)
 		messages[i] = notifier.Message{
 			Node:      alert.Node,
 			ServiceId: alert.ServiceID,
@@ -80,7 +118,18 @@ func (c *CheckProcessor) notify(alerts []consul.Check) {
 			Status:    alert.Status,
 			Output:    alert.Output,
 			Notes:     alert.Notes,
+			Interval:  interval,
+			IntCount:  1,
+			NotifList: notifMap,
 			Timestamp: time.Now(),
+		}
+		if interval > 0 {
+			switch alert.Status {
+				case "passing":
+					consulClient.DeleteReminder(alert.Node)
+				case "warning", "critical":
+					consulClient.SetReminder(messages[i])
+			}
 		}
 	}
 
@@ -101,6 +150,7 @@ func startCheckProcessor(leaderCandidate *LeaderElection, notifEngine *NotifEngi
 		leaderElection: leaderCandidate,
 	}
 	go cp.start()
+	go cp.reminderStart()
 	return cp
 }
 

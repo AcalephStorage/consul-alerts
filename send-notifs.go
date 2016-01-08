@@ -46,14 +46,33 @@ func (n *NotifEngine) queueMessages(messages notifier.Messages) {
 }
 
 func (n *NotifEngine) sendBuiltin(messages notifier.Messages) {
+	log.Println("sendBuiltin running")
 	for _, n := range builtinNotifiers() {
-		n.Notify(messages)
+		filteredMessages := make(notifier.Messages, 0)
+		notifName := n.NotifierName()
+		for _, m := range messages {
+			if _, exists := m.NotifList[notifName]; exists {
+				filteredMessages = append(filteredMessages, m)
+			}
+		}
+		if len(filteredMessages) > 0 {
+			n.Notify(filteredMessages)
+		}
 	}
 }
 
 func (n *NotifEngine) sendCustom(messages notifier.Messages) {
-	for _, notifCmd := range consulClient.CustomNotifiers() {
-		data, err := json.Marshal(&messages)
+	for notifName, notifCmd := range consulClient.CustomNotifiers() {
+		filteredMessages := make(notifier.Messages, 0)
+		for _, m := range messages {
+			if _, exists := m.NotifList[notifName]; exists {
+				filteredMessages = append(filteredMessages, m)
+			}
+		}
+		if len(filteredMessages) == 0 {
+			continue
+		}
+		data, err := json.Marshal(&filteredMessages)
 		if err != nil {
 			log.Println("Unable to read messages: ", err)
 			return

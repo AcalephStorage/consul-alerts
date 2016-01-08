@@ -20,6 +20,7 @@ type EmailNotifier struct {
 	SenderAlias string
 	SenderEmail string
 	Receivers   []string
+	NotifName   string
 }
 
 type EmailData struct {
@@ -41,6 +42,10 @@ func (e EmailData) IsWarning() bool {
 
 func (e EmailData) IsPassing() bool {
 	return e.SystemStatus == SYSTEM_HEALTHY
+}
+
+func (emailNotifier *EmailNotifier) NotifierName() string {
+	return emailNotifier.NotifName
 }
 
 func (emailNotifier *EmailNotifier) Notify(alerts Messages) bool {
@@ -88,7 +93,6 @@ func (emailNotifier *EmailNotifier) Notify(alerts Messages) bool {
 		log.Println("Unable to send notification:", err)
 		return false
 	}
-	log.Println("Email notification sent.")
 	return true
 }
 

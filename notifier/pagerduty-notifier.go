@@ -10,6 +10,11 @@ type PagerDutyNotifier struct {
 	ServiceKey string
 	ClientName string
 	ClientUrl  string
+	NotifName   string
+}
+
+func (pd *PagerDutyNotifier) NotifierName() string {
+	return pd.NotifName
 }
 
 func (pd *PagerDutyNotifier) Notify(messages Messages) bool {

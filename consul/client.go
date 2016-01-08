@@ -6,7 +6,11 @@ import (
 	"strings"
 	"time"
 
+	"path/filepath"
+
 	"encoding/json"
+
+	"github.com/AcalephStorage/consul-alerts/notifier"
 
 	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
 	consulapi "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/hashicorp/consul/api"
@@ -83,10 +87,6 @@ func (c *ConsulAlertClient) LoadConfig() {
 				valErr = loadCustomValue(&config.Events.Enabled, val, ConfigTypeBool)
 			case "consul-alerts/config/events/handlers":
 				valErr = loadCustomValue(&config.Events.Handlers, val, ConfigTypeStrArray)
-
-			// notifiers config
-			case "consul-alerts/config/notifiers/custom":
-				valErr = loadCustomValue(&config.Notifiers.Custom, val, ConfigTypeStrArray)
 
 			// email notifier config
 			case "consul-alerts/config/notifiers/email/cluster-name":
@@ -267,6 +267,31 @@ func (c *ConsulAlertClient) UpdateCheckData() {
 
 }
 
+func (c *ConsulAlertClient) GetReminders() []notifier.Message {
+	remindersList, _, _ := c.api.KV().List("consul-alerts/reminders", nil)
+	messages := make([]notifier.Message, 0)
+	for _, kvpair := range remindersList {
+		var message notifier.Message
+		json.Unmarshal(kvpair.Value, &message)
+		messages = append(messages, message)
+	}
+	log.Println("Getting reminders")
+	return messages
+}
+
+func (c *ConsulAlertClient) SetReminder(m notifier.Message) {
+	data, _ := json.Marshal(m)
+	key := fmt.Sprintf("consul-alerts/reminders/%s", m.Node)
+	c.api.KV().Put(&consulapi.KVPair{Key: key, Value: data}, nil)
+	log.Println("Setting reminder for node: ", m.Node)
+}
+
+func (c *ConsulAlertClient) DeleteReminder(node string) {
+	key := fmt.Sprintf("consul-alerts/reminders/%s", node)
+	c.api.KV().Delete(key, nil)
+	log.Println("Deleting reminder for node: ", node)
+}
+
 func (c *ConsulAlertClient) NewAlerts() []Check {
 	allChecks, _, _ := c.api.KV().List("consul-alerts/checks", nil)
 	alerts := make([]Check, 0)
@@ -291,8 +316,14 @@ func (c *ConsulAlertClient) NewAlerts() []Check {
 	return alerts
 }
 
-func (c *ConsulAlertClient) CustomNotifiers() []string {
-	return c.config.Notifiers.Custom
+func (c *ConsulAlertClient) CustomNotifiers() ( customNotifs map[string]string ) {
+	if kvPairs, _, err := c.api.KV().List("consul-alerts/config/notifiers/custom", nil); err == nil {
+		for _, kvPair := range kvPairs {
+			custNotifName := filepath.Base(kvPair.Key)
+			customNotifs[custNotifName] = string(kvPair.Value)
+		}
+	}
+	return customNotifs
 }
 
 func (c *ConsulAlertClient) EmailConfig() *EmailNotifierConfig {
@@ -450,6 +481,47 @@ func (c *ConsulAlertClient) CheckStatus(node, serviceId, checkId string) (status
 
 	status = checkStatus.Current
 	output = checkStatus.HealthCheck.Output
+	return
+}
+
+func (c *ConsulAlertClient) GetProfileInfo(node, serviceId, checkId string) (notifiersList map[string]bool, interval int) {
+	key := fmt.Sprintf("consul-alerts/config/notif-selection/services/%s", serviceId)
+	kvPair, _, _ := c.api.KV().Get(key, nil)
+	log.Println("Getting profile for node: ", node, " service: ", serviceId, " check: ", checkId)
+
+	var profile string
+
+	if kvPair == nil {
+		log.Println("service selection key not found.")
+		key = fmt.Sprintf("consul-alerts/config/notif-selection/check/%s", checkId)
+		kvPair, _, _ = c.api.KV().Get(key, nil)
+		profile = string(kvPair.Value)
+		if kvPair == nil {
+			log.Println("check selection key not found.")
+			key = fmt.Sprintf("consul-alerts/config/notif-selection/host/%s", checkId)
+			kvPair, _, _ = c.api.KV().Get(key, nil)
+			profile = string(kvPair.Value)
+			if kvPair == nil {
+				log.Println("no selection key found.")
+				profile = "default"
+			}
+		}
+	} else {
+		profile = string(kvPair.Value)
+	}
+
+	key = fmt.Sprintf("consul-alerts/config/notif-profiles/%s", profile)
+	log.Println("profile key: ", key)
+	kvPair, _, _ = c.api.KV().Get(key, nil)
+	if kvPair == nil {
+		log.Println("profile key not found.")
+	}
+	var checkProfile ProfileInfo
+	json.Unmarshal(kvPair.Value, &checkProfile)
+
+	notifiersList = checkProfile.NotifList
+	interval = checkProfile.Interval
+	log.Println("Interval: ", interval, " List: ", notifiersList)
 	return
 }
 

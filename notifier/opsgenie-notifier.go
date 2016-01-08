@@ -11,7 +11,12 @@ import (
 
 type OpsGenieNotifier struct {
 	ClusterName string
-	ApiKey      string
+	ApiKey   string
+	NotifName   string
+}
+
+func (opsgenie *OpsGenieNotifier) NotifierName() string {
+	return opsgenie.NotifName
 }
 
 func (opsgenie *OpsGenieNotifier) Notify(messages Messages) bool {

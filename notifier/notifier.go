@@ -22,6 +22,9 @@ type Message struct {
 	Status    string
 	Output    string
 	Notes     string
+	Interval  int
+	IntCount  int
+	NotifList map[string]bool
 	Timestamp time.Time
 }
 
@@ -29,6 +32,7 @@ type Messages []Message
 
 type Notifier interface {
 	Notify(alerts Messages) bool
+	NotifierName() string
 }
 
 func (m Message) IsCritical() bool {

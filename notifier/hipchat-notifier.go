@@ -14,6 +14,11 @@ type HipChatNotifier struct {
 	RoomId      string
 	AuthToken   string
 	BaseURL     string
+	NotifName   string
+}
+
+func (notifier *HipChatNotifier) NotifierName() string {
+	return notifier.NotifName
 }
 
 func (notifier *HipChatNotifier) Notify(messages Messages) bool {

@@ -11,6 +11,11 @@ type InfluxdbNotifier struct {
 	Password   string
 	Database   string
 	SeriesName string
+	NotifName   string
+}
+
+func (influxdb *InfluxdbNotifier) NotifierName() string {
+	return influxdb.NotifName
 }
 
 func (influxdb *InfluxdbNotifier) Notify(messages Messages) bool {
