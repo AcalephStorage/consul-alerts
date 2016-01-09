@@ -13,6 +13,7 @@ type LogNotifier struct {
 	NotifName   string
 }
 
+// provides name for notifier selection
 func (logNotifier *LogNotifier) NotifierName() string {
 	return logNotifier.NotifName
 }

@@ -34,6 +34,7 @@ type attachment struct {
 	MrkdwnIn []string `json:"mrkdwn_in"`
 }
 
+// provides name for notifier selection
 func (slack *SlackNotifier) NotifierName() string {
 	return slack.NotifName
 }

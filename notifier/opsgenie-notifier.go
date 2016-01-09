@@ -15,6 +15,7 @@ type OpsGenieNotifier struct {
 	NotifName   string
 }
 
+// provides name for notifier selection
 func (opsgenie *OpsGenieNotifier) NotifierName() string {
 	return opsgenie.NotifName
 }

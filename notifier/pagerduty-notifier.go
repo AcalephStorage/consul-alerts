@@ -13,6 +13,7 @@ type PagerDutyNotifier struct {
 	NotifName   string
 }
 
+// provides name for notifier selection
 func (pd *PagerDutyNotifier) NotifierName() string {
 	return pd.NotifName
 }

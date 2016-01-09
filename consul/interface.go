@@ -6,6 +6,7 @@ import (
 	"github.com/AcalephStorage/consul-alerts/notifier"
 )
 
+// event data from consul
 type Event struct {
 	ID            string
 	Name          string
@@ -123,6 +124,7 @@ type Status struct {
 	ForNotification  bool
 }
 
+// for reading in JSON from profile keys
 type ProfileInfo struct {
 	Interval  int
 	NotifList map[string]bool
@@ -154,7 +156,7 @@ type Consul interface {
 	CheckStatus(node, statusId, checkId string) (status, output string)
 	CheckKeyExists(key string) bool
 
-	GetProfileInfo(node, serviceId, checkId string) (notifiersList map[string]bool, interval int)
+	GetProfileInfo(node, serviceID, checkID string) (notifiersList map[string]bool, interval int)
 	
 	GetReminders() []notifier.Message
 	SetReminder(m notifier.Message)

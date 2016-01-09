@@ -267,8 +267,8 @@ func (c *ConsulAlertClient) UpdateCheckData() {
 
 }
 
+// Returns list of reminders
 func (c *ConsulAlertClient) GetReminders() []notifier.Message {
-	// Returns list of reminders
 	remindersList, _, _ := c.api.KV().List("consul-alerts/reminders", nil)
 	var messages []notifier.Message
 	for _, kvpair := range remindersList {
@@ -280,23 +280,23 @@ func (c *ConsulAlertClient) GetReminders() []notifier.Message {
 	return messages
 }
 
+// sets a reminder
 func (c *ConsulAlertClient) SetReminder(m notifier.Message) {
-	// sets a reminder
 	data, _ := json.Marshal(m)
 	key := fmt.Sprintf("consul-alerts/reminders/%s", m.Node)
 	c.api.KV().Put(&consulapi.KVPair{Key: key, Value: data}, nil)
 	log.Println("Setting reminder for node: ", m.Node)
 }
 
+// deletes a reminder
 func (c *ConsulAlertClient) DeleteReminder(node string) {
-	// deletes a reminder
 	key := fmt.Sprintf("consul-alerts/reminders/%s", node)
 	c.api.KV().Delete(key, nil)
 	log.Println("Deleting reminder for node: ", node)
 }
 
+// Returns a list of checks marked for notification
 func (c *ConsulAlertClient) NewAlerts() []Check {
-	// Returns a list of checks marked for notification
 	allChecks, _, _ := c.api.KV().List("consul-alerts/checks", nil)
 	var alerts []Check
 	for _, kvpair := range allChecks {
@@ -320,8 +320,8 @@ func (c *ConsulAlertClient) NewAlerts() []Check {
 	return alerts
 }
 
+// returns a map of all custom notifiers and command path as the key value
 func (c *ConsulAlertClient) CustomNotifiers() ( customNotifs map[string]string ) {
-	// returns a map of all custom notifiers and command path as the key value
 	if kvPairs, _, err := c.api.KV().List("consul-alerts/config/notifiers/custom", nil); err == nil {
 		for _, kvPair := range kvPairs {
 			custNotifName := filepath.Base(kvPair.Key)
@@ -489,8 +489,8 @@ func (c *ConsulAlertClient) CheckStatus(node, serviceId, checkId string) (status
 	return
 }
 
+// Returns profile info for check
 func (c *ConsulAlertClient) GetProfileInfo(node, serviceID, checkID string) (notifiersList map[string]bool, interval int) {
-	// Returns profile info for check
 	log.Println("Getting profile for node: ", node, " service: ", serviceID, " check: ", checkID)
 
 	var profile string
@@ -525,8 +525,8 @@ func (c *ConsulAlertClient) GetProfileInfo(node, serviceID, checkID string) (not
 	return
 }
 
+// check blacklist status of check
 func (c *ConsulAlertClient) IsBlacklisted(check *Check) bool {
-	// check blacklist status of check
 	node := check.Node
 	nodeCheckKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/nodes/%s", node)
 	nodeBlacklisted := c.CheckKeyExists(nodeCheckKey)

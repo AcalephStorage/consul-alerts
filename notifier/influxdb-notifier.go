@@ -14,6 +14,7 @@ type InfluxdbNotifier struct {
 	NotifName   string
 }
 
+// provides name for notifier selection
 func (influxdb *InfluxdbNotifier) NotifierName() string {
 	return influxdb.NotifName
 }

@@ -17,6 +17,7 @@ type HipChatNotifier struct {
 	NotifName   string
 }
 
+// provides name for notifier selection
 func (notifier *HipChatNotifier) NotifierName() string {
 	return notifier.NotifName
 }
