@@ -44,11 +44,12 @@ func (e EmailData) IsPassing() bool {
 	return e.SystemStatus == SYSTEM_HEALTHY
 }
 
-// provides name for notifier selection
+// NotifierName provides name for notifier selection
 func (emailNotifier *EmailNotifier) NotifierName() string {
 	return emailNotifier.NotifName
 }
 
+//Notify sends messages to the endpoint notifier
 func (emailNotifier *EmailNotifier) Notify(alerts Messages) bool {
 
 	overAllStatus, pass, warn, fail := alerts.Summary()

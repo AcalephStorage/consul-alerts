@@ -6,7 +6,7 @@ import (
 	"github.com/AcalephStorage/consul-alerts/notifier"
 )
 
-// event data from consul
+// Event data from consul
 type Event struct {
 	ID            string
 	Name          string
@@ -124,12 +124,13 @@ type Status struct {
 	ForNotification  bool
 }
 
-// for reading in JSON from profile keys
+// ProfileInfo is for reading in JSON from profile keys
 type ProfileInfo struct {
 	Interval  int
 	NotifList map[string]bool
 }
 
+// Consul interface provides access to consul client 
 type Consul interface {
 	LoadConfig()
 
@@ -163,6 +164,7 @@ type Consul interface {
 	DeleteReminder(node string)
 }
 
+// DefaultAlertConfig loads default config settings
 func DefaultAlertConfig() *ConsulAlertConfig {
 
 	checks := &ChecksConfig{

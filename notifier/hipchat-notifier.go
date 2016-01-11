@@ -17,11 +17,12 @@ type HipChatNotifier struct {
 	NotifName   string
 }
 
-// provides name for notifier selection
+// NotifierName provides name for notifier selection
 func (notifier *HipChatNotifier) NotifierName() string {
 	return notifier.NotifName
 }
 
+//Notify sends messages to the endpoint notifier
 func (notifier *HipChatNotifier) Notify(messages Messages) bool {
 
 	overallStatus, pass, warn, fail := messages.Summary()

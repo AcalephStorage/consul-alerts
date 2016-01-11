@@ -13,11 +13,12 @@ type LogNotifier struct {
 	NotifName   string
 }
 
-// provides name for notifier selection
+// NotifierName provides name for notifier selection
 func (logNotifier *LogNotifier) NotifierName() string {
 	return logNotifier.NotifName
 }
 
+//Notify sends messages to the endpoint notifier
 func (logNotifier *LogNotifier) Notify(alerts Messages) bool {
 
 	logrus.Println("logging messages...")

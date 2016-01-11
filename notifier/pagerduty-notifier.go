@@ -13,11 +13,12 @@ type PagerDutyNotifier struct {
 	NotifName   string
 }
 
-// provides name for notifier selection
+// NotifierName provides name for notifier selection
 func (pd *PagerDutyNotifier) NotifierName() string {
 	return pd.NotifName
 }
 
+//Notify sends messages to the endpoint notifier
 func (pd *PagerDutyNotifier) Notify(messages Messages) bool {
 
 	client := gopherduty.NewClient(pd.ServiceKey)
