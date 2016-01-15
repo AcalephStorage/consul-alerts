@@ -102,6 +102,7 @@ type HipChatNotifierConfig struct {
 	RoomId      string
 	AuthToken   string
 	BaseURL     string
+	From        string
 }
 
 type OpsGenieNotifierConfig struct {

@@ -248,6 +248,7 @@ func builtinNotifiers() []notifier.Notifier {
 			RoomId:      hipchatConfig.RoomId,
 			AuthToken:   hipchatConfig.AuthToken,
 			BaseURL:     hipchatConfig.BaseURL,
+			From:        hipchatConfig.From,
 		}
 		notifiers = append(notifiers, hipchatNotifier)
 	}

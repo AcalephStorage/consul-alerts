@@ -14,6 +14,7 @@ type HipChatNotifier struct {
 	RoomId      string
 	AuthToken   string
 	BaseURL     string
+	From        string
 }
 
 func (notifier *HipChatNotifier) Notify(messages Messages) bool {
@@ -43,7 +44,13 @@ func (notifier *HipChatNotifier) Notify(messages Messages) bool {
 		client.BaseURL = url
 	}
 
+	from := ""
+	if notifier.From != "" {
+		from := notifier.From
+	}
+
 	notifRq := &hipchat.NotificationRequest{
+		From:    from,
 		Message: text,
 		Color:   level,
 		Notify:  true,
