@@ -291,6 +291,49 @@ func (c *ConsulAlertClient) NewAlerts() []Check {
 	return alerts
 }
 
+func (c *ConsulAlertClient) NewAlertsWithFilter(nodeName string, serviceName string, checkName string, statuses []string, ignoreBlacklist bool) []Check {
+	allChecks, _, _ := c.api.KV().List("consul-alerts/checks", nil)
+	alerts := make([]Check, 0)
+	for _, kvpair := range allChecks {
+		if strings.HasSuffix(kvpair.Key, "/") {
+			continue
+		}
+
+		var status Status
+		json.Unmarshal(kvpair.Value, &status)
+
+		check := *status.HealthCheck
+
+		if nodeName != "" && nodeName != check.Node {
+			continue
+		}
+
+		if serviceName != "" && serviceName != check.ServiceName {
+			continue
+		}
+
+		if checkName != "" && checkName != check.Name {
+			continue
+		}
+
+		if len(statuses) > 0 {
+			inStatuses := false
+			for _, s := range statuses {
+				inStatuses =  check.Status == s
+			}
+			if !inStatuses {
+				continue
+			}
+		}
+
+		if !ignoreBlacklist && c.IsBlacklisted(status.HealthCheck) {
+            continue
+		}
+	    alerts = append(alerts, *status.HealthCheck)
+	}
+	return alerts
+}
+
 func (c *ConsulAlertClient) CustomNotifiers() []string {
 	return c.config.Notifiers.Custom
 }

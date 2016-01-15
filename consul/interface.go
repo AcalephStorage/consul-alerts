@@ -137,6 +137,7 @@ type Consul interface {
 	CheckChangeThreshold() int
 	UpdateCheckData()
 	NewAlerts() []Check
+	NewAlertsWithFilter(node string, service string, checkId string, statuses []string, ignoreBlacklist bool) []Check
 
 	IsBlacklisted(check *Check) bool
 
