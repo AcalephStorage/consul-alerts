@@ -48,6 +48,7 @@ type NotifiersConfig struct {
 	PagerDuty *PagerDutyNotifierConfig
 	HipChat   *HipChatNotifierConfig
 	OpsGenie  *OpsGenieNotifierConfig
+	AwsSns    *AwsSnsNotifierConfig
 	Custom    []string
 }
 
@@ -110,6 +111,12 @@ type OpsGenieNotifierConfig struct {
 	ApiKey      string
 }
 
+type AwsSnsNotifierConfig struct {
+	Enabled     bool
+	Region      string
+	TopicArn    string
+}
+
 type Status struct {
 	Current          string
 	CurrentTimestamp time.Time
@@ -133,6 +140,7 @@ type Consul interface {
 	PagerDutyConfig() *PagerDutyNotifierConfig
 	HipChatConfig() *HipChatNotifierConfig
 	OpsGenieConfig() *OpsGenieNotifierConfig
+	AwsSnsConfig() *AwsSnsNotifierConfig
 
 	CheckChangeThreshold() int
 	UpdateCheckData()
@@ -194,6 +202,10 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 		ClusterName: "Consul-Alerts",
 	}
 
+	awsSns := &AwsSnsNotifierConfig{
+		Enabled: false,
+	}
+
 	notifiers := &NotifiersConfig{
 		Email:     email,
 		Log:       log,
@@ -202,6 +214,7 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 		PagerDuty: pagerduty,
 		HipChat:   hipchat,
 		OpsGenie:  opsgenie,
+		AwsSns:    awsSns,
 		Custom:    []string{},
 	}
 

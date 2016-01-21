@@ -190,6 +190,7 @@ func builtinNotifiers() []notifier.Notifier {
 	pagerdutyConfig := consulClient.PagerDutyConfig()
 	hipchatConfig := consulClient.HipChatConfig()
 	opsgenieConfig := consulClient.OpsGenieConfig()
+	awssnsConfig := consulClient.AwsSnsConfig()
 
 	notifiers := []notifier.Notifier{}
 	if emailConfig.Enabled {
@@ -257,6 +258,13 @@ func builtinNotifiers() []notifier.Notifier {
 			ApiKey:      opsgenieConfig.ApiKey,
 		}
 		notifiers = append(notifiers, opsgenieNotifier)
+	}
+	if awssnsConfig.Enabled {
+		awssnsNotifier := &notifier.AwsSnsNotifier{
+			Region: awssnsConfig.Region,
+			TopicArn: awssnsConfig.TopicArn,
+		}
+		notifiers = append(notifiers, awssnsNotifier)
 	}
 
 	return notifiers
