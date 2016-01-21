@@ -226,7 +226,7 @@ prefix: `consul-alerts/config/notifiers/opsgenie/`
 #### Amazon Web Services Simple Notification Service ("SNS")
 
 To enable AWS SNS builtin notifier, set
-`consul-alerts/config/notifiers/awssns/enabled` to `true`. OpsGenie details
+`consul-alerts/config/notifiers/awssns/enabled` to `true`. AWS SNS details
 needs to be configured.
 
 prefix: `consul-alerts/config/notifiers/awssns/`
