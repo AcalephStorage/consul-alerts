@@ -180,6 +180,14 @@ func (c *ConsulAlertClient) LoadConfig() {
 			case "consul-alerts/config/notifiers/opsgenie/api-key":
 				valErr = loadCustomValue(&config.Notifiers.OpsGenie.ApiKey, val, ConfigTypeString)
 
+			// AwsSns notifier config
+			case "consul-alerts/config/notifiers/awssns/enabled":
+				valErr = loadCustomValue(&config.Notifiers.AwsSns.Enabled, val, ConfigTypeBool)
+			case "consul-alerts/config/notifiers/awssns/region":
+				valErr = loadCustomValue(&config.Notifiers.AwsSns.Region, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/awssns/topic-arn":
+				valErr = loadCustomValue(&config.Notifiers.AwsSns.TopicArn, val, ConfigTypeString)
+
 			}
 
 			if valErr != nil {
@@ -360,6 +368,10 @@ func (c *ConsulAlertClient) HipChatConfig() *HipChatNotifierConfig {
 
 func (c *ConsulAlertClient) OpsGenieConfig() *OpsGenieNotifierConfig {
 	return c.config.Notifiers.OpsGenie
+}
+
+func (c *ConsulAlertClient) AwsSnsConfig() *AwsSnsNotifierConfig {
+	return c.config.Notifiers.AwsSns
 }
 
 func (c *ConsulAlertClient) registerHealthCheck(key string, health *Check) {
