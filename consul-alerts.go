@@ -209,8 +209,8 @@ func builtinNotifiers() []notifier.Notifier {
 	}
 	if logConfig.Enabled {
 		logNotifier := &notifier.LogNotifier{
-			LogFile: logConfig.Path,
-			NotifName:   "log",
+			LogFile:   logConfig.Path,
+			NotifName: "log",
 		}
 		notifiers = append(notifiers, logNotifier)
 	}
@@ -221,7 +221,7 @@ func builtinNotifiers() []notifier.Notifier {
 			Password:   influxdbConfig.Password,
 			Database:   influxdbConfig.Database,
 			SeriesName: influxdbConfig.SeriesName,
-			NotifName:   "influx",
+			NotifName:  "influx",
 		}
 		notifiers = append(notifiers, influxdbNotifier)
 	}
@@ -243,7 +243,7 @@ func builtinNotifiers() []notifier.Notifier {
 			ServiceKey: pagerdutyConfig.ServiceKey,
 			ClientName: pagerdutyConfig.ClientName,
 			ClientUrl:  pagerdutyConfig.ClientUrl,
-			NotifName:   "pagerduty",
+			NotifName:  "pagerduty",
 		}
 		notifiers = append(notifiers, pagerdutyNotifier)
 	}
@@ -253,6 +253,7 @@ func builtinNotifiers() []notifier.Notifier {
 			RoomId:      hipchatConfig.RoomId,
 			AuthToken:   hipchatConfig.AuthToken,
 			BaseURL:     hipchatConfig.BaseURL,
+			From:        hipchatConfig.From,
 			NotifName:   "hipchat",
 		}
 		notifiers = append(notifiers, hipchatNotifier)
