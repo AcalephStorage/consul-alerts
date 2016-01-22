@@ -11,8 +11,15 @@ type InfluxdbNotifier struct {
 	Password   string
 	Database   string
 	SeriesName string
+	NotifName   string
 }
 
+// NotifierName provides name for notifier selection
+func (influxdb *InfluxdbNotifier) NotifierName() string {
+	return influxdb.NotifName
+}
+
+//Notify sends messages to the endpoint notifier
 func (influxdb *InfluxdbNotifier) Notify(messages Messages) bool {
 
 	config := &client.ClientConfig{

@@ -11,9 +11,16 @@ import (
 
 type OpsGenieNotifier struct {
 	ClusterName string
-	ApiKey      string
+	ApiKey   string
+	NotifName   string
 }
 
+// NotifierName provides name for notifier selection
+func (opsgenie *OpsGenieNotifier) NotifierName() string {
+	return opsgenie.NotifName
+}
+
+//Notify sends messages to the endpoint notifier
 func (opsgenie *OpsGenieNotifier) Notify(messages Messages) bool {
 
 	overallStatus, pass, warn, fail := messages.Summary()

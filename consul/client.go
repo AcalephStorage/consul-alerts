@@ -6,7 +6,11 @@ import (
 	"strings"
 	"time"
 
+	"path/filepath"
+
 	"encoding/json"
+
+	"github.com/AcalephStorage/consul-alerts/notifier"
 
 	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
 	consulapi "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/hashicorp/consul/api"
@@ -83,10 +87,6 @@ func (c *ConsulAlertClient) LoadConfig() {
 				valErr = loadCustomValue(&config.Events.Enabled, val, ConfigTypeBool)
 			case "consul-alerts/config/events/handlers":
 				valErr = loadCustomValue(&config.Events.Handlers, val, ConfigTypeStrArray)
-
-			// notifiers config
-			case "consul-alerts/config/notifiers/custom":
-				valErr = loadCustomValue(&config.Notifiers.Custom, val, ConfigTypeStrArray)
 
 			// email notifier config
 			case "consul-alerts/config/notifiers/email/cluster-name":
@@ -267,9 +267,38 @@ func (c *ConsulAlertClient) UpdateCheckData() {
 
 }
 
+// GetReminders returns list of reminders
+func (c *ConsulAlertClient) GetReminders() []notifier.Message {
+	remindersList, _, _ := c.api.KV().List("consul-alerts/reminders", nil)
+	var messages []notifier.Message
+	for _, kvpair := range remindersList {
+		var message notifier.Message
+		json.Unmarshal(kvpair.Value, &message)
+		messages = append(messages, message)
+	}
+	log.Println("Getting reminders")
+	return messages
+}
+
+// SetReminder sets a reminder
+func (c *ConsulAlertClient) SetReminder(m notifier.Message) {
+	data, _ := json.Marshal(m)
+	key := fmt.Sprintf("consul-alerts/reminders/%s", m.Node)
+	c.api.KV().Put(&consulapi.KVPair{Key: key, Value: data}, nil)
+	log.Println("Setting reminder for node: ", m.Node)
+}
+
+// DeleteReminder deletes a reminder
+func (c *ConsulAlertClient) DeleteReminder(node string) {
+	key := fmt.Sprintf("consul-alerts/reminders/%s", node)
+	c.api.KV().Delete(key, nil)
+	log.Println("Deleting reminder for node: ", node)
+}
+
+// NewAlerts returns a list of checks marked for notification
 func (c *ConsulAlertClient) NewAlerts() []Check {
 	allChecks, _, _ := c.api.KV().List("consul-alerts/checks", nil)
-	alerts := make([]Check, 0)
+	var alerts []Check
 	for _, kvpair := range allChecks {
 		key := kvpair.Key
 		if strings.HasSuffix(key, "/") {
@@ -291,10 +320,18 @@ func (c *ConsulAlertClient) NewAlerts() []Check {
 	return alerts
 }
 
-func (c *ConsulAlertClient) CustomNotifiers() []string {
-	return c.config.Notifiers.Custom
+// CustomNotifiers returns a map of all custom notifiers and command path as the key value
+func (c *ConsulAlertClient) CustomNotifiers() ( customNotifs map[string]string ) {
+	if kvPairs, _, err := c.api.KV().List("consul-alerts/config/notifiers/custom", nil); err == nil {
+		for _, kvPair := range kvPairs {
+			custNotifName := filepath.Base(kvPair.Key)
+			customNotifs[custNotifName] = string(kvPair.Value)
+		}
+	}
+	return customNotifs
 }
 
+// EmailConfig exports the email config
 func (c *ConsulAlertClient) EmailConfig() *EmailNotifierConfig {
 	return c.config.Notifiers.Email
 }
@@ -453,6 +490,43 @@ func (c *ConsulAlertClient) CheckStatus(node, serviceId, checkId string) (status
 	return
 }
 
+// GetProfileInfo returns profile info for check
+func (c *ConsulAlertClient) GetProfileInfo(node, serviceID, checkID string) (notifiersList map[string]bool, interval int) {
+	log.Println("Getting profile for node: ", node, " service: ", serviceID, " check: ", checkID)
+
+	var profile string
+
+	kvPair, _, _ := c.api.KV().Get(fmt.Sprintf("consul-alerts/config/notif-selection/services/%s", serviceID), nil)
+	if kvPair != nil {
+		profile = string(kvPair.Value)
+		log.Println("service selection key found.")
+	} else if kvPair, _, _ = c.api.KV().Get(fmt.Sprintf("consul-alerts/config/notif-selection/checks/%s", checkID), nil); kvPair != nil {
+		profile = string(kvPair.Value)
+		log.Println("check selection key found.")
+	} else if kvPair, _, _ = c.api.KV().Get(fmt.Sprintf("consul-alerts/config/notif-selection/hosts/%s", node), nil); kvPair != nil {
+		profile = string(kvPair.Value)
+		log.Println("host selection key found.")
+	} else {
+		profile = "default"
+	}
+
+	key := fmt.Sprintf("consul-alerts/config/notif-profiles/%s", profile)
+	log.Println("profile key: ", key)
+	kvPair, _, _ = c.api.KV().Get(key, nil)
+	if kvPair == nil {
+		log.Println("profile key not found.")
+		return
+	}
+	var checkProfile ProfileInfo
+	json.Unmarshal(kvPair.Value, &checkProfile)
+
+	notifiersList = checkProfile.NotifList
+	interval = checkProfile.Interval
+	log.Println("Interval: ", interval, " List: ", notifiersList)
+	return
+}
+
+// IsBlacklisted gets the blacklist status of check
 func (c *ConsulAlertClient) IsBlacklisted(check *Check) bool {
 	node := check.Node
 	nodeCheckKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/nodes/%s", node)
