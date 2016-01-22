@@ -269,8 +269,9 @@ func builtinNotifiers() []notifier.Notifier {
 	}
 	if awssnsConfig.Enabled {
 		awssnsNotifier := &notifier.AwsSnsNotifier{
-			Region: awssnsConfig.Region,
-			TopicArn: awssnsConfig.TopicArn,
+			Region:    awssnsConfig.Region,
+			TopicArn:  awssnsConfig.TopicArn,
+			NotifName: "awssns",
 		}
 		notifiers = append(notifiers, awssnsNotifier)
 	}

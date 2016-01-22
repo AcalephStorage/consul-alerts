@@ -118,9 +118,9 @@ type OpsGenieNotifierConfig struct {
 }
 
 type AwsSnsNotifierConfig struct {
-	Enabled     bool
-	Region      string
-	TopicArn    string
+	Enabled  bool
+	Region   string
+	TopicArn string
 }
 
 type Status struct {
