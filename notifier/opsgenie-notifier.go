@@ -11,7 +11,7 @@ import (
 
 type OpsGenieNotifier struct {
 	ClusterName string
-	ApiKey   string
+	ApiKey      string
 	NotifName   string
 }
 
@@ -45,13 +45,13 @@ func (opsgenie *OpsGenieNotifier) Notify(messages Messages) bool {
 		response, alertErr := opsgenie.Send(alertCli, title, content)
 
 		if alertErr != nil {
-                        if response == nil {
-                                log.Println("Opsgenie notification trouble", alertErr)
-                        } else {
-                                log.Println("Opsgenie notification trouble.", response.Status)
-                        }
-                        return false
-                }
+			if response == nil {
+				log.Println("Opsgenie notification trouble", alertErr)
+			} else {
+				log.Println("Opsgenie notification trouble.", response.Status)
+			}
+			return false
+		}
 	}
 
 	log.Println("Opsgenie notification send.")

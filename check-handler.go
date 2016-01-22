@@ -125,10 +125,10 @@ func (c *CheckProcessor) notify(alerts []consul.Check) {
 		}
 		if interval > 0 {
 			switch alert.Status {
-				case "passing":
-					consulClient.DeleteReminder(alert.Node)
-				case "warning", "critical":
-					consulClient.SetReminder(messages[i])
+			case "passing":
+				consulClient.DeleteReminder(alert.Node)
+			case "warning", "critical":
+				consulClient.SetReminder(messages[i])
 			}
 		}
 	}

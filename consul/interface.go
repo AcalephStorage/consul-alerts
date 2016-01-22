@@ -131,7 +131,7 @@ type ProfileInfo struct {
 	NotifList map[string]bool
 }
 
-// Consul interface provides access to consul client 
+// Consul interface provides access to consul client
 type Consul interface {
 	LoadConfig()
 
@@ -159,7 +159,7 @@ type Consul interface {
 	CheckKeyExists(key string) bool
 
 	GetProfileInfo(node, serviceID, checkID string) (notifiersList map[string]bool, interval int)
-	
+
 	GetReminders() []notifier.Message
 	SetReminder(m notifier.Message)
 	DeleteReminder(node string)

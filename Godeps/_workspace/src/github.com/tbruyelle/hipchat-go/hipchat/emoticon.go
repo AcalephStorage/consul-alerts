@@ -1,7 +1,6 @@
 package hipchat
 
 import (
-	"fmt"
 	"net/http"
 )
 
@@ -21,17 +20,25 @@ type Emoticons struct {
 // Emoticon represents a hipchat emoticon.
 type Emoticon struct {
 	ID       int    `json:"id"`
-	Url      string `json:"url"`
+	URL      string `json:"url"`
 	Links    Links  `json:"links"`
 	Shortcut string `json:"shortcut"`
+}
+
+// EmoticonsListOptions specifies the optionnal parameters of the EmoticonService.List
+// method.
+type EmoticonsListOptions struct {
+	ListOptions
+
+	// The type of emoticons to get (global, group or all)
+	Type string `url:"type,omitempty"`
 }
 
 // List returns the list of all the emoticons
 //
 // HipChat api docs : https://www.hipchat.com/docs/apiv2/method/get_all_emoticons
-func (e *EmoticonService) List(start, max int, type_ string) (*Emoticons, *http.Response, error) {
-	req, err := e.client.NewRequest("GET",
-		fmt.Sprintf("emoticon?start-index=%d&max-results=%d&type=%s", start, max, type_), nil)
+func (e *EmoticonService) List(opt *EmoticonsListOptions) (*Emoticons, *http.Response, error) {
+	req, err := e.client.NewRequest("GET", "emoticon", opt, nil)
 	if err != nil {
 		return nil, nil, err
 	}

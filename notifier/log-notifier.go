@@ -9,8 +9,8 @@ import (
 )
 
 type LogNotifier struct {
-	LogFile string
-	NotifName   string
+	LogFile   string
+	NotifName string
 }
 
 // NotifierName provides name for notifier selection

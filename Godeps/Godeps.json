@@ -68,8 +68,8 @@
 		},
 		{
 			"ImportPath": "github.com/tbruyelle/hipchat-go/hipchat",
-			"Comment": "v1.0-7-g1dd13e1",
-			"Rev": "89e68948bffac4a7d62d1b8fc1ab5ee99d8a3cd8"
+			"Comment": "v1.1-22-g55738d3",
+			"Rev": "55738d370904e36b63c09c27a60ee92685d4e915"
 		}
 	]
 }

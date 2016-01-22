@@ -10,7 +10,7 @@ type PagerDutyNotifier struct {
 	ServiceKey string
 	ClientName string
 	ClientUrl  string
-	NotifName   string
+	NotifName  string
 }
 
 // NotifierName provides name for notifier selection

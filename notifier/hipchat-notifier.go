@@ -53,7 +53,7 @@ func (notifier *HipChatNotifier) Notify(messages Messages) bool {
 
 	from := ""
 	if notifier.From != "" {
-		from := notifier.From
+		from = notifier.From
 	}
 
 	notifRq := &hipchat.NotificationRequest{

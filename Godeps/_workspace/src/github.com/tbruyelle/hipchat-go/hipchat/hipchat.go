@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/google/go-querystring/query"
 	"io"
 	"io/ioutil"
 	"mime"
@@ -15,6 +16,8 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -53,6 +56,24 @@ type ID struct {
 	ID string `json:"id"`
 }
 
+// ListOptions  specifies the optional parameters to various List methods that
+// support pagination.
+type ListOptions struct {
+	// For paginated results, represents the first page to display.
+	StartIndex int `url:"start-index,omitempty"`
+	// For paginated results, reprensents the number of items per page.
+	MaxResults int `url:"max-results,omitempty"`
+}
+
+// AuthTest can be set to true to test an auth token.
+//
+// HipChat API docs: https://www.hipchat.com/docs/apiv2/auth#auth_test
+var AuthTest = false
+
+// AuthTestResponse will contain the server response of any
+// API calls if AuthTest=true.
+var AuthTestResponse = map[string]interface{}{}
+
 // NewClient returns a new HipChat API client. You must provide a valid
 // AuthToken retrieved from your HipChat account.
 func NewClient(authToken string) *Client {
@@ -72,14 +93,31 @@ func NewClient(authToken string) *Client {
 	return c
 }
 
+// SetHTTPClient sets the HTTP client for performing API requests.
+// If a nil httpClient is provided, http.DefaultClient will be used.
+func (c *Client) SetHTTPClient(httpClient *http.Client) {
+	if httpClient == nil {
+		c.client = http.DefaultClient
+	} else {
+		c.client = httpClient
+	}
+}
+
 // NewRequest creates an API request. This method can be used to performs
 // API request not implemented in this library. Otherwise it should not be
 // be used directly.
 // Relative URLs should always be specified without a preceding slash.
-func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Request, error) {
-	rel, err := url.Parse(urlStr)
+func (c *Client) NewRequest(method, urlStr string, opt interface{}, body interface{}) (*http.Request, error) {
+	rel, err := addOptions(urlStr, opt)
 	if err != nil {
 		return nil, err
+	}
+
+	if AuthTest {
+		// Add the auth_test param
+		values := rel.Query()
+		values.Add("auth_test", strconv.FormatBool(AuthTest))
+		rel.RawQuery = values.Encode()
 	}
 
 	u := c.BaseURL.ResolveReference(rel)
@@ -184,18 +222,49 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 		return nil, err
 	}
 
-	defer resp.Body.Close()
+	if AuthTest {
+		// If AuthTest is enabled, the reponse won't be the
+		// one defined in the API endpoint.
+		err = json.NewDecoder(resp.Body).Decode(&AuthTestResponse)
+	} else {
+		if c := resp.StatusCode; c < 200 || c > 299 {
+			return resp, fmt.Errorf("Server returns status %d", c)
+		}
 
-	if c := resp.StatusCode; c < 200 || c > 299 {
-		return resp, fmt.Errorf("Server returns status %d", c)
-	}
-
-	if v != nil {
-		if w, ok := v.(io.Writer); ok {
-			io.Copy(w, resp.Body)
-		} else {
-			err = json.NewDecoder(resp.Body).Decode(v)
+		if v != nil {
+			defer resp.Body.Close()
+			if w, ok := v.(io.Writer); ok {
+				io.Copy(w, resp.Body)
+			} else {
+				err = json.NewDecoder(resp.Body).Decode(v)
+			}
 		}
 	}
 	return resp, err
+}
+
+// addOptions adds the parameters in opt as URL query parameters to s.  opt
+// must be a struct whose fields may contain "url" tags.
+func addOptions(s string, opt interface{}) (*url.URL, error) {
+	u, err := url.Parse(s)
+	if err != nil {
+		return nil, err
+	}
+	if opt == nil {
+		return u, nil
+	}
+
+	v := reflect.ValueOf(opt)
+	if v.Kind() == reflect.Ptr && v.IsNil() {
+		// No query string to add
+		return u, nil
+	}
+
+	qs, err := query.Values(opt)
+	if err != nil {
+		return nil, err
+	}
+
+	u.RawQuery = qs.Encode()
+	return u, nil
 }

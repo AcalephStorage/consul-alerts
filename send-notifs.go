@@ -51,7 +51,7 @@ func (n *NotifEngine) sendBuiltin(messages notifier.Messages) {
 		filteredMessages := make(notifier.Messages, 0)
 		notifName := n.NotifierName()
 		for _, m := range messages {
-			if boolVal, exists := m.NotifList[notifName]; ( exists && boolVal ) || len(m.NotifList) == 0 {
+			if boolVal, exists := m.NotifList[notifName]; (exists && boolVal) || len(m.NotifList) == 0 {
 				filteredMessages = append(filteredMessages, m)
 			}
 		}
@@ -65,7 +65,7 @@ func (n *NotifEngine) sendCustom(messages notifier.Messages) {
 	for notifName, notifCmd := range consulClient.CustomNotifiers() {
 		filteredMessages := make(notifier.Messages, 0)
 		for _, m := range messages {
-			if boolVal, exists := m.NotifList[notifName]; ( exists && boolVal ) || len(m.NotifList) == 0 {
+			if boolVal, exists := m.NotifList[notifName]; (exists && boolVal) || len(m.NotifList) == 0 {
 				filteredMessages = append(filteredMessages, m)
 			}
 		}

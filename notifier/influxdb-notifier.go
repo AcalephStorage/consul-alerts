@@ -11,7 +11,7 @@ type InfluxdbNotifier struct {
 	Password   string
 	Database   string
 	SeriesName string
-	NotifName   string
+	NotifName  string
 }
 
 // NotifierName provides name for notifier selection

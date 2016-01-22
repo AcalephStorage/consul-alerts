@@ -323,7 +323,7 @@ func (c *ConsulAlertClient) NewAlerts() []Check {
 }
 
 // CustomNotifiers returns a map of all custom notifiers and command path as the key value
-func (c *ConsulAlertClient) CustomNotifiers() ( customNotifs map[string]string ) {
+func (c *ConsulAlertClient) CustomNotifiers() (customNotifs map[string]string) {
 	if kvPairs, _, err := c.api.KV().List("consul-alerts/config/notifiers/custom", nil); err == nil {
 		for _, kvPair := range kvPairs {
 			custNotifName := filepath.Base(kvPair.Key)

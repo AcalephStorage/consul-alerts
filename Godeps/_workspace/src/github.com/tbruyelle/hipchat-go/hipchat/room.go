@@ -1,10 +1,10 @@
 package hipchat
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/url"
-	"strconv"
 )
 
 // RoomService gives access to the room related methods of the API.
@@ -75,6 +75,127 @@ type NotificationRequest struct {
 	Message       string `json:"message,omitempty"`
 	Notify        bool   `json:"notify,omitempty"`
 	MessageFormat string `json:"message_format,omitempty"`
+	From          string `json:"from,omitempty"`
+	Card          *Card  `json:"card,omitempty"`
+}
+
+// Card is used to send information as messages to Hipchat rooms
+type Card struct {
+	Style       string          `json:"style"`
+	Description CardDescription `json:"description"`
+	Format      string          `json:"format,omitempty"`
+	URL         string          `json:"url,omitempty"`
+	Title       string          `json:"title"`
+	Thumbnail   *Icon           `json:"thumbnail,omitempty"`
+	Activity    *Activity       `json:"activity,omitempty"`
+	Attributes  []Attribute     `json:"attributes,omitempty"`
+	ID          string          `json:"id,omitempty"`
+	Icon        *Icon           `json:"icon,omitempty"`
+}
+
+const (
+	// CardStyleFile represents a Card notification related to a file
+	CardStyleFile = "file"
+
+	// CardStyleImage represents a Card notification related to an image
+	CardStyleImage = "image"
+
+	// CardStyleApplication represents a Card notification related to an application
+	CardStyleApplication = "application"
+
+	// CardStyleLink represents a Card notification related to a link
+	CardStyleLink = "link"
+
+	// CardStyleMedia represents a Card notiifcation related to media
+	CardStyleMedia = "media"
+)
+
+// CardDescription represents the main content of the Card
+type CardDescription struct {
+	Format string
+	Value  string
+}
+
+// MarshalJSON serializes a CardDescription into JSON
+func (c CardDescription) MarshalJSON() ([]byte, error) {
+	if c.Format == "" {
+		return json.Marshal(c.Value)
+	}
+
+	obj := make(map[string]string)
+	obj["format"] = c.Format
+	obj["value"] = c.Value
+
+	return json.Marshal(obj)
+}
+
+// UnmarshalJSON deserializes a JSON-serialized CardDescription
+func (c *CardDescription) UnmarshalJSON(data []byte) error {
+	// Compact the JSON to make it easier to process below
+	buffer := bytes.NewBuffer([]byte{})
+	err := json.Compact(buffer, data)
+	if err != nil {
+		return err
+	}
+	data = buffer.Bytes()
+
+	// Since Description can be either a string value or an object, we
+	// must check and deserialize appropriately
+
+	if data[0] == 123 { // == }
+		obj := make(map[string]string)
+
+		err = json.Unmarshal(data, &obj)
+		if err != nil {
+			return err
+		}
+
+		c.Format = obj["format"]
+		c.Value = obj["value"]
+	} else {
+		c.Format = ""
+		err = json.Unmarshal(data, &c.Value)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Icon represents an icon
+type Icon struct {
+	URL   string `json:"url"`
+	URL2x string `json:"url@2x,omitempty"`
+}
+
+// Thumbnail represents a thumbnail image
+type Thumbnail struct {
+	URL    string `json:"url"`
+	URL2x  string `json:"url@2x,omitempty"`
+	Width  uint   `json:"width,omitempty"`
+	Height uint   `json:"url,omitempty"`
+}
+
+// Attribute represents an attribute on a Card
+type Attribute struct {
+	Label string         `json:"label,omitempty"`
+	Value AttributeValue `json:"value"`
+}
+
+// AttributeValue represents the value of an attribute
+type AttributeValue struct {
+	URL   string `json:"url,omitempty"`
+	Style string `json:"style,omitempty"`
+	Label string `json:"label"`
+	Icon  *Icon  `json:"icon,omitempty"`
+}
+
+// Activity represents an activity that occurred
+type Activity struct {
+	Icon *Icon  `json:"icon,omitempty"`
+	HTML string `json:"html,omitempty"`
 }
 
 // ShareFileRequest represents a HipChat room file share request.
@@ -82,15 +203,6 @@ type ShareFileRequest struct {
 	Path     string `json:"path"`
 	Filename string `json:"filename,omitempty"`
 	Message  string `json:"message,omitempty"`
-}
-
-// HistoryRequest represents a HipChat room chat history request.
-type HistoryRequest struct {
-	Date       string `json:"date"`
-	Timezone   string `json:"timezone"`
-	StartIndex int    `json:"start-index"`
-	MaxResults int    `json:"max-results"`
-	Reverse    bool   `json:"reverse"`
 }
 
 // History represents a HipChat room chat history.
@@ -105,7 +217,7 @@ type History struct {
 type Message struct {
 	Date          string      `json:"date"`
 	From          interface{} `json:"from"` // string | obj <- weak
-	Id            string      `json:"id"`
+	ID            string      `json:"id"`
 	Mentions      []User      `json:"mentions"`
 	Message       string      `json:"message"`
 	MessageFormat string      `json:"message_format"`
@@ -122,11 +234,19 @@ type InviteRequest struct {
 	Reason string `json:"reason"`
 }
 
+// AddAttribute adds an attribute to a Card
+func (c *Card) AddAttribute(mainLabel, subLabel, url, iconURL string) {
+	attr := Attribute{Label: mainLabel}
+	attr.Value = AttributeValue{Label: subLabel, URL: url, Icon: &Icon{URL: iconURL}}
+
+	c.Attributes = append(c.Attributes, attr)
+}
+
 // List returns all the rooms authorized.
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/get_all_rooms
 func (r *RoomService) List() (*Rooms, *http.Response, error) {
-	req, err := r.client.NewRequest("GET", "room", nil)
+	req, err := r.client.NewRequest("GET", "room", nil, nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -143,7 +263,7 @@ func (r *RoomService) List() (*Rooms, *http.Response, error) {
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/get_room
 func (r *RoomService) Get(id string) (*Room, *http.Response, error) {
-	req, err := r.client.NewRequest("GET", fmt.Sprintf("room/%s", id), nil)
+	req, err := r.client.NewRequest("GET", fmt.Sprintf("room/%s", id), nil, nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -160,7 +280,7 @@ func (r *RoomService) Get(id string) (*Room, *http.Response, error) {
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/send_room_notification
 func (r *RoomService) Notification(id string, notifReq *NotificationRequest) (*http.Response, error) {
-	req, err := r.client.NewRequest("POST", fmt.Sprintf("room/%s/notification", id), notifReq)
+	req, err := r.client.NewRequest("POST", fmt.Sprintf("room/%s/notification", id), nil, notifReq)
 	if err != nil {
 		return nil, err
 	}
@@ -184,7 +304,7 @@ func (r *RoomService) ShareFile(id string, shareFileReq *ShareFileRequest) (*htt
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/create_room
 func (r *RoomService) Create(roomReq *CreateRoomRequest) (*Room, *http.Response, error) {
-	req, err := r.client.NewRequest("POST", "room", roomReq)
+	req, err := r.client.NewRequest("POST", "room", nil, roomReq)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -201,7 +321,7 @@ func (r *RoomService) Create(roomReq *CreateRoomRequest) (*Room, *http.Response,
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/delete_room
 func (r *RoomService) Delete(id string) (*http.Response, error) {
-	req, err := r.client.NewRequest("DELETE", fmt.Sprintf("room/%s", id), nil)
+	req, err := r.client.NewRequest("DELETE", fmt.Sprintf("room/%s", id), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -213,7 +333,7 @@ func (r *RoomService) Delete(id string) (*http.Response, error) {
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/update_room
 func (r *RoomService) Update(id string, roomReq *UpdateRoomRequest) (*http.Response, error) {
-	req, err := r.client.NewRequest("PUT", fmt.Sprintf("room/%s", id), roomReq)
+	req, err := r.client.NewRequest("PUT", fmt.Sprintf("room/%s", id), nil, roomReq)
 	if err != nil {
 		return nil, err
 	}
@@ -221,32 +341,29 @@ func (r *RoomService) Update(id string, roomReq *UpdateRoomRequest) (*http.Respo
 	return r.client.Do(req, nil)
 }
 
+// HistoryOptions represents a HipChat room chat history request.
+type HistoryOptions struct {
+	ListOptions
+
+	// Either the latest date to fetch history for in ISO-8601 format, or 'recent' to fetch
+	// the latest 75 messages. Paging isn't supported for 'recent', however they are real-time
+	// values, whereas date queries may not include the most recent messages.
+	Date string `url:"date,omitempty"`
+
+	// Your timezone. Must be a supported timezone
+	Timezone string `url:"timezone,omitempty"`
+
+	// Reverse the output such that the oldest message is first.
+	// For consistent paging, set to 'false'.
+	Reverse bool `url:"reverse,omitempty"`
+}
+
 // History fetches a room's chat history.
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/view_room_history
-func (r *RoomService) History(id string, roomReq *HistoryRequest) (*History, *http.Response, error) {
+func (r *RoomService) History(id string, opt *HistoryOptions) (*History, *http.Response, error) {
 	u := fmt.Sprintf("room/%s/history", id)
-	// Form query parameters
-	if roomReq != nil {
-		p := url.Values{}
-		if roomReq.Date != "" {
-			p.Add("date", roomReq.Date)
-		}
-		if roomReq.Timezone != "" {
-			p.Add("timezone", roomReq.Timezone)
-		}
-		if roomReq.StartIndex != 0 {
-			p.Add("start-index", strconv.FormatInt(int64(roomReq.StartIndex), 10))
-		}
-		if roomReq.MaxResults != 0 {
-			p.Add("max-results", strconv.FormatInt(int64(roomReq.MaxResults), 10))
-		}
-		// There's no way to tell whether caller set a boolean or not. We have to always set
-		// it.
-		p.Add("reverse", strconv.FormatBool(roomReq.Reverse))
-		u += "?" + p.Encode()
-	}
-	req, err := r.client.NewRequest("GET", u, nil)
+	req, err := r.client.NewRequest("GET", u, opt, nil)
 	h := new(History)
 	resp, err := r.client.Do(req, &h)
 	if err != nil {
@@ -255,13 +372,41 @@ func (r *RoomService) History(id string, roomReq *HistoryRequest) (*History, *ht
 	return h, resp, nil
 }
 
-// Set Room topic.
+// LatestHistoryOptions represents a HipChat room chat latest history request.
+type LatestHistoryOptions struct {
+
+	// The maximum number of messages to return.
+	MaxResults int `url:"max-results,omitempty"`
+
+	// Your timezone. Must be a supported timezone.
+	Timezone string `url:"timezone,omitempty"`
+
+	// The id of the message that is oldest in the set of messages to be returned.
+	// The server will not return any messages that chronologically precede this message.
+	NotBefore string `url:"not-before,omitempty"`
+}
+
+// Latest fetches a room's chat history.
+//
+// HipChat API docs: https://www.hipchat.com/docs/apiv2/method/view_recent_room_history
+func (r *RoomService) Latest(id string, opt *LatestHistoryOptions) (*History, *http.Response, error) {
+	u := fmt.Sprintf("room/%s/history/latest", id)
+	req, err := r.client.NewRequest("GET", u, opt, nil)
+	h := new(History)
+	resp, err := r.client.Do(req, &h)
+	if err != nil {
+		return nil, resp, err
+	}
+	return h, resp, nil
+}
+
+// SetTopic sets Room topic.
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/set_topic
 func (r *RoomService) SetTopic(id string, topic string) (*http.Response, error) {
 	topicReq := &SetTopicRequest{Topic: topic}
 
-	req, err := r.client.NewRequest("PUT", fmt.Sprintf("room/%s/topic", id), topicReq)
+	req, err := r.client.NewRequest("PUT", fmt.Sprintf("room/%s/topic", id), nil, topicReq)
 	if err != nil {
 		return nil, err
 	}
@@ -275,7 +420,7 @@ func (r *RoomService) SetTopic(id string, topic string) (*http.Response, error) 
 func (r *RoomService) Invite(room string, user string, reason string) (*http.Response, error) {
 	reasonReq := &InviteRequest{Reason: reason}
 
-	req, err := r.client.NewRequest("POST", fmt.Sprintf("room/%s/invite/%s", room, user), reasonReq)
+	req, err := r.client.NewRequest("POST", fmt.Sprintf("room/%s/invite/%s", room, user), nil, reasonReq)
 	if err != nil {
 		return nil, err
 	}
