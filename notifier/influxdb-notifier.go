@@ -19,24 +19,21 @@ func (influxdb *InfluxdbNotifier) NotifierName() string {
 	return influxdb.NotifName
 }
 
-//Notify sends messages to the endpoint notifier
 func (influxdb *InfluxdbNotifier) Notify(messages Messages) bool {
 
-	config := &client.ClientConfig{
-		Host:     influxdb.Host,
+	influxdbClient, err := client.NewHTTPClient(client.HTTPConfig{
+		Addr:     influxdb.Host,
 		Username: influxdb.Username,
 		Password: influxdb.Password,
-		Database: influxdb.Database,
-	}
+	})
 
-	influxdbClient, err := client.New(config)
 	if err != nil {
 		log.Println("unable to access influxdb. can't send notification. ", err)
 		return false
 	}
 
-	seriesList := influxdb.toSeries(messages)
-	err = influxdbClient.WriteSeries(seriesList)
+	bp := influxdb.toSeries(messages)
+	err = influxdbClient.Write(bp)
 
 	if err != nil {
 		log.Println("unable to send notifications: ", err)
@@ -47,36 +44,27 @@ func (influxdb *InfluxdbNotifier) Notify(messages Messages) bool {
 	return true
 }
 
-func (influxdb *InfluxdbNotifier) toSeries(messages Messages) []*client.Series {
+func (influxdb *InfluxdbNotifier) toSeries(messages Messages) client.BatchPoints {
 
 	seriesName := influxdb.SeriesName
-	columns := []string{
-		"node",
-		"service",
-		"checks",
-		"notes",
-		"output",
-		"status",
-	}
+	bp, _ := client.NewBatchPoints(client.BatchPointsConfig{
+		Database:  influxdb.Database,
+		Precision: "s",
+	})
 
-	seriesList := make([]*client.Series, len(messages))
-	for index, message := range messages {
-
-		point := []interface{}{
-			message.Node,
-			message.Service,
-			message.Check,
-			message.Notes,
-			message.Output,
-			message.Status,
+	for _, message := range messages {
+		// Create a point and add to batch
+		tags := map[string]string{"node": message.Node}
+		fields := map[string]interface{}{
+			"node":    message.Node,
+			"service": message.Service,
+			"check":   message.Check,
+			"notes":   message.Notes,
+			"output":  message.Output,
+			"status":  message.Status,
 		}
-
-		series := &client.Series{
-			Name:    seriesName,
-			Columns: columns,
-			Points:  [][]interface{}{point},
-		}
-		seriesList[index] = series
+		pt, _ := client.NewPoint(seriesName, tags, fields, time.Now())
+		bp.AddPoint(pt)
 	}
-	return seriesList
+	return bp
 }
