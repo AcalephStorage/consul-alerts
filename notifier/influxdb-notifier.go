@@ -1,6 +1,8 @@
 package notifier
 
 import (
+	"time"
+
 	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
 	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/influxdb/influxdb/client/v2"
 )
