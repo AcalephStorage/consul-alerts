@@ -86,10 +86,19 @@ eg. `consul-alerts/config/checks/change-threshold` = `30`
 
 #### Enable Profiles Selection
 Profiles may be configured as keys in consul-alerts/config/notif-profiles/.  The key name is the name of the profile and the value should be a JSON object with an "Interval" key set to an int in minutes and a key "NotifList" that should be an object of profile names as keys and true for the value. 
-
+Example:
+```
+{
+  "Interval": 10,
+  "NotifList": {
+    "log":false,
+    "email":true
+  }
+}
+```
 Profile selection is done by setting keys in consul-alerts/config/notif-selection/services/, consul-alerts/config/notif-selection/checks/, or consul-alerts/config/notif-selection/hosts/ with the appropriate service, check, or host name as the key and the selected profile name as the value.
 
-Reminders are processed every five minutes.  Interval values should be a multiple of five.  If the Interval value is 0 or not set then reminders will not be set.
+Reminders resend the notifications at programable intervals until they are resolved or added to the blacklist. Reminders are processed every five minutes.  Interval values should be a multiple of five.  If the Interval value is 0 or not set then reminders will not be set.
 
 The default profile may be set as the fallback to any checks that do not match a selection.  If there is no default profile set then the full list of enabled notifiers will be used and no reminders.
 
