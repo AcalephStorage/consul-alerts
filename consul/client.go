@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"path/filepath"
+	"regexp"
 
 	"encoding/json"
 
@@ -334,7 +334,13 @@ func (c *ConsulAlertClient) NewAlerts() []Check {
 func (c *ConsulAlertClient) CustomNotifiers() (customNotifs map[string]string) {
 	if kvPairs, _, err := c.api.KV().List("consul-alerts/config/notifiers/custom", nil); err == nil {
 		for _, kvPair := range kvPairs {
-			custNotifName := filepath.Base(kvPair.Key)
+			rp := regexp.MustCompile("/([^/]*)$")
+			match := rp.FindStringSubmatch(kvPair.Key)
+			custNotifName := match[1]
+			if custNotifName == "" {
+				continue
+			}
+			customNotifs = make(map[string]string)
 			customNotifs[custNotifName] = string(kvPair.Value)
 		}
 	}
