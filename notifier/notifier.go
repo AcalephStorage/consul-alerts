@@ -23,7 +23,7 @@ type Message struct {
 	Output    string
 	Notes     string
 	Interval  int
-	IntCount  int
+	RmdCheck  time.Time
 	NotifList map[string]bool
 	Timestamp time.Time
 }
