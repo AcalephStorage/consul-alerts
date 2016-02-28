@@ -37,33 +37,73 @@ func (opsgenie *OpsGenieNotifier) Notify(messages Messages) bool {
 
 	for _, message := range messages {
 		title := fmt.Sprintf("\n%s:%s:%s is %s.", message.Node, message.Service, message.Check, message.Status)
+		alias := opsgenie.CreateAlias(message)
 		content := fmt.Sprintf(header, opsgenie.ClusterName, overallStatus, fail, warn, pass)
 		content += fmt.Sprintf("\n%s:%s:%s is %s.", message.Node, message.Service, message.Check, message.Status)
 		content += fmt.Sprintf("\n%s", message.Output)
 
 		// create the alert
-		response, alertErr := opsgenie.Send(alertCli, title, content)
-
-		if alertErr != nil {
-			if response == nil {
-				log.Println("Opsgenie notification trouble", alertErr)
-			} else {
-				log.Println("Opsgenie notification trouble.", response.Status)
-			}
-			return false
+		switch {
+		case message.IsCritical():
+			return opsgenie.CreateAlert(alertCli, title, content, alias)
+		case message.IsWarning():
+			return opsgenie.CreateAlert(alertCli, title, content, alias)
+		case message.IsPassing():
+			return opsgenie.CloseAlert(alertCli, alias)
 		}
 	}
-
-	log.Println("Opsgenie notification send.")
-	return true
+	log.Warn("Message was not either IsCritical, IsWarning or IsPasssing. No notification was sent.")
+	return false
 }
 
-func (opsgenie *OpsGenieNotifier) Send(alertCli *ogcli.OpsGenieAlertClient, message string, content string) (*alerts.CreateAlertResponse, error) {
+func (opsgenie *OpsGenieNotifier) CreateAlias(message Message) string {
+	incidentKey := message.Node
+	if message.ServiceId != "" {
+		incidentKey += ":" + message.ServiceId
+	}
+	incidentKey += ":" + message.CheckId
+	return incidentKey
+}
+
+func (opsgenie *OpsGenieNotifier) CreateAlert(alertCli *ogcli.OpsGenieAlertClient, message string, content string, alias string) bool {
 	req := alerts.CreateAlertRequest{
 		Message:     message,
 		Description: content,
+		Alias:       alias,
 		Source:      "consul",
 		Entity:      opsgenie.ClusterName,
 	}
-	return alertCli.Create(req)
+	response, alertErr := alertCli.Create(req)
+
+	if alertErr != nil {
+		if response == nil {
+			log.Warn("Opsgenie notification trouble", alertErr)
+		} else {
+			log.Warn("Opsgenie notification trouble.", response.Status)
+		}
+		return false
+	}
+
+	log.Println("Opsgenie notification sent.")
+	return true
+}
+
+func (opsgenie *OpsGenieNotifier) CloseAlert(alertCli *ogcli.OpsGenieAlertClient, alias string) bool {
+	req := alerts.CloseAlertRequest{
+		Alias:  alias,
+		Source: "consul",
+	}
+	response, alertErr := alertCli.Close(req)
+
+	if alertErr != nil {
+		if response == nil {
+			log.Warn("Opsgenie notification trouble", alertErr)
+		} else {
+			log.Warn("Opsgenie notification trouble.", response.Status)
+		}
+		return false
+	}
+
+	log.Println("Opsgenie close alert sent.")
+	return true
 }
