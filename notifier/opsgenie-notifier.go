@@ -35,6 +35,7 @@ func (opsgenie *OpsGenieNotifier) Notify(messages Messages) bool {
 		return false
 	}
 
+	ok := true
 	for _, message := range messages {
 		title := fmt.Sprintf("\n%s:%s:%s is %s.", message.Node, message.Service, message.Check, message.Status)
 		alias := opsgenie.CreateAlias(message)
@@ -45,15 +46,17 @@ func (opsgenie *OpsGenieNotifier) Notify(messages Messages) bool {
 		// create the alert
 		switch {
 		case message.IsCritical():
-			return opsgenie.CreateAlert(alertCli, title, content, alias)
+			ok = opsgenie.CreateAlert(alertCli, title, content, alias) && ok
 		case message.IsWarning():
-			return opsgenie.CreateAlert(alertCli, title, content, alias)
+			ok = opsgenie.CreateAlert(alertCli, title, content, alias) && ok
 		case message.IsPassing():
-			return opsgenie.CloseAlert(alertCli, alias)
+			ok = opsgenie.CloseAlert(alertCli, alias) && ok
+		default:
+			ok = false
+			log.Warn("Message was not either IsCritical, IsWarning or IsPasssing. No notification was sent for ", alias)
 		}
 	}
-	log.Warn("Message was not either IsCritical, IsWarning or IsPasssing. No notification was sent.")
-	return false
+	return ok
 }
 
 func (opsgenie *OpsGenieNotifier) CreateAlias(message Message) string {
@@ -61,7 +64,7 @@ func (opsgenie *OpsGenieNotifier) CreateAlias(message Message) string {
 	if message.ServiceId != "" {
 		incidentKey += ":" + message.ServiceId
 	}
-	incidentKey += ":" + message.CheckId
+
 	return incidentKey
 }
 
