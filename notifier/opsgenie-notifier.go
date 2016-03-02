@@ -69,6 +69,8 @@ func (opsgenie *OpsGenieNotifier) CreateAlias(message Message) string {
 }
 
 func (opsgenie *OpsGenieNotifier) CreateAlert(alertCli *ogcli.OpsGenieAlertClient, message string, content string, alias string) bool {
+	log.Debug(fmt.Sprintf("OpsGenieAlertClient.CreateAlert alias: %s", alias))
+
 	req := alerts.CreateAlertRequest{
 		Message:     message,
 		Description: content,
@@ -80,9 +82,9 @@ func (opsgenie *OpsGenieNotifier) CreateAlert(alertCli *ogcli.OpsGenieAlertClien
 
 	if alertErr != nil {
 		if response == nil {
-			log.Warn("Opsgenie notification trouble", alertErr)
+			log.Warn("Opsgenie notification trouble. ", alertErr)
 		} else {
-			log.Warn("Opsgenie notification trouble.", response.Status)
+			log.Warn("Opsgenie notification trouble. ", response.Status)
 		}
 		return false
 	}
@@ -92,6 +94,7 @@ func (opsgenie *OpsGenieNotifier) CreateAlert(alertCli *ogcli.OpsGenieAlertClien
 }
 
 func (opsgenie *OpsGenieNotifier) CloseAlert(alertCli *ogcli.OpsGenieAlertClient, alias string) bool {
+	log.Debug(fmt.Sprintf("OpsGenieAlertClient.CloseAlert alias: %s", alias))
 	req := alerts.CloseAlertRequest{
 		Alias:  alias,
 		Source: "consul",
@@ -100,9 +103,9 @@ func (opsgenie *OpsGenieNotifier) CloseAlert(alertCli *ogcli.OpsGenieAlertClient
 
 	if alertErr != nil {
 		if response == nil {
-			log.Warn("Opsgenie notification trouble", alertErr)
+			log.Warn("Opsgenie notification trouble. ", alertErr)
 		} else {
-			log.Warn("Opsgenie notification trouble.", response.Status)
+			log.Warn("Opsgenie notification trouble. ", response.Status)
 		}
 		return false
 	}
