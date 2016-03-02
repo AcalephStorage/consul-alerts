@@ -38,7 +38,7 @@ func (opsgenie *OpsGenieNotifier) Notify(messages Messages) bool {
 	ok := true
 	for _, message := range messages {
 		title := fmt.Sprintf("\n%s:%s:%s is %s.", message.Node, message.Service, message.Check, message.Status)
-		alias := opsgenie.CreateAlias(message)
+		alias := opsgenie.createAlias(message)
 		content := fmt.Sprintf(header, opsgenie.ClusterName, overallStatus, fail, warn, pass)
 		content += fmt.Sprintf("\n%s:%s:%s is %s.", message.Node, message.Service, message.Check, message.Status)
 		content += fmt.Sprintf("\n%s", message.Output)
@@ -46,11 +46,11 @@ func (opsgenie *OpsGenieNotifier) Notify(messages Messages) bool {
 		// create the alert
 		switch {
 		case message.IsCritical():
-			ok = opsgenie.CreateAlert(alertCli, title, content, alias) && ok
+			ok = opsgenie.createAlert(alertCli, title, content, alias) && ok
 		case message.IsWarning():
-			ok = opsgenie.CreateAlert(alertCli, title, content, alias) && ok
+			ok = opsgenie.createAlert(alertCli, title, content, alias) && ok
 		case message.IsPassing():
-			ok = opsgenie.CloseAlert(alertCli, alias) && ok
+			ok = opsgenie.closeAlert(alertCli, alias) && ok
 		default:
 			ok = false
 			log.Warn("Message was not either IsCritical, IsWarning or IsPasssing. No notification was sent for ", alias)
@@ -59,7 +59,7 @@ func (opsgenie *OpsGenieNotifier) Notify(messages Messages) bool {
 	return ok
 }
 
-func (opsgenie *OpsGenieNotifier) CreateAlias(message Message) string {
+func (opsgenie *OpsGenieNotifier) createAlias(message Message) string {
 	incidentKey := message.Node
 	if message.ServiceId != "" {
 		incidentKey += ":" + message.ServiceId
@@ -68,7 +68,7 @@ func (opsgenie *OpsGenieNotifier) CreateAlias(message Message) string {
 	return incidentKey
 }
 
-func (opsgenie *OpsGenieNotifier) CreateAlert(alertCli *ogcli.OpsGenieAlertClient, message string, content string, alias string) bool {
+func (opsgenie *OpsGenieNotifier) createAlert(alertCli *ogcli.OpsGenieAlertClient, message string, content string, alias string) bool {
 	log.Debug(fmt.Sprintf("OpsGenieAlertClient.CreateAlert alias: %s", alias))
 
 	req := alerts.CreateAlertRequest{
@@ -93,7 +93,7 @@ func (opsgenie *OpsGenieNotifier) CreateAlert(alertCli *ogcli.OpsGenieAlertClien
 	return true
 }
 
-func (opsgenie *OpsGenieNotifier) CloseAlert(alertCli *ogcli.OpsGenieAlertClient, alias string) bool {
+func (opsgenie *OpsGenieNotifier) closeAlert(alertCli *ogcli.OpsGenieAlertClient, alias string) bool {
 	log.Debug(fmt.Sprintf("OpsGenieAlertClient.CloseAlert alias: %s", alias))
 	req := alerts.CloseAlertRequest{
 		Alias:  alias,
