@@ -333,6 +333,7 @@ func (c *ConsulAlertClient) NewAlerts() []Check {
 // CustomNotifiers returns a map of all custom notifiers and command path as the key value
 func (c *ConsulAlertClient) CustomNotifiers() (customNotifs map[string]string) {
 	if kvPairs, _, err := c.api.KV().List("consul-alerts/config/notifiers/custom", nil); err == nil {
+		customNotifs = make(map[string]string)
 		for _, kvPair := range kvPairs {
 			rp := regexp.MustCompile("/([^/]*)$")
 			match := rp.FindStringSubmatch(kvPair.Key)
@@ -340,7 +341,6 @@ func (c *ConsulAlertClient) CustomNotifiers() (customNotifs map[string]string) {
 			if custNotifName == "" {
 				continue
 			}
-			customNotifs = make(map[string]string)
 			customNotifs[custNotifName] = string(kvPair.Value)
 		}
 	}
