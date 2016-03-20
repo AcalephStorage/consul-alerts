@@ -12,6 +12,7 @@ import (
 
 var sendMail = smtp.SendMail
 
+// EmailNotifier sends email notifications
 type EmailNotifier struct {
 	ClusterName string
 	Template    string
