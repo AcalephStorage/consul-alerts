@@ -2,7 +2,9 @@ package notifier
 
 import (
 	"fmt"
+	"html"
 	"net/url"
+	"strings"
 
 	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/tbruyelle/hipchat-go/hipchat"
 
@@ -28,11 +30,13 @@ func (notifier *HipChatNotifier) Notify(messages Messages) bool {
 
 	overallStatus, pass, warn, fail := messages.Summary()
 
-	text := fmt.Sprintf(header, notifier.ClusterName, overallStatus, fail, warn, pass)
+	text := fmt.Sprintf("%s is <STRONG>%s</STRONG>. Fail: %d, Warn: %d, Pass: %d",
+                        notifier.ClusterName, overallStatus, fail, warn, pass)
 
 	for _, message := range messages {
-		text += fmt.Sprintf("\n%s:%s:%s is %s.", message.Node, message.Service, message.Check, message.Status)
-		text += fmt.Sprintf("\n%s", message.Output)
+		text += fmt.Sprintf("<BR><CODE>%s</CODE>:%s:%s is <STRONG>%s</STRONG>.",
+                            message.Node, html.EscapeString(message.Service), html.EscapeString(message.Check), message.Status)
+		text += fmt.Sprintf("<BR>%s", strings.Replace(html.EscapeString(message.Output), "\n", "<BR>", -1);
 	}
 
 	level := "green"
