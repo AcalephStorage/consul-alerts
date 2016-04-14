@@ -98,7 +98,7 @@ Example:
 ```
 Profile selection is done by setting keys in consul-alerts/config/notif-selection/services/, consul-alerts/config/notif-selection/checks/, or consul-alerts/config/notif-selection/hosts/ with the appropriate service, check, or host name as the key and the selected profile name as the value.
 
-Reminders resend the notifications at programable intervals until they are resolved or added to the blacklist. Reminders are processed every five minutes.  Interval values should be a multiple of five.  If the Interval value is 0 or not set then reminders will not be set.
+Reminders resend the notifications at programable intervals until they are resolved or added to the blacklist. Reminders are processed every five minutes.  Interval values should be a multiple of five.  If the Interval value is 0 or not set then reminders will not be sent.
 
 The default profile may be set as the fallback to any checks that do not match a selection.  If there is no default profile set then the full list of enabled notifiers will be used and no reminders.
 
