@@ -163,6 +163,7 @@ prefix: `consul-alerts/config/notifiers/email/`
 | sender-email | The sender email                                            |
 | receivers    | The emails of the receivers. JSON array of string           |
 | template     | Path to custom email template. [Default: internal template] |
+| one-per-alert| Whether to send one email per node [Default: false]         |
 
 The template can be any go html template. An `EmailData` instance will be passed to the template.
 
