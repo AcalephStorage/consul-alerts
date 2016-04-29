@@ -2,6 +2,7 @@ package main
 
 import (
 	"time"
+	"math"
 
 	"net/http"
 
@@ -57,12 +58,11 @@ func (c *CheckProcessor) reminderRun() {
 	messages := consulClient.GetReminders()
 	filteredMessages := make(notifier.Messages, 0)
 	for _, message := range messages {
-		duration := time.Since(message.Timestamp)
-		durMins := int(duration.Minutes())
+		duration := time.Since(message.RmdCheck)
+		durMins := int(math.Ceil(duration.Minutes()))
 		log.Println("Reminder message duration minutes: ", durMins)
-		totalInterval := message.IntCount * message.Interval
-		if durMins >= totalInterval {
-			message.IntCount++
+		if durMins >= message.Interval {
+			message.RmdCheck=time.Now()
 			consulClient.SetReminder(message)
 			filteredMessages = append(filteredMessages, message)
 		}
@@ -119,7 +119,7 @@ func (c *CheckProcessor) notify(alerts []consul.Check) {
 			Output:    alert.Output,
 			Notes:     alert.Notes,
 			Interval:  interval,
-			IntCount:  1,
+			RmdCheck:  time.Now(),
 			NotifList: notifMap,
 			Timestamp: time.Now(),
 		}
