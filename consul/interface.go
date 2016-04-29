@@ -68,6 +68,7 @@ type EmailNotifierConfig struct {
 	SenderEmail string
 	Receivers   []string
 	Template    string
+	OnePerAlert bool
 }
 
 type LogNotifierConfig struct {
