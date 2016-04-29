@@ -63,9 +63,12 @@ func (emailNotifier *EmailNotifier) Notify(alerts Messages) bool {
 		emailDataList = []EmailData{}
 		for nodeName, checks := range nodeMap {
 			singleNodeMap := mapByNodes(checks)
-			nodeStatus, nodePassing, nodeWarnings, nodeFailures := alerts.Summary()
+			nodeStatus, nodePassing, nodeWarnings, nodeFailures := checks.Summary()
+
+			nodeClusterName := emailNotifier.ClusterName + " " + nodeName
+
 			e := EmailData{
-				ClusterName:  nodeName,
+				ClusterName:  nodeClusterName,
 				SystemStatus: nodeStatus,
 				FailCount:    nodeFailures,
 				WarnCount:    nodeWarnings,
@@ -115,7 +118,7 @@ func (emailNotifier *EmailNotifier) Notify(alerts Messages) bool {
 
 		msg := ""
 		msg += fmt.Sprintf("From: \"%s\" <%s>\n", emailNotifier.SenderAlias, emailNotifier.SenderEmail)
-		msg += fmt.Sprintf("Subject: %s is %s\n", emailNotifier.ClusterName, e.SystemStatus)
+		msg += fmt.Sprintf("Subject: %s is %s\n", e.ClusterName, e.SystemStatus)
 		msg += "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
 		msg += body.String()
 
