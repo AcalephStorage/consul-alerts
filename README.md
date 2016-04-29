@@ -3,7 +3,7 @@ consul-alerts
 
 [![Join the chat at https://gitter.im/AcalephStorage/consul-alerts](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/AcalephStorage/consul-alerts?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-A highly available daemon to send notifications and reminders based on Consul health checks.  Including profile selection based on service, check, or host that enables specific handlers and reminder intervals.
+A highly available daemon to send notifications and reminders based on Consul health checks.  Including profile selection based on service, check, or host that enables specific handlers and reminder intervals.  consul-alerts makes use of consul services to provide leader election and automatic failover amongst multiple instances.  
 
 ## Requirement
 
@@ -74,7 +74,12 @@ $ consul-alerts start --watch-events --watch-checks
 Configuration
 -------------
 
-All configurations are stored in consul's KV with the prefix: `consul-alerts/config/`. The daemon is using default values and the KV entries will only override the defaults.
+To assure consistencty between instances all configurations are stored in consul's KV with the prefix: `consul-alerts/config/`. The daemon is using default values and the KV entries will only override the defaults. Configuration may be set manually through consul UI or API, using configuration management tools such as chef, puppet or Ansible, or backed up and restored using [consulate](https://github.com/gmr/consulate).  
+Example:  
+```
+consulate kv backup consul-alerts/config -f consul-alerts-config.json
+consulate kv restore consul-alerts/config -f consul-alerts-config.json --prune
+```
 
 ### Health Checks
 
