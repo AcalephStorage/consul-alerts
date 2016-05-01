@@ -10,6 +10,9 @@ import (
 	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
 )
 
+var sendMail = smtp.SendMail
+
+// EmailNotifier sends email notifications
 type EmailNotifier struct {
 	ClusterName string
 	Template    string
@@ -90,8 +93,15 @@ func (emailNotifier *EmailNotifier) Notify(alerts Messages) bool {
 	msg += body.String()
 
 	addr := fmt.Sprintf("%s:%d", emailNotifier.Url, emailNotifier.Port)
-	auth := smtp.PlainAuth("", emailNotifier.Username, emailNotifier.Password, emailNotifier.Url)
-	if err := smtp.SendMail(addr, auth, emailNotifier.SenderEmail, emailNotifier.Receivers, []byte(msg)); err != nil {
+
+	var auth smtp.Auth
+	if emailNotifier.Username == "" || emailNotifier.Password == "" {
+		auth = nil
+	} else {
+		auth = smtp.PlainAuth("", emailNotifier.Username, emailNotifier.Password, emailNotifier.Url)
+	}
+
+	if err := sendMail(addr, auth, emailNotifier.SenderEmail, emailNotifier.Receivers, []byte(msg)); err != nil {
 		log.Println("Unable to send notification:", err)
 		return false
 	}
