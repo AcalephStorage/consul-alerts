@@ -8,7 +8,10 @@ import (
 	"net/smtp"
 
 	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
+	"strings"
 )
+
+var sendMail = smtp.SendMail
 
 type EmailNotifier struct {
 	ClusterName string
@@ -140,17 +143,25 @@ func (emailNotifier *EmailNotifier) Notify(alerts Messages) bool {
 			continue
 		}
 
-		msg := ""
-		msg += fmt.Sprintf("From: \"%s\" <%s>\n", emailNotifier.SenderAlias, emailNotifier.SenderEmail)
-		msg += fmt.Sprintf("Subject: %s is %s\n", e.ClusterName, e.SystemStatus)
-		msg += "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
-		msg += body.String()
+		msg := fmt.Sprintf(`From: "%s" <%s>
+To: %s
+Subject: %s is %s
+MIME-version: 1.0;
+Content-Type: text/html; charset="UTF-8";
+
+%s
+`,
+			emailNotifier.SenderAlias,
+			emailNotifier.SenderEmail,
+			strings.Join(emailNotifier.Receivers, ", "),
+			emailNotifier.ClusterName,
+			overAllStatus,
+			body.String())
 
 		addr := fmt.Sprintf("%s:%d", emailNotifier.Url, emailNotifier.Port)
 		auth := smtp.PlainAuth("", emailNotifier.Username, emailNotifier.Password, emailNotifier.Url)
-		if err := smtp.SendMail(addr, auth, emailNotifier.SenderEmail, emailNotifier.Receivers, []byte(msg)); err != nil {
+		if err := sendMail(addr, auth, emailNotifier.SenderEmail, emailNotifier.Receivers, []byte(msg)); err != nil {
 			log.Println("Unable to send notification:", err)
-			success = false
 			continue
 		}
 		log.Println("Email notification sent.")

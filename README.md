@@ -218,7 +218,7 @@ prefix: `consul-alerts/config/notifiers/pagerduty/`
 | client-name | The monitoring client name                      |
 | client-url  | The monitoring client url                       |
 
-#### Hipchat
+#### HipChat
 
 To enable HipChat builtin notifier, set
 `consul-alerts/config/notifiers/hipchat/enabled` to `true`. Hipchat details
@@ -226,14 +226,21 @@ needs to be configured.
 
 prefix: `consul-alerts/config/notifiers/hipchat/`
 
-| key          | description                                         |
-|--------------|-----------------------------------------------------|
-| enabled      | Enable the Hipchat notifier. [Default: false]       |
-| from         | The name to send notifications as                   |
-| cluster-name | The name of the cluster. [Default: "Consul Alerts"] |
-| base-url     | HipChat base url                                    |
-| room-id      | The room to post to                  (mandatory)    |
-| auth-token   | Authentication token                 (mandatory)    |
+| key          | description                                               |
+|--------------|-----------------------------------------------------------|
+| enabled      | Enable the HipChat notifier. [Default: false]             |
+| from         | The name to send notifications as  (optional)             |
+| cluster-name | The name of the cluster. [Default: "Consul Alerts"]       |
+| base-url     | HipChat base url [Default: `https://api.hipchat.com/v2/`] |
+| room-id      | The room to post to                  (mandatory)          |
+| auth-token   | Authentication token                 (mandatory)          |
+
+The `auth-token` needs to be a room notification token for the `room-id`
+being posted to. 
+See [HipChat API docs](https://developer.atlassian.com/hipchat/guide/hipchat-rest-api).
+
+The default `base-url` works for HipChat-hosted rooms. You only need to
+override it if you are running your own server.
 
 #### OpsGenie
 
