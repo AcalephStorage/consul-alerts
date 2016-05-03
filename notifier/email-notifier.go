@@ -155,7 +155,7 @@ Content-Type: text/html; charset="UTF-8";
 			emailNotifier.SenderEmail,
 			strings.Join(emailNotifier.Receivers, ", "),
 			emailNotifier.ClusterName,
-			overAllStatus,
+			e.SystemStatus,
 			body.String())
 
 		addr := fmt.Sprintf("%s:%d", emailNotifier.Url, emailNotifier.Port)
