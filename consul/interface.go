@@ -69,6 +69,7 @@ type EmailNotifierConfig struct {
 	Receivers   []string
 	Template    string
 	OnePerAlert bool
+	OnePerNode  bool
 }
 
 type LogNotifierConfig struct {

@@ -22,6 +22,7 @@ type EmailNotifier struct {
 	Receivers   []string
 	NotifName   string
 	OnePerAlert bool
+	OnePerNode  bool
 }
 
 type EmailData struct {
@@ -60,6 +61,29 @@ func (emailNotifier *EmailNotifier) Notify(alerts Messages) bool {
 
 	if emailNotifier.OnePerAlert {
 		log.Println("Going to send one email per alert")
+		emailDataList = []EmailData{}
+		for _, check := range alerts {
+
+			singleAlertChecks := make(Messages, 0)
+			singleAlertChecks = append(singleAlertChecks, check)
+			singleAlertMap := mapByNodes(singleAlertChecks)
+
+			alertStatus, alertPassing, alertWarnings, alertFailures := singleAlertChecks.Summary()
+
+			alertClusterName := emailNotifier.ClusterName + " " + check.Node + " - " + check.CheckId
+
+			e := EmailData{
+				ClusterName:  alertClusterName,
+				SystemStatus: alertStatus,
+				FailCount:    alertFailures,
+				WarnCount:    alertWarnings,
+				PassCount:    alertPassing,
+				Nodes:        singleAlertMap,
+			}
+			emailDataList = append(emailDataList, e)
+		}
+	} else if emailNotifier.OnePerNode {
+		log.Println("Going to send one email per node")
 		emailDataList = []EmailData{}
 		for nodeName, checks := range nodeMap {
 			singleNodeMap := mapByNodes(checks)
