@@ -205,6 +205,8 @@ func builtinNotifiers() []notifier.Notifier {
 			Template:    emailConfig.Template,
 			ClusterName: emailConfig.ClusterName,
 			NotifName:   "email",
+			OnePerAlert: emailConfig.OnePerAlert,
+			OnePerNode:  emailConfig.OnePerNode,
 		}
 		notifiers = append(notifiers, emailNotifier)
 	}
