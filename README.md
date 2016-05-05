@@ -35,6 +35,7 @@ or pull the image from `docker`:
 
 ```
 $ docker pull acaleph/consul-alerts
+
 ```
 
 Usage
@@ -44,16 +45,72 @@ Usage
 $ consul-alerts start
 ```
 
-or using docker:
-
-```
-$ docker run acaleph/consul-alerts start
-```
-
 By default, this runs the daemon and API at localhost:9000 and connects to the local consul agent (localhost:8500) and default datacenter (dc1). These can be overriden by the following flags:
 
 ```
 $ consul-alerts start --alert-addr=localhost:9000 --consul-addr=localhost:8500 --consul-dc=dc1 --consul-acl-token=""
+```
+
+There are a few options for running in docker.
+
+First option is using the consul agent built into the container. This option requires overriding the default entry point and running an exec to launch consul alerts. 
+
+Start consul:
+
+```
+docker run -ti \
+  --rm -p 9000:9000 \
+  --hostname consul-alerts \
+  --name consul-alerts \
+  --entrypoint=/bin/consul \
+  acaleph/consul-alerts \
+  agent -data-dir /data -server -bootstrap -client=0.0.0.0
+```
+Then in a separate terminal start consul-alerts:
+
+```
+$ docker exec -ti consul-alerts /bin/consul-alerts start --alert-addr=0.0.0.0:9000 --log-level=info
+```
+
+The second option is to link to an existing consul container through docker networking and --link option.  This method can more easily 
+share the consul instance with other containers such as vault.
+
+First launch consul container:
+
+```
+$ docker run \
+  -p 8400:8400 \
+  -p 8500:8500 \
+  -p 8600:53/udp \
+  --hostname consul \
+  --name consul \
+  progrium/consul \
+  -server -bootstrap -ui-dir /ui
+```
+
+Then run consul alerts container:
+
+```
+$ docker run -ti \
+  -p 9000:9000 \
+  --hostname consul-alerts \
+  --name consul-alerts \
+  --link consul:consul \
+  acaleph/consul-alerts start \
+  --consul-addr=consul:8500 \
+  --log-level=info
+```
+
+Last option is to launch the container and point at a remote consul instance:
+
+```
+$ docker run -ti \
+  -p 9000:9000 \
+  --hostname consul-alerts \
+  --name consul-alerts \
+  acaleph/consul-alerts start \
+  --consul-addr=remote-consul-server.domain.tdl:8500 \
+  --log-level=info
 ```
 
 Note: Don't change --alert-addr when using the docker container.
