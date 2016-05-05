@@ -24,6 +24,8 @@ type EmailNotifier struct {
 	SenderEmail string
 	Receivers   []string
 	NotifName   string
+	OnePerAlert bool
+	OnePerNode  bool
 }
 
 type EmailData struct {
@@ -58,35 +60,90 @@ func (emailNotifier *EmailNotifier) Notify(alerts Messages) bool {
 	overAllStatus, pass, warn, fail := alerts.Summary()
 	nodeMap := mapByNodes(alerts)
 
-	e := EmailData{
-		ClusterName:  emailNotifier.ClusterName,
-		SystemStatus: overAllStatus,
-		FailCount:    fail,
-		WarnCount:    warn,
-		PassCount:    pass,
-		Nodes:        nodeMap,
-	}
+	var emailDataList []EmailData
 
-	var tmpl *template.Template
-	var err error
-	if emailNotifier.Template == "" {
-		tmpl, err = template.New("base").Parse(defaultTemplate)
+	if emailNotifier.OnePerAlert {
+		log.Println("Going to send one email per alert")
+		emailDataList = []EmailData{}
+		for _, check := range alerts {
+
+			singleAlertChecks := make(Messages, 0)
+			singleAlertChecks = append(singleAlertChecks, check)
+			singleAlertMap := mapByNodes(singleAlertChecks)
+
+			alertStatus, alertPassing, alertWarnings, alertFailures := singleAlertChecks.Summary()
+
+			alertClusterName := emailNotifier.ClusterName + " " + check.Node + " - " + check.CheckId
+
+			e := EmailData{
+				ClusterName:  alertClusterName,
+				SystemStatus: alertStatus,
+				FailCount:    alertFailures,
+				WarnCount:    alertWarnings,
+				PassCount:    alertPassing,
+				Nodes:        singleAlertMap,
+			}
+			emailDataList = append(emailDataList, e)
+		}
+	} else if emailNotifier.OnePerNode {
+		log.Println("Going to send one email per node")
+		emailDataList = []EmailData{}
+		for nodeName, checks := range nodeMap {
+			singleNodeMap := mapByNodes(checks)
+			nodeStatus, nodePassing, nodeWarnings, nodeFailures := checks.Summary()
+
+			nodeClusterName := emailNotifier.ClusterName + " " + nodeName
+
+			e := EmailData{
+				ClusterName:  nodeClusterName,
+				SystemStatus: nodeStatus,
+				FailCount:    nodeFailures,
+				WarnCount:    nodeWarnings,
+				PassCount:    nodePassing,
+				Nodes:        singleNodeMap,
+			}
+			emailDataList = append(emailDataList, e)
+		}
 	} else {
-		tmpl, err = template.ParseFiles(emailNotifier.Template)
+		log.Println("Going to send one email for many alerts")
+		e := EmailData{
+			ClusterName:  emailNotifier.ClusterName,
+			SystemStatus: overAllStatus,
+			FailCount:    fail,
+			WarnCount:    warn,
+			PassCount:    pass,
+			Nodes:        nodeMap,
+		}
+
+		emailDataList = []EmailData{e}
 	}
 
-	if err != nil {
-		log.Println("Template error, unable to send email notification: ", err)
-		return false
-	}
+	success := true
 
-	var body bytes.Buffer
-	if err := tmpl.Execute(&body, e); err != nil {
-		log.Println("Template error, unable to send email notification: ", err)
-		return false
-	}
+	for _, e := range emailDataList {
 
-	msg := fmt.Sprintf(`From: "%s" <%s>
+		var tmpl *template.Template
+		var err error
+		if emailNotifier.Template == "" {
+			tmpl, err = template.New("base").Parse(defaultTemplate)
+		} else {
+			tmpl, err = template.ParseFiles(emailNotifier.Template)
+		}
+
+		if err != nil {
+			log.Println("Template error, unable to send email notification: ", err)
+			success = false
+			continue
+		}
+
+		var body bytes.Buffer
+		if err := tmpl.Execute(&body, e); err != nil {
+			log.Println("Template error, unable to send email notification: ", err)
+			success = false
+			continue
+		}
+
+		msg := fmt.Sprintf(`From: "%s" <%s>
 To: %s
 Subject: %s is %s
 MIME-version: 1.0;
@@ -94,21 +151,24 @@ Content-Type: text/html; charset="UTF-8";
 
 %s
 `,
-		emailNotifier.SenderAlias,
-		emailNotifier.SenderEmail,
-		strings.Join(emailNotifier.Receivers, ", "),
-		emailNotifier.ClusterName,
-		overAllStatus,
-		body.String())
+			emailNotifier.SenderAlias,
+			emailNotifier.SenderEmail,
+			strings.Join(emailNotifier.Receivers, ", "),
+			emailNotifier.ClusterName,
+			e.SystemStatus,
+			body.String())
 
-	addr := fmt.Sprintf("%s:%d", emailNotifier.Url, emailNotifier.Port)
-	auth := smtp.PlainAuth("", emailNotifier.Username, emailNotifier.Password, emailNotifier.Url)
-	if err := sendMail(addr, auth, emailNotifier.SenderEmail, emailNotifier.Receivers, []byte(msg)); err != nil {
-		log.Println("Unable to send notification:", err)
-		return false
+		addr := fmt.Sprintf("%s:%d", emailNotifier.Url, emailNotifier.Port)
+		auth := smtp.PlainAuth("", emailNotifier.Username, emailNotifier.Password, emailNotifier.Url)
+		if err := sendMail(addr, auth, emailNotifier.SenderEmail, emailNotifier.Receivers, []byte(msg)); err != nil {
+			log.Println("Unable to send notification:", err)
+			continue
+		}
+		log.Println("Email notification sent.")
+		success = success && true
 	}
-	log.Println("Email notification sent.")
-	return true
+
+	return success
 }
 
 func mapByNodes(alerts Messages) map[string]Messages {

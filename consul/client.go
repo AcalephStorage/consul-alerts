@@ -109,6 +109,10 @@ func (c *ConsulAlertClient) LoadConfig() {
 				valErr = loadCustomValue(&config.Notifiers.Email.Url, val, ConfigTypeString)
 			case "consul-alerts/config/notifiers/email/username":
 				valErr = loadCustomValue(&config.Notifiers.Email.Username, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/email/one-per-alert":
+				valErr = loadCustomValue(&config.Notifiers.Email.OnePerAlert, val, ConfigTypeBool)
+			case "consul-alerts/config/notifiers/email/one-per-node":
+				valErr = loadCustomValue(&config.Notifiers.Email.OnePerNode, val, ConfigTypeBool)
 
 			// log notifier config
 			case "consul-alerts/config/notifiers/log/enabled":

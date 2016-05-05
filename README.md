@@ -208,18 +208,20 @@ The email and smtp details needs to be configured:
 
 prefix: `consul-alerts/config/notifiers/email/`
 
-| key          | description                                                 |
-|--------------|-------------------------------------------------------------|
-| enabled      | Enable the email notifier. [Default: false]                 |
-| cluster-name | The name of the cluster. [Default: "Consul Alerts"]         |
-| url          | The SMTP server url                                         |
-| port         | The SMTP server port                                        |
-| username     | The SMTP username                                           |
-| password     | The SMTP password                                           |
-| sender-alias | The sender alias. [Default: "Consul Alerts"]                |
-| sender-email | The sender email                                            |
-| receivers    | The emails of the receivers. JSON array of string           |
-| template     | Path to custom email template. [Default: internal template] |
+| key          | description                                                                      |
+|--------------|----------------------------------------------------------------------------------|
+| enabled      | Enable the email notifier. [Default: false]                                      |
+| cluster-name | The name of the cluster. [Default: "Consul Alerts"]                              |
+| url          | The SMTP server url                                                              |
+| port         | The SMTP server port                                                             |
+| username     | The SMTP username                                                                |
+| password     | The SMTP password                                                                |
+| sender-alias | The sender alias. [Default: "Consul Alerts"]                                     |
+| sender-email | The sender email                                                                 |
+| receivers    | The emails of the receivers. JSON array of string                                |
+| template     | Path to custom email template. [Default: internal template]                      |
+| one-per-alert| Whether to send one email per alert [Default: false]                             |
+| one-per-node | Whether to send one email per node [Default: false] (overriden by one-per-alert) |
 
 The template can be any go html template. An `EmailData` instance will be passed to the template.
 
