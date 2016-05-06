@@ -343,6 +343,12 @@ This will return the output of the check and the following HTTP codes:
 | critical | 503  |
 | unknown  | 404  |
 
+`http://consul-alerts:9000/v1/health/wildcard?node=<node>&service=<serviceId>&check=<checkId>&status=<status>&alwaysOk=true&ignoreBlacklist=true`
+`v1/health/wildcard` is similiar to `v1/health` but returns all matched checks (omitted service/node/check params assumed as any) . Values returned in JSON form, status code 503 if one of services in critical state.
+
+Additional params are ignoreBlacklist and alwaysOk which forces status code to 200 regardingless of checks status.
+
+
 Contribution
 ------------
 
