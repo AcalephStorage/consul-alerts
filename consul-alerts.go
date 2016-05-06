@@ -109,6 +109,7 @@ func daemonMode(arguments map[string]interface{}) {
 	http.HandleFunc("/v1/info", infoHandler)
 	http.HandleFunc("/v1/process/events", ep.eventHandler)
 	http.HandleFunc("/v1/process/checks", cp.checkHandler)
+	http.HandleFunc("/v1/health/wildcard", healthWildcardHandler)
 	http.HandleFunc("/v1/health", healthHandler)
 	go startAPI(addr)
 
