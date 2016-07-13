@@ -3,8 +3,8 @@ package client
 import (
 	"errors"
 	"fmt"
-	alerts "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/opsgenie/opsgenie-go-sdk/alerts"
-	hb "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/opsgenie/opsgenie-go-sdk/heartbeat"
+	alerts "github.com/vincentvu/consul-alerts/Godeps/_workspace/src/github.com/opsgenie/opsgenie-go-sdk/alerts"
+	hb "github.com/vincentvu/consul-alerts/Godeps/_workspace/src/github.com/opsgenie/opsgenie-go-sdk/heartbeat"
 	yaml "gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"

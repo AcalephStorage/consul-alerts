@@ -3,9 +3,9 @@ package client
 import (
 	"errors"
 	"fmt"
-	goreq "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/franela/goreq"
-	goquery "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/google/go-querystring/query"
-	heartbeat "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/opsgenie/opsgenie-go-sdk/heartbeat"
+	goreq "github.com/vincentvu/consul-alerts/Godeps/_workspace/src/github.com/franela/goreq"
+	goquery "github.com/vincentvu/consul-alerts/Godeps/_workspace/src/github.com/google/go-querystring/query"
+	heartbeat "github.com/vincentvu/consul-alerts/Godeps/_workspace/src/github.com/opsgenie/opsgenie-go-sdk/heartbeat"
 	"time"
 )
 
