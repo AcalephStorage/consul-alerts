@@ -10,11 +10,11 @@ import (
 	"net/http"
 	"os/signal"
 
-	"github.com/AcalephStorage/consul-alerts/consul"
-	"github.com/AcalephStorage/consul-alerts/notifier"
+	"github.com/vincentvu/consul-alerts/consul"
+	"github.com/vincentvu/consul-alerts/notifier"
 
-	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
-	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/docopt/docopt-go"
+	log "github.com/vincentvu/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
+	"github.com/vincentvu/consul-alerts/Godeps/_workspace/src/github.com/docopt/docopt-go"
 )
 
 const version = "Consul Alerts 0.3.3"

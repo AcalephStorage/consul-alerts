@@ -5,7 +5,7 @@ import (
 
 	"net/http"
 
-	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
+	log "github.com/vincentvu/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
 )
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {

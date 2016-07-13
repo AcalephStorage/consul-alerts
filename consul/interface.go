@@ -3,7 +3,7 @@ package consul
 import (
 	"time"
 
-	"github.com/AcalephStorage/consul-alerts/notifier"
+	"github.com/vincentvu/consul-alerts/notifier"
 )
 
 // Event data from consul

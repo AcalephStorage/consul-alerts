@@ -1,9 +1,9 @@
 package notifier
 
 import (
-	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/darkcrux/gopherduty"
+	"github.com/vincentvu/consul-alerts/Godeps/_workspace/src/github.com/darkcrux/gopherduty"
 
-	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
+	log "github.com/vincentvu/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
 )
 
 type PagerDutyNotifier struct {
