@@ -327,6 +327,21 @@ prefix: `consul-alerts/config/notifiers/awssns/`
 | region       | AWS Region                           (mandatory)    |
 | topic-arn    | Topic ARN to publish to.             (mandatory)    |
 
+#### VictorOps
+
+To enable the VictorOps builtin notifier, set
+`consul-alerts/config/notifiers/victorops/enabled` to `true`. VictorOps details
+needs to be configured.
+
+prefix: `consul-alerts/config/notifiers/victorops/`
+
+| key          | description                                         |
+|--------------|-----------------------------------------------------|
+| enabled      | Enable the VictorOps notifier. [Default: false]     |
+| api-key      | API Key                              (mandatory)    |
+| routing-key  | Routing Key                          (mandatory)    |
+
+
 Health Check via API
 --------------------
 

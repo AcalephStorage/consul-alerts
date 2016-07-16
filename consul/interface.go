@@ -54,6 +54,7 @@ type NotifiersConfig struct {
 	HipChat   *HipChatNotifierConfig
 	OpsGenie  *OpsGenieNotifierConfig
 	AwsSns    *AwsSnsNotifierConfig
+	VictorOps *VictorOpsNotifierConfig
 	Custom    []string
 }
 
@@ -125,6 +126,12 @@ type AwsSnsNotifierConfig struct {
 	TopicArn string
 }
 
+type VictorOpsNotifierConfig struct {
+	Enabled    bool
+	APIKey     string
+	RoutingKey string
+}
+
 type Status struct {
 	Current          string
 	CurrentTimestamp time.Time
@@ -156,6 +163,7 @@ type Consul interface {
 	HipChatConfig() *HipChatNotifierConfig
 	OpsGenieConfig() *OpsGenieNotifierConfig
 	AwsSnsConfig() *AwsSnsNotifierConfig
+	VictorOpsConfig() *VictorOpsNotifierConfig
 
 	CheckChangeThreshold() int
 	UpdateCheckData()
@@ -229,6 +237,10 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 		Enabled: false,
 	}
 
+	victorOps := &VictorOpsNotifierConfig{
+		Enabled: false,
+	}
+
 	notifiers := &NotifiersConfig{
 		Email:     email,
 		Log:       log,
@@ -238,6 +250,7 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 		HipChat:   hipchat,
 		OpsGenie:  opsgenie,
 		AwsSns:    awsSns,
+		VictorOps: victorOps,
 		Custom:    []string{},
 	}
 
