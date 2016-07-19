@@ -434,6 +434,7 @@ func (c *ConsulAlertClient) AwsSnsConfig() *AwsSnsNotifierConfig {
 	return c.config.Notifiers.AwsSns
 }
 
+// VictorOpsConfig provides configuration for the VictorOps integration
 func (c *ConsulAlertClient) VictorOpsConfig() *VictorOpsNotifierConfig {
 	return c.config.Notifiers.VictorOps
 }

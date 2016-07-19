@@ -1,3 +1,4 @@
+// Package notifier manages notifications for consul-alerts
 package notifier
 
 import (
@@ -9,16 +10,18 @@ import (
 	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
 )
 
+// VictorOpsNotifier provides configuration options for the VictorOps notifier
 type VictorOpsNotifier struct {
 	NotifName  string
 	APIKey     string
 	RoutingKey string
 }
 
+// VictorOpsEvent represents the options we'll pass to the VictorOps API
 type VictorOpsEvent struct {
 	// Explicitly listed by http://victorops.force.com/knowledgebase/articles/Integration/Alert-Ingestion-API-Documentation/
 	MessageType       string `json:"message_type"`
-	EntityId          string `json:"entity_id"`
+	EntityID          string `json:"entity_id"`
 	Timestamp         uint32 `json:"timestamp"`
 	StateMessage      string `json:"state_message"`
 	MonitoringTool    string `json:"monitoring_tool"`
@@ -32,40 +35,39 @@ type VictorOpsEvent struct {
 	// node, service, service ID, check, and check ID
 	ConsulNode      string `json:"consul_node"`
 	ConsulService   string `json:"consul_service,omitempty"`
-	ConsulServiceId string `json:"consul_service_id,omitempty"`
+	ConsulServiceID string `json:"consul_service_id,omitempty"`
 	ConsulCheck     string `json:"consul_check"`
-	ConsulCheckId   string `json:"consul_check_id"`
+	ConsulCheckID   string `json:"consul_check_id"`
 }
 
-const MONITORING_TOOL_NAME string = "consul"
-const API_ENDPOINT_TEMPLATE string = "https://alert.victorops.com/integrations/generic/20131114/alert/%s/%s"
+const monitoringToolName string = "consul"
+const apiEndpointTemplate string = "https://alert.victorops.com/integrations/generic/20131114/alert/%s/%s"
 
 // NotifierName provides name for notifier selection
 func (vo *VictorOpsNotifier) NotifierName() string {
 	return vo.NotifName
 }
 
-//Notify sends messages to the endpoint notifier
-
+// Notify sends messages to the endpoint notifier
 func (vo *VictorOpsNotifier) Notify(messages Messages) bool {
-	var endpoint string = fmt.Sprintf(API_ENDPOINT_TEMPLATE, vo.APIKey, vo.RoutingKey)
+	endpoint := fmt.Sprintf(apiEndpointTemplate, vo.APIKey, vo.RoutingKey)
 
-	var ok bool = true
+	ok := true
 
 	for _, message := range messages {
-		var entityId string = fmt.Sprintf("%s:", message.Node)
-		var entityDisplayName string = entityId
+		entityID := fmt.Sprintf("%s:", message.Node)
+		entityDisplayName := entityID
 
 		// This might be a node level check without an explicit service
 		if message.ServiceId == "" {
-			entityId += message.CheckId
+			entityID += message.CheckId
 			entityDisplayName += message.Check
 		} else {
-			entityId += message.ServiceId
+			entityID += message.ServiceId
 			entityDisplayName += message.Service
 		}
 
-		var messageType string = ""
+		var messageType string
 
 		switch {
 		case message.IsCritical():
@@ -81,14 +83,14 @@ func (vo *VictorOpsNotifier) Notify(messages Messages) bool {
 
 		// VictorOps automatically displays the entity display name in notifications and page SMSs / emails,
 		// so for brevity we don't repeat it in the "StateMessage" field
-		var stateMessage string = fmt.Sprintf("%s: %s\n%s", messageType, message.Notes, message.Output)
+		stateMessage := fmt.Sprintf("%s: %s\n%s", messageType, message.Notes, message.Output)
 
 		event := VictorOpsEvent{
 			MessageType:       messageType,
-			EntityId:          entityId,
+			EntityID:          entityID,
 			Timestamp:         uint32(message.Timestamp.Unix()),
 			StateMessage:      stateMessage,
-			MonitoringTool:    MONITORING_TOOL_NAME,
+			MonitoringTool:    monitoringToolName,
 			EntityDisplayName: entityDisplayName,
 
 			HostName:    message.Node,
@@ -96,9 +98,9 @@ func (vo *VictorOpsNotifier) Notify(messages Messages) bool {
 
 			ConsulNode:      message.Node,
 			ConsulService:   message.Service,
-			ConsulServiceId: message.ServiceId,
+			ConsulServiceID: message.ServiceId,
 			ConsulCheck:     message.Check,
-			ConsulCheckId:   message.CheckId,
+			ConsulCheckID:   message.CheckId,
 		}
 
 		eventJSON, jsonError := json.Marshal(event)

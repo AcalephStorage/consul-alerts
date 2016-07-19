@@ -126,6 +126,7 @@ type AwsSnsNotifierConfig struct {
 	TopicArn string
 }
 
+// VictorOpsNotifierConfig provides configuration options for VictorOps notifier
 type VictorOpsNotifierConfig struct {
 	Enabled    bool
 	APIKey     string
