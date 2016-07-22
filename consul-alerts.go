@@ -192,6 +192,7 @@ func builtinNotifiers() []notifier.Notifier {
 	hipchatConfig := consulClient.HipChatConfig()
 	opsgenieConfig := consulClient.OpsGenieConfig()
 	awssnsConfig := consulClient.AwsSnsConfig()
+	victoropsConfig := consulClient.VictorOpsConfig()
 
 	notifiers := []notifier.Notifier{}
 	if emailConfig.Enabled {
@@ -277,6 +278,14 @@ func builtinNotifiers() []notifier.Notifier {
 			NotifName: "awssns",
 		}
 		notifiers = append(notifiers, awssnsNotifier)
+	}
+	if victoropsConfig.Enabled {
+		victoropsNotifier := &notifier.VictorOpsNotifier{
+			APIKey:     victoropsConfig.APIKey,
+			RoutingKey: victoropsConfig.RoutingKey,
+			NotifName:  "victorops",
+		}
+		notifiers = append(notifiers, victoropsNotifier)
 	}
 
 	return notifiers
