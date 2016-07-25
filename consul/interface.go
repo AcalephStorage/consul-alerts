@@ -46,16 +46,17 @@ type EventsConfig struct {
 }
 
 type NotifiersConfig struct {
-	Email     *EmailNotifierConfig
-	Log       *LogNotifierConfig
-	Influxdb  *InfluxdbNotifierConfig
-	Slack     *SlackNotifierConfig
-	PagerDuty *PagerDutyNotifierConfig
-	HipChat   *HipChatNotifierConfig
-	OpsGenie  *OpsGenieNotifierConfig
-	AwsSns    *AwsSnsNotifierConfig
-	VictorOps *VictorOpsNotifierConfig
-	Custom    []string
+	Email         *EmailNotifierConfig
+	Log           *LogNotifierConfig
+	Influxdb      *InfluxdbNotifierConfig
+	Slack         *SlackNotifierConfig
+	PagerDuty     *PagerDutyNotifierConfig
+	HipChat       *HipChatNotifierConfig
+	OpsGenie      *OpsGenieNotifierConfig
+	AwsSns        *AwsSnsNotifierConfig
+	VictorOps     *VictorOpsNotifierConfig
+	ElasticSearch *ElasticSearchNotifierConfig
+	Custom        []string
 }
 
 type EmailNotifierConfig struct {
@@ -133,6 +134,12 @@ type VictorOpsNotifierConfig struct {
 	RoutingKey string
 }
 
+type ElasticSearchNotifierConfig struct {
+	Enabled   bool
+	Host      string
+	IndexName string
+}
+
 type Status struct {
 	Current          string
 	CurrentTimestamp time.Time
@@ -165,6 +172,7 @@ type Consul interface {
 	OpsGenieConfig() *OpsGenieNotifierConfig
 	AwsSnsConfig() *AwsSnsNotifierConfig
 	VictorOpsConfig() *VictorOpsNotifierConfig
+	ElasticSearchConfig() *ElasticSearchNotifierConfig
 
 	CheckChangeThreshold() int
 	UpdateCheckData()
@@ -242,17 +250,23 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 		Enabled: false,
 	}
 
+	elasticsearch := &ElasticSearchNotifierConfig{
+		Enabled:   false,
+		IndexName: "consul-alerts",
+	}
+
 	notifiers := &NotifiersConfig{
-		Email:     email,
-		Log:       log,
-		Influxdb:  influxdb,
-		Slack:     slack,
-		PagerDuty: pagerduty,
-		HipChat:   hipchat,
-		OpsGenie:  opsgenie,
-		AwsSns:    awsSns,
-		VictorOps: victorOps,
-		Custom:    []string{},
+		Email:         email,
+		Log:           log,
+		Influxdb:      influxdb,
+		Slack:         slack,
+		PagerDuty:     pagerduty,
+		HipChat:       hipchat,
+		OpsGenie:      opsgenie,
+		AwsSns:        awsSns,
+		VictorOps:     victorOps,
+		ElasticSearch: elasticsearch,
+		Custom:        []string{},
 	}
 
 	return &ConsulAlertConfig{

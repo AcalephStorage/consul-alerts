@@ -341,6 +341,18 @@ prefix: `consul-alerts/config/notifiers/victorops/`
 | api-key      | API Key                              (mandatory)    |
 | routing-key  | Routing Key                          (mandatory)    |
 
+#### ElasticSearch
+
+To enable ElasticSearch builtin notifier, set
+`consul-alerts/config/notifiers/elasticsearch/enabled` to `true`. Elastic Search details needs to be configured.
+
+prefix: `consul-alerts/config/notifiers/elasticsearch/`
+
+| key          | description                                         |
+|--------------|-----------------------------------------------------|
+| enabled      | Enable the ElasticSearch notifier. [Default: false] |
+| host         | ElasticSearch Host Name                 (mandatory) |
+| index-name   | ElasticSearch Index Name to publish to  (mandatory) |
 
 Health Check via API
 --------------------

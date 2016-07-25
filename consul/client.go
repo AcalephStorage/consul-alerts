@@ -199,6 +199,14 @@ func (c *ConsulAlertClient) LoadConfig() {
 				valErr = loadCustomValue(&config.Notifiers.VictorOps.APIKey, val, ConfigTypeString)
 			case "consul-alerts/config/notifiers/victorops/routing-key":
 				valErr = loadCustomValue(&config.Notifiers.VictorOps.RoutingKey, val, ConfigTypeString)
+
+			//ElasticSearch notifier config
+			case "consul-alerts/config/notifiers/elasticsearch/enabled":
+				valErr = loadCustomValue(&config.Notifiers.ElasticSearch.Enabled, val, ConfigTypeBool)
+			case "consul-alerts/config/notifiers/elasticsearch/host":
+				valErr = loadCustomValue(&config.Notifiers.ElasticSearch.Host, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/elasticsearch/index-name":
+				valErr = loadCustomValue(&config.Notifiers.ElasticSearch.IndexName, val, ConfigTypeString)
 			}
 
 			if valErr != nil {
@@ -386,7 +394,7 @@ func (c *ConsulAlertClient) NewAlertsWithFilter(nodeName string, serviceName str
 		if len(statuses) > 0 {
 			inStatuses := false
 			for _, s := range statuses {
-				inStatuses =  check.Status == s
+				inStatuses = check.Status == s
 			}
 			if !inStatuses {
 				continue
@@ -394,9 +402,9 @@ func (c *ConsulAlertClient) NewAlertsWithFilter(nodeName string, serviceName str
 		}
 
 		if !ignoreBlacklist && c.IsBlacklisted(status.HealthCheck) {
-            continue
+			continue
 		}
-	    alerts = append(alerts, *status.HealthCheck)
+		alerts = append(alerts, *status.HealthCheck)
 	}
 	return alerts
 }
@@ -437,6 +445,10 @@ func (c *ConsulAlertClient) AwsSnsConfig() *AwsSnsNotifierConfig {
 // VictorOpsConfig provides configuration for the VictorOps integration
 func (c *ConsulAlertClient) VictorOpsConfig() *VictorOpsNotifierConfig {
 	return c.config.Notifiers.VictorOps
+}
+
+func (c *ConsulAlertClient) ElasticSearchConfig() *ElasticSearchNotifierConfig {
+	return c.config.Notifiers.ElasticSearch
 }
 
 func (c *ConsulAlertClient) registerHealthCheck(key string, health *Check) {
