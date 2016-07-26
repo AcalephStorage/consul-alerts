@@ -13,13 +13,13 @@ type ElasticSearchNotifier struct {
 }
 
 type ElasticSearchMessage struct {
-	Node      string `json:"node"`
-	Service   string `json:"service"`
-	Checks    string `json:"checks"`
-	Notes     string `json:"notes"`
-	Output    string `json:"output"`
-	Status    string `json:"status"`
-	Timestamp int64  `json:"timestamp"`
+	Node    string `json:"node"`
+	Service string `json:"service"`
+	Checks  string `json:"checks"`
+	Notes   string `json:"notes"`
+	Output  string `json:"output"`
+	Status  string `json:"status"`
+	Time    int64  `json:"time"`
 }
 
 func (es *ElasticSearchNotifier) NotifierName() string {
@@ -86,7 +86,7 @@ func (es *ElasticSearchNotifier) PrepareEsIndexRequest(client *elastic.Client, m
 		esMessage.Notes = message.Notes
 		esMessage.Output = message.Output
 		esMessage.Status = message.Status
-		esMessage.Timestamp = time.Now().Unix()
+		esMessage.Time = time.Now().Unix()
 
 		idxRequest := elastic.
 			NewBulkIndexRequest().
