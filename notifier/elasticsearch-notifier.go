@@ -28,7 +28,7 @@ func (es *ElasticSearchNotifier) NotifierName() string {
 
 func (es *ElasticSearchNotifier) Notify(messages Messages) bool {
 
-	client, err := elastic.NewClient(elastic.SetURL(es.Host))
+	client, err := elastic.NewClient(elastic.SetURL(es.Host), elastic.SetSniff(false))
 	if err != nil {
 		log.Println("unable to access elasticsearch. can't send notification. ", err)
 		return false
