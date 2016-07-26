@@ -3,7 +3,7 @@ consul-alerts
 
 [![Join the chat at https://gitter.im/AcalephStorage/consul-alerts](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/AcalephStorage/consul-alerts?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-A highly available daemon to send notifications and reminders based on Consul health checks.  Including profile selection based on service, check, or host that enables specific handlers and reminder intervals.  consul-alerts makes use of consul services to provide leader election and automatic failover amongst multiple instances.  
+A highly available daemon to send notifications and reminders based on Consul health checks.  Including profile selection based on service, check, or host that enables specific handlers and reminder intervals.  consul-alerts makes use of consul services to provide leader election and automatic failover amongst multiple instances.
 
 ## Requirement
 
@@ -53,7 +53,7 @@ $ consul-alerts start --alert-addr=localhost:9000 --consul-addr=localhost:8500 -
 
 There are a few options for running in docker.
 
-First option is using the consul agent built into the container. This option requires overriding the default entry point and running an exec to launch consul alerts. 
+First option is using the consul agent built into the container. This option requires overriding the default entry point and running an exec to launch consul alerts.
 
 Start consul:
 
@@ -72,7 +72,7 @@ Then in a separate terminal start consul-alerts:
 $ docker exec -ti consul-alerts /bin/consul-alerts start --alert-addr=0.0.0.0:9000 --log-level=info
 ```
 
-The second option is to link to an existing consul container through docker networking and --link option.  This method can more easily 
+The second option is to link to an existing consul container through docker networking and --link option.  This method can more easily
 share the consul instance with other containers such as vault.
 
 First launch consul container:
@@ -131,8 +131,8 @@ $ consul-alerts start --watch-events --watch-checks
 Configuration
 -------------
 
-To assure consistencty between instances all configurations are stored in consul's KV with the prefix: `consul-alerts/config/`. The daemon is using default values and the KV entries will only override the defaults. Configuration may be set manually through consul UI or API, using configuration management tools such as chef, puppet or Ansible, or backed up and restored using [consulate](https://github.com/gmr/consulate).  
-Example:  
+To assure consistency between instances all configurations are stored in consul's KV with the prefix: `consul-alerts/config/`. The daemon is using default values and the KV entries will only override the defaults. Configuration may be set manually through consul UI or API, using configuration management tools such as chef, puppet or Ansible, or backed up and restored using [consulate](https://github.com/gmr/consulate).
+Example:
 ```
 consulate kv backup consul-alerts/config -f consul-alerts-config.json
 consulate kv restore consul-alerts/config -f consul-alerts-config.json --prune
@@ -147,7 +147,7 @@ To prevent flapping, notifications are only sent when a check status has been st
 eg. `consul-alerts/config/checks/change-threshold` = `30`
 
 #### Enable Profiles Selection
-Profiles may be configured as keys in consul-alerts/config/notif-profiles/.  The key name is the name of the profile and the value should be a JSON object with an "Interval" key set to an int in minutes and a key "NotifList" that should be an object of profile names as keys and true for the value. 
+Profiles may be configured as keys in consul-alerts/config/notif-profiles/.  The key name is the name of the profile and the value should be a JSON object with an "Interval" key set to an int in minutes and a key "NotifList" that should be an object of Notifier names as keys and true for the value.
 Example:
 ```
 {
@@ -160,9 +160,9 @@ Example:
 ```
 Profile selection is done by setting keys in consul-alerts/config/notif-selection/services/, consul-alerts/config/notif-selection/checks/, or consul-alerts/config/notif-selection/hosts/ with the appropriate service, check, or host name as the key and the selected profile name as the value.
 
-Reminders resend the notifications at programable intervals until they are resolved or added to the blacklist. Reminders are processed every five minutes.  Interval values should be a multiple of five.  If the Interval value is 0 or not set then reminders will not be sent.
+Reminders resend the notifications at programmable intervals until they are resolved or added to the blacklist. Reminders are processed every five minutes.  Interval values should be a multiple of five.  If the Interval value is 0 or not set then reminders will not be sent.
 
-The default profile may be set as the fallback to any checks that do not match a selection.  If there is no default profile set then the full list of enabled notifiers will be used and no reminders.
+The default profile may be set as the fall back to any checks that do not match a selection.  If there is no default profile set then the full list of enabled notifiers will be used and no reminders.
 
 #### Enable/Disable Specific Health Checks
 
@@ -192,7 +192,7 @@ Handlers can be configured by adding them to `consul-alerts/config/events/handle
 
 ### Notifiers
 
-There are four builtin notifiers. Only the *Log* notifier is enabled by default. It is also possible to add custom notifiers similar to custom event handlers. Custom notifiers can be added as keys with command path string values in `consul-alerts/config/notifiers/custom/`. The keys will be used as notifier names in the profiles.
+There are four built-in notifiers. Only the *Log* notifier is enabled by default. It is also possible to add custom notifiers similar to custom event handlers. Custom notifiers can be added as keys with command path string values in `consul-alerts/config/notifiers/custom/`. The keys will be used as notifier names in the profiles.
 
 #### Logger
 
@@ -277,7 +277,7 @@ prefix: `consul-alerts/config/notifiers/pagerduty/`
 
 #### HipChat
 
-To enable HipChat builtin notifier, set
+To enable HipChat built-in notifier, set
 `consul-alerts/config/notifiers/hipchat/enabled` to `true`. Hipchat details
 needs to be configured.
 
@@ -293,7 +293,7 @@ prefix: `consul-alerts/config/notifiers/hipchat/`
 | auth-token   | Authentication token                 (mandatory)          |
 
 The `auth-token` needs to be a room notification token for the `room-id`
-being posted to. 
+being posted to.
 See [HipChat API docs](https://developer.atlassian.com/hipchat/guide/hipchat-rest-api).
 
 The default `base-url` works for HipChat-hosted rooms. You only need to
@@ -301,7 +301,7 @@ override it if you are running your own server.
 
 #### OpsGenie
 
-To enable OpsGenie builtin notifier, set
+To enable OpsGenie built-in notifier, set
 `consul-alerts/config/notifiers/opsgenie/enabled` to `true`. OpsGenie details
 needs to be configured.
 
@@ -315,7 +315,7 @@ prefix: `consul-alerts/config/notifiers/opsgenie/`
 
 #### Amazon Web Services Simple Notification Service ("SNS")
 
-To enable AWS SNS builtin notifier, set
+To enable AWS SNS built-in notifier, set
 `consul-alerts/config/notifiers/awssns/enabled` to `true`. AWS SNS details
 needs to be configured.
 
@@ -329,7 +329,7 @@ prefix: `consul-alerts/config/notifiers/awssns/`
 
 #### VictorOps
 
-To enable the VictorOps builtin notifier, set
+To enable the VictorOps built-in notifier, set
 `consul-alerts/config/notifiers/victorops/enabled` to `true`. VictorOps details
 needs to be configured.
 
@@ -359,9 +359,9 @@ This will return the output of the check and the following HTTP codes:
 | unknown  | 404  |
 
 `http://consul-alerts:9000/v1/health/wildcard?node=<node>&service=<serviceId>&check=<checkId>&status=<status>&alwaysOk=true&ignoreBlacklist=true`
-`v1/health/wildcard` is similiar to `v1/health` but returns all matched checks (omitted service/node/check params assumed as any) . Values returned in JSON form, status code 503 if one of services in critical state.
+`v1/health/wildcard` is similar to `v1/health` but returns all matched checks (omitted service/node/check params assumed as any) . Values returned in JSON form, status code 503 if one of services in critical state.
 
-Additional params are ignoreBlacklist and alwaysOk which forces status code to 200 regardingless of checks status.
+Additional params are ignoreBlacklist and alwaysOk which forces status code to 200 regardless of checks status.
 
 
 Contribution
