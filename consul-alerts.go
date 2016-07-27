@@ -10,6 +10,9 @@ import (
 	"net/http"
 	"os/signal"
 
+	"encoding/json"
+	"io/ioutil"
+
 	"github.com/AcalephStorage/consul-alerts/consul"
 	"github.com/AcalephStorage/consul-alerts/notifier"
 
@@ -21,7 +24,7 @@ const version = "Consul Alerts 0.3.3"
 const usage = `Consul Alerts.
 
 Usage:
-  consul-alerts start [--alert-addr=<addr>] [--consul-addr=<consuladdr>] [--consul-dc=<dc>] [--consul-acl-token=<token>] [--watch-checks] [--watch-events] [--log-level=<level>]
+  consul-alerts start [--alert-addr=<addr>] [--consul-addr=<consuladdr>] [--consul-dc=<dc>] [--consul-acl-token=<token>] [--watch-checks] [--watch-events] [--log-level=<level>] [--config-file=<file>]
   consul-alerts watch (checks|event) [--alert-addr=<addr>] [--log-level=<level>]
   consul-alerts --help
   consul-alerts --version
@@ -36,6 +39,7 @@ Options:
   --log-level=<level>          Set the logging level - valid values are "debug", "info", "warn", and "err" [default: warn].
   --help                       Show this screen.
   --version                    Show version.
+  --config-file=<file>         Path to the configuration file in JSON format
 
 `
 
@@ -59,6 +63,22 @@ func main() {
 
 func daemonMode(arguments map[string]interface{}) {
 	loglevelString, _ := arguments["--log-level"].(string)
+	configFile := arguments["--config-file"].(string)
+
+	var confData map[string]interface{}
+	file, err := ioutil.ReadFile(configFile)
+	if err != nil {
+		log.Error(err)
+	}
+	err = json.Unmarshal(file, &confData)
+	if err != nil {
+		log.Error(err)
+	}
+	log.Debug("Config data: ", confData)
+
+	if confData["consul-acl-token"] != nil {
+		loglevelString = confData["log-level"].(string)
+	}
 
 	if loglevelString != "" {
 		loglevel, err := log.ParseLevel(loglevelString)
@@ -85,6 +105,22 @@ func daemonMode(arguments map[string]interface{}) {
 	consulDc := arguments["--consul-dc"].(string)
 	watchChecks := arguments["--watch-checks"].(bool)
 	watchEvents := arguments["--watch-events"].(bool)
+
+	if confData["consul-acl-token"] != nil {
+		consulAclToken = confData["consul-acl-token"].(string)
+	}
+	if confData["consul-addr"] != nil {
+		consulAddr = confData["consul-addr"].(string)
+	}
+	if confData["consul-dc"] != nil {
+		consulDc = confData["consul-dc"].(string)
+	}
+	if confData["watch-checks"] != nil {
+		watchChecks = confData["watch-checks"].(bool)
+	}
+	if confData["watch-events"] != nil {
+		watchEvents = confData["watch-events"].(bool)
+	}
 
 	consulClient, err = consul.NewClient(consulAddr, consulDc, consulAclToken)
 	if err != nil {
