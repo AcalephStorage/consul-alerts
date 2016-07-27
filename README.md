@@ -165,7 +165,7 @@ Notification Profiles allow the operator the ability to customize how often and 
 
 Profiles are configured as keys with the prefix: `consul-alerts/config/notif-profiles/`.
 
-##### Notification Profile Specification
+#### Notification Profile Specification
 
 **Key:** The name of the Notification Profile
 
@@ -202,7 +202,7 @@ Ex. `emailer_only` would be located at `consul-alerts/config/notif-profiles/emai
 ```
 
 #### Notification Profile Examples
-** Notification Profile to only send Emails with reminders every 10 minutes:**
+**Notification Profile to only send Emails with reminders every 10 minutes:**
 
 **Key:** `consul-alerts/config/notif-profiles/emailer_only`
 
@@ -219,7 +219,8 @@ Ex. `emailer_only` would be located at `consul-alerts/config/notif-profiles/emai
 
 **NOTE:** While it is completely valid to explicitly disable a Notifier in a Notifier Profile, it is not necessary.  In the event that a Notification Profile is used, only Notifiers which are explicitly defined and enabled will be used.  In the example above then, we could have omitted the `"log": false` in the `NotifList` and achieved the same results.
 
-** Example - Notification Profile to only send to PagerDuty but never send reminders:**
+**Example - Notification Profile to only send to PagerDuty but never send reminders:**
+
 **Key:** `consul-alerts/config/notif-profiles/pagerduty_no_reminders`
 
 **Value:**
