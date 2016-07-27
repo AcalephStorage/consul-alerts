@@ -143,9 +143,9 @@ $ docker run -ti \
 Configuration
 -------------
 
-To assure consistency between instances, configuration is stored in Consul's KV with the prefix: `consul-alerts/config/`. consul-alerts works out of the box without any customizations by leveraging the defaults documented below and leverages the KV settings as overrides.
+To assure consistency between instances, configuration is stored in Consul's KV with the prefix: `consul-alerts/config/`. consul-alerts works out of the box without any customizations by using the defaults documented below and leverages the KV settings as overrides.
 
-A few suggestions on operating and bootstrapping your consul-alerts configuration via the KV store is located [Operations](#operations) section below.
+A few suggestions on operating and bootstrapping your consul-alerts configuration via the KV store are located in the [Operations](#operations) section below.
 
 ### Health Checks
 
@@ -173,7 +173,8 @@ Ex. `emailer_only` would be located at `consul-alerts/config/notif-profiles/emai
 
 **Value:** A JSON object adhering to the schema shown below.
 
-```{
+```
+{
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
   "title": "Notifier Profile Schema.",
@@ -237,7 +238,7 @@ Ex. `emailer_only` would be located at `consul-alerts/config/notif-profiles/emai
 
 Notification Profile selection is done by setting keys in `consul-alerts/config/notif-selection/services/`, `consul-alerts/config/notif-selection/checks/`, or `consul-alerts/config/notif-selection/hosts/` with the appropriate service, check, or host name as the key and the desired Notification Profile name as the value.
 
-In addition to the service, check and host specific Notification Profiles, the operator can setup a default Notification Profile by creating a Notification Profile kv `consul-alerts/config/notif-profiles/default`, which acts as a fallback in the event a specific Notification Profile is not found.  If there are no Notification Profiles matching the criteria, consul-alerts will send the notification to the full list of enabled Notifiers and no reminders will be process.
+In addition to the service, check and host specific Notification Profiles, the operator can setup a default Notification Profile by creating a Notification Profile kv `consul-alerts/config/notif-profiles/default`, which acts as a fallback in the event a specific Notification Profile is not found.  If there are no Notification Profiles matching the criteria, consul-alerts will send the notification to the full list of enabled Notifiers and no reminders will be sent.
 
 As consul-alerts attempts to process a given notification, it has a series of lookups it does to associate an event with a given Notification Profile by matching on:
 
