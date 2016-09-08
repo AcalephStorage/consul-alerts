@@ -94,7 +94,7 @@ docker run -ti \
 Then in a separate terminal start consul-alerts:
 
 ```
-$ docker exec -ti consul-alerts /bin/consul-alerts start --alert-addr=0.0.0.0:9000 --log-level=info
+$ docker exec -ti consul-alerts /bin/consul-alerts start --alert-addr=0.0.0.0:9000 --log-level=info --watch-events --watch-checks
 ```
 
 The second option is to link to an existing consul container through docker networking and --link option.  This method can more easily
@@ -123,7 +123,7 @@ $ docker run -ti \
   --link consul:consul \
   acaleph/consul-alerts start \
   --consul-addr=consul:8500 \
-  --log-level=info
+  --log-level=info --watch-events --watch-checks
 ```
 
 Last option is to launch the container and point at a remote consul instance:
@@ -135,7 +135,7 @@ $ docker run -ti \
   --name consul-alerts \
   acaleph/consul-alerts start \
   --consul-addr=remote-consul-server.domain.tdl:8500 \
-  --log-level=info
+  --log-level=info --watch-events --watch-checks
 ```
 
 **NOTE:** Don't change --alert-addr when using the docker container.
