@@ -297,14 +297,14 @@ func (c *ConsulAlertClient) GetReminders() []notifier.Message {
 // SetReminder sets a reminder
 func (c *ConsulAlertClient) SetReminder(m notifier.Message) {
 	data, _ := json.Marshal(m)
-	key := fmt.Sprintf("consul-alerts/reminders/%s", m.Node)
+	key := fmt.Sprintf("consul-alerts/reminders/%s/%s", m.Node, m.CheckId)
 	c.api.KV().Put(&consulapi.KVPair{Key: key, Value: data}, nil)
 	log.Println("Setting reminder for node: ", m.Node)
 }
 
 // DeleteReminder deletes a reminder
-func (c *ConsulAlertClient) DeleteReminder(node string) {
-	key := fmt.Sprintf("consul-alerts/reminders/%s", node)
+func (c *ConsulAlertClient) DeleteReminder(node string, checkid string) {
+	key := fmt.Sprintf("consul-alerts/reminders/%s/%s", node, checkid)
 	c.api.KV().Delete(key, nil)
 	log.Println("Deleting reminder for node: ", node)
 }
