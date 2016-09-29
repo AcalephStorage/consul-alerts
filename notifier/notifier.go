@@ -1,3 +1,4 @@
+// Package notifier manages notifications for consul-alerts
 package notifier
 
 import "time"

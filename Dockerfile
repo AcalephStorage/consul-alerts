@@ -5,13 +5,13 @@ ENV GOPATH /go
 
 RUN mkdir -p /go && \
     apk update && \
-    apk add bash ca-certificates git go && \
+    apk add bash ca-certificates git go alpine-sdk && \
     go get -v github.com/AcalephStorage/consul-alerts && \
     mv /go/bin/consul-alerts /bin && \
     go get -v github.com/hashicorp/consul && \
     mv /go/bin/consul /bin && \
     rm -rf /go && \
-    apk del --purge go git && \
+    apk del --purge go git alpine-sdk && \
     rm -rf /var/cache/apk/*
 
 EXPOSE 9000

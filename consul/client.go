@@ -192,6 +192,13 @@ func (c *ConsulAlertClient) LoadConfig() {
 			case "consul-alerts/config/notifiers/awssns/topic-arn":
 				valErr = loadCustomValue(&config.Notifiers.AwsSns.TopicArn, val, ConfigTypeString)
 
+			// VictorOps notfier config
+			case "consul-alerts/config/notifiers/victorops/enabled":
+				valErr = loadCustomValue(&config.Notifiers.VictorOps.Enabled, val, ConfigTypeBool)
+			case "consul-alerts/config/notifiers/victorops/api-key":
+				valErr = loadCustomValue(&config.Notifiers.VictorOps.APIKey, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/victorops/routing-key":
+				valErr = loadCustomValue(&config.Notifiers.VictorOps.RoutingKey, val, ConfigTypeString)
 			}
 
 			if valErr != nil {
@@ -425,6 +432,11 @@ func (c *ConsulAlertClient) OpsGenieConfig() *OpsGenieNotifierConfig {
 
 func (c *ConsulAlertClient) AwsSnsConfig() *AwsSnsNotifierConfig {
 	return c.config.Notifiers.AwsSns
+}
+
+// VictorOpsConfig provides configuration for the VictorOps integration
+func (c *ConsulAlertClient) VictorOpsConfig() *VictorOpsNotifierConfig {
+	return c.config.Notifiers.VictorOps
 }
 
 func (c *ConsulAlertClient) registerHealthCheck(key string, health *Check) {

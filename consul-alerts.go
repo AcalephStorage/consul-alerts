@@ -10,6 +10,9 @@ import (
 	"net/http"
 	"os/signal"
 
+	"encoding/json"
+	"io/ioutil"
+
 	"github.com/AcalephStorage/consul-alerts/consul"
 	"github.com/AcalephStorage/consul-alerts/notifier"
 
@@ -21,7 +24,7 @@ const version = "Consul Alerts 0.3.3"
 const usage = `Consul Alerts.
 
 Usage:
-  consul-alerts start [--alert-addr=<addr>] [--consul-addr=<consuladdr>] [--consul-dc=<dc>] [--consul-acl-token=<token>] [--watch-checks] [--watch-events] [--log-level=<level>]
+  consul-alerts start [--alert-addr=<addr>] [--consul-addr=<consuladdr>] [--consul-dc=<dc>] [--consul-acl-token=<token>] [--watch-checks] [--watch-events] [--log-level=<level>] [--config-file=<file>]
   consul-alerts watch (checks|event) [--alert-addr=<addr>] [--log-level=<level>]
   consul-alerts --help
   consul-alerts --version
@@ -31,11 +34,12 @@ Options:
   --alert-addr=<addr>          The address for the consul-alert api [default: localhost:9000].
   --consul-addr=<consuladdr>   The consul api address [default: localhost:8500].
   --consul-dc=<dc>             The consul datacenter [default: dc1].
+  --log-level=<level>          Set the logging level - valid values are "debug", "info", "warn", and "err" [default: warn].
   --watch-checks               Run check watcher.
   --watch-events               Run event watcher.
-  --log-level=<level>          Set the logging level - valid values are "debug", "info", "warn", and "err" [default: warn].
   --help                       Show this screen.
   --version                    Show version.
+  --config-file=<file>         Path to the configuration file in JSON format
 
 `
 
@@ -58,7 +62,66 @@ func main() {
 }
 
 func daemonMode(arguments map[string]interface{}) {
-	loglevelString, _ := arguments["--log-level"].(string)
+
+	// Define options before setting in either config file or on command line
+	loglevelString := ""
+	consulAclToken := ""
+	consulAddr := ""
+	consulDc := ""
+	watchChecks := false
+	watchEvents := false
+	addr := ""
+	var confData map[string]interface{}
+
+	// This exists check only works for arguments with no default. arguments with defaults will always exist.
+	// Because of this the current code overrides command line flags with config file options if set. 
+	if configFile, exists := arguments["--config-file"].(string); exists {
+		file, err := ioutil.ReadFile(configFile)
+		if err != nil {
+			log.Error(err)
+		}
+		err = json.Unmarshal(file, &confData)
+		if err != nil {
+			log.Error(err)
+		}
+		log.Debug("Config data: ", confData)
+	}
+
+	if confData["log-level"] != nil {
+		loglevelString = confData["log-level"].(string)
+	} else {
+		loglevelString = arguments["--log-level"].(string)
+	}
+	if confData["consul-acl-token"] != nil {
+		consulAclToken = confData["consul-acl-token"].(string)
+	} else {
+		consulAclToken = arguments["--consul-acl-token"].(string)
+	}
+	if confData["consul-addr"] != nil {
+		consulAddr = confData["consul-addr"].(string)
+	} else {
+		consulAddr = arguments["--consul-addr"].(string)
+	}
+	if confData["consul-dc"] != nil {
+		consulDc = confData["consul-dc"].(string)
+	} else {
+		consulDc = arguments["--consul-dc"].(string)
+	}
+	if confData["alert-addr"] != nil {
+		addr = confData["alert-addr"].(string)
+	} else {
+		addr = arguments["--alert-addr"].(string)
+	}
+	if confData["watch-checks"] != nil {
+		watchChecks = confData["watch-checks"].(bool)
+	} else {
+		watchChecks = arguments["--watch-checks"].(bool)
+	}
+	if confData["watch-events"] != nil {
+		watchEvents = confData["watch-events"].(bool)
+	} else {
+		watchEvents = arguments["--watch-events"].(bool)
+	}
 
 	if loglevelString != "" {
 		loglevel, err := log.ParseLevel(loglevelString)
@@ -69,8 +132,6 @@ func daemonMode(arguments map[string]interface{}) {
 		}
 	}
 
-	addr := arguments["--alert-addr"].(string)
-
 	url := fmt.Sprintf("http://%s/v1/info", addr)
 	resp, err := http.Get(url)
 	if err == nil && resp.StatusCode == 201 {
@@ -79,12 +140,6 @@ func daemonMode(arguments map[string]interface{}) {
 		log.Printf("consul-alert daemon already running version: %s", version)
 		os.Exit(1)
 	}
-
-	consulAclToken := arguments["--consul-acl-token"].(string)
-	consulAddr := arguments["--consul-addr"].(string)
-	consulDc := arguments["--consul-dc"].(string)
-	watchChecks := arguments["--watch-checks"].(bool)
-	watchEvents := arguments["--watch-events"].(bool)
 
 	consulClient, err = consul.NewClient(consulAddr, consulDc, consulAclToken)
 	if err != nil {
@@ -192,6 +247,7 @@ func builtinNotifiers() []notifier.Notifier {
 	hipchatConfig := consulClient.HipChatConfig()
 	opsgenieConfig := consulClient.OpsGenieConfig()
 	awssnsConfig := consulClient.AwsSnsConfig()
+	victoropsConfig := consulClient.VictorOpsConfig()
 
 	notifiers := []notifier.Notifier{}
 	if emailConfig.Enabled {
@@ -277,6 +333,14 @@ func builtinNotifiers() []notifier.Notifier {
 			NotifName: "awssns",
 		}
 		notifiers = append(notifiers, awssnsNotifier)
+	}
+	if victoropsConfig.Enabled {
+		victoropsNotifier := &notifier.VictorOpsNotifier{
+			APIKey:     victoropsConfig.APIKey,
+			RoutingKey: victoropsConfig.RoutingKey,
+			NotifName:  "victorops",
+		}
+		notifiers = append(notifiers, victoropsNotifier)
 	}
 
 	return notifiers
