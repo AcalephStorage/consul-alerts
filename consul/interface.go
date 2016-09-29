@@ -182,7 +182,7 @@ type Consul interface {
 
 	GetReminders() []notifier.Message
 	SetReminder(m notifier.Message)
-	DeleteReminder(node string)
+	DeleteReminder(node string,checkid string)
 }
 
 // DefaultAlertConfig loads default config settings
