@@ -290,7 +290,7 @@ func (c *ConsulAlertClient) UpdateCheckData() {
 		reminderexists := reminderstatus != nil
 
 		if err != nil {
-			panic(err)
+			log.Println("Unable to get kv value: ", err)
 		}
 
 		if reminderexists {
@@ -308,7 +308,7 @@ func (c *ConsulAlertClient) UpdateCheckData() {
 				fmt.Println(string(newreminder))
 				_, err := kvApi.Put(&consulapi.KVPair{Key: reminderkey, Value: newreminder}, nil)
 				if err != nil {
-					panic(err)
+					log.Println("Unable to set kv value: ", err)
 				}
 			}
 		}
