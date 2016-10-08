@@ -258,8 +258,6 @@ func (c *ConsulAlertClient) UpdateCheckData() {
 
 	healths, _, _ := healthApi.State("any", nil)
 
-	RunReminder := false
-
 	for _, health := range healths {
 
 		node := health.Node
@@ -302,7 +300,6 @@ func (c *ConsulAlertClient) UpdateCheckData() {
 			json.Unmarshal((reminderstatus.Value), &remindermap)
 
 			if remindermap["Output"] != health.Output {
-                                RunReminder = true
 				log.Printf("Updating reminder data for %s", reminderkey)
 
 				remindermap["Output"] = health.Output
@@ -316,9 +313,6 @@ func (c *ConsulAlertClient) UpdateCheckData() {
 			}
 		}
 
-           if RunReminder { 
- 		log.Printf("Reminder was updated , need to call it") 
-           }
 	}
 
 }
