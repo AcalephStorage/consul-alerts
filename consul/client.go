@@ -258,6 +258,8 @@ func (c *ConsulAlertClient) UpdateCheckData() {
 
 	healths, _, _ := healthApi.State("any", nil)
 
+	RunReminder := false
+
 	for _, health := range healths {
 
 		node := health.Node
@@ -284,6 +286,39 @@ func (c *ConsulAlertClient) UpdateCheckData() {
 			c.updateHealthCheck(key, &localHealth)
 		}
 
+
+		reminderkey := fmt.Sprintf("consul-alerts/reminders/%s/%s", node, check)
+		reminderstatus, _, err := kvApi.Get(reminderkey, nil)
+		reminderexists := reminderstatus != nil
+
+		if err != nil {
+			panic(err)
+		}
+
+		if reminderexists {
+
+			var remindermap map[string]interface{}
+
+			json.Unmarshal((reminderstatus.Value), &remindermap)
+
+			if remindermap["Output"] != health.Output {
+                                RunReminder = true
+				log.Printf("Updating reminder data for %s", reminderkey)
+
+				remindermap["Output"] = health.Output
+				newreminder, _ := json.Marshal(remindermap)
+
+				fmt.Println(string(newreminder))
+				_, err := kvApi.Put(&consulapi.KVPair{Key: reminderkey, Value: newreminder}, nil)
+				if err != nil {
+					panic(err)
+				}
+			}
+		}
+
+           if RunReminder { 
+ 		log.Printf("Reminder was updated , need to call it") 
+           }
 	}
 
 }
