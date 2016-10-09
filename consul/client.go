@@ -258,6 +258,23 @@ func (c *ConsulAlertClient) UpdateCheckData() {
 
 	healths, _, _ := healthApi.State("any", nil)
 
+	keys, _, _ := c.api.KV().List("consul-alerts/reminders/", nil)
+
+	for i := range keys {
+		for _, health := range healths {
+			s := strings.Split(keys[i].Key, "/")
+			node, check := s[2], s[3]
+			fmt.Println("output 1:", health.Node, health.CheckID)
+			fmt.Println("output 2:", node, check)
+			if (health.Node == node) && (health.CheckID == check) {
+				break
+			}
+			fmt.Println("no match, need to delete")
+			c.DeleteReminder(node, check)
+		}
+	}
+
+
 	for _, health := range healths {
 
 		node := health.Node
