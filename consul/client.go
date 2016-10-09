@@ -264,12 +264,10 @@ func (c *ConsulAlertClient) UpdateCheckData() {
 		for _, health := range healths {
 			s := strings.Split(keys[i].Key, "/")
 			node, check := s[2], s[3]
-			fmt.Println("output 1:", health.Node, health.CheckID)
-			fmt.Println("output 2:", node, check)
 			if (health.Node == node) && (health.CheckID == check) {
 				break
 			}
-			fmt.Println("no match, need to delete")
+			log.Printf("Reminder exists for %s/%s, but node/check are offline, will delete", node, check)
 			c.DeleteReminder(node, check)
 		}
 	}
