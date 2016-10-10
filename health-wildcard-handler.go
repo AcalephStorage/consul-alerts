@@ -2,9 +2,9 @@ package main
 
 import (
 	"encoding/json"
+	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
 	"net/http"
 	"strings"
-	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
 )
 
 func healthWildcardHandler(w http.ResponseWriter, r *http.Request) {
@@ -16,10 +16,10 @@ func healthWildcardHandler(w http.ResponseWriter, r *http.Request) {
 	alwaysOk := r.URL.Query().Get("alwaysOk") != "" // Always return 200 code, even if failures in data
 	ignoreBlacklist := r.URL.Query().Get("ignoreBlacklist") != ""
 
-    var statuses []string
-    if status != "" {
-	    statuses = strings.Split(status, ",")
-    }
+	var statuses []string
+	if status != "" {
+		statuses = strings.Split(status, ",")
+	}
 	log.Printf("Query: node: %v, service: %v, check: %v, status: %v, alwaysOk: %v, ignoreBlacklist: %v", node, service, check, status, alwaysOk, ignoreBlacklist)
 
 	alerts := consulClient.NewAlertsWithFilter(node, service, check, statuses, ignoreBlacklist)

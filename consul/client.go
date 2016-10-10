@@ -260,6 +260,8 @@ func (c *ConsulAlertClient) UpdateCheckData() {
 
 	keys, _, _ := c.api.KV().List("consul-alerts/reminders/", nil)
 
+	log.Printf("checking for stale reminders")
+
 	for i := range keys {
 		for _, health := range healths {
 			s := strings.Split(keys[i].Key, "/")
@@ -271,7 +273,6 @@ func (c *ConsulAlertClient) UpdateCheckData() {
 			c.DeleteReminder(node, check)
 		}
 	}
-
 
 	for _, health := range healths {
 

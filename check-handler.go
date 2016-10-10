@@ -1,8 +1,8 @@
 package main
 
 import (
-	"time"
 	"math"
+	"time"
 
 	"net/http"
 
@@ -62,7 +62,7 @@ func (c *CheckProcessor) reminderRun() {
 		durMins := int(math.Ceil(duration.Minutes()))
 		log.Println("Reminder message duration minutes: ", durMins)
 		if durMins >= message.Interval {
-			message.RmdCheck=time.Now()
+			message.RmdCheck = time.Now()
 			consulClient.SetReminder(message)
 			filteredMessages = append(filteredMessages, message)
 		}

@@ -74,7 +74,7 @@ func daemonMode(arguments map[string]interface{}) {
 	var confData map[string]interface{}
 
 	// This exists check only works for arguments with no default. arguments with defaults will always exist.
-	// Because of this the current code overrides command line flags with config file options if set. 
+	// Because of this the current code overrides command line flags with config file options if set.
 	if configFile, exists := arguments["--config-file"].(string); exists {
 		file, err := ioutil.ReadFile(configFile)
 		if err != nil {

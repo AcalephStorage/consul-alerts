@@ -32,13 +32,13 @@ func (notifier *HipChatNotifier) Notify(messages Messages) bool {
 	overallStatus, pass, warn, fail := messages.Summary()
 
 	text := fmt.Sprintf("%s is <STRONG>%s</STRONG>. Fail: %d, Warn: %d, Pass: %d", notifier.ClusterName, overallStatus, fail, warn, pass)
-	
+
 	for _, message := range messages {
-		text += fmt.Sprintf("<BR><STRONG><CODE>%s</CODE></STRONG>:%s:%s is <STRONG>%s</STRONG>.", 
-            message.Node, html.EscapeString(message.Service), html.EscapeString(message.Check), message.Status)
-        if utf8.RuneCountInString(message.Output) > 0 {
-            text += fmt.Sprintf("<BR>%s", strings.Replace(html.EscapeString(strings.TrimSpace(message.Output)), "\n", "<BR>", -1));
-        }
+		text += fmt.Sprintf("<BR><STRONG><CODE>%s</CODE></STRONG>:%s:%s is <STRONG>%s</STRONG>.",
+			message.Node, html.EscapeString(message.Service), html.EscapeString(message.Check), message.Status)
+		if utf8.RuneCountInString(message.Output) > 0 {
+			text += fmt.Sprintf("<BR>%s", strings.Replace(html.EscapeString(strings.TrimSpace(message.Output)), "\n", "<BR>", -1))
+		}
 	}
 
 	level := "green"
@@ -69,9 +69,9 @@ func (notifier *HipChatNotifier) Notify(messages Messages) bool {
 		MessageFormat: "html",
 		From:          from,
 	}
-	
+
 	resp, err := client.Room.Notification(notifier.RoomId, notifRq)
-	
+
 	if err != nil {
 		log.Printf("Error sending notification to hipchat: %s\n", err)
 		log.Printf("Server returns %+v\n", resp)
