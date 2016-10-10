@@ -257,18 +257,25 @@ func (c *ConsulAlertClient) UpdateCheckData() {
 	kvApi := c.api.KV()
 
 	healths, _, _ := healthApi.State("any", nil)
+	reminderkeys, _, _ := c.api.KV().List("consul-alerts/reminders/", nil)
 
-	keys, _, _ := c.api.KV().List("consul-alerts/reminders/", nil)
+	for index := range reminderkeys {
+		log.Printf("checking for stale reminders")
+		s := strings.Split(reminderkeys[index].Key, "/")
+		node, check := s[2], s[3]
 
-	for i := range keys {
-		for _, health := range healths {
-			s := strings.Split(keys[i].Key, "/")
-			node, check := s[2], s[3]
-			if (health.Node == node) && (health.CheckID == check) {
+		nodecat, _, _ := c.api.Health().Node(node, nil)
+		settodelete := true
+
+		for j := range nodecat {
+			if nodecat[j].CheckID == check {
+				settodelete = false
 				break
 			}
-			log.Printf("Reminder exists for %s/%s, but node/check are offline, will delete", node, check)
-			c.DeleteReminder(node, check)
+		}
+		if settodelete {
+			log.Printf("Reminder %s %s needs to be deleted, stale", node, check)
+		        c.DeleteReminder(node, check)
 		}
 	}
 
