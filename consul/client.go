@@ -257,6 +257,28 @@ func (c *ConsulAlertClient) UpdateCheckData() {
 	kvApi := c.api.KV()
 
 	healths, _, _ := healthApi.State("any", nil)
+	reminderkeys, _, _ := c.api.KV().List("consul-alerts/reminders/", nil)
+
+	for index := range reminderkeys {
+		log.Printf("checking for stale reminders")
+		s := strings.Split(reminderkeys[index].Key, "/")
+		node, check := s[2], s[3]
+
+		nodecat, _, _ := c.api.Health().Node(node, nil)
+		settodelete := true
+
+		for j := range nodecat {
+			if nodecat[j].CheckID == check {
+				settodelete = false
+				break
+			}
+		}
+		if settodelete {
+			log.Printf("Reminder %s %s needs to be deleted, stale", node, check)
+		        c.DeleteReminder(node, check)
+		}
+	}
+
 
 	for _, health := range healths {
 
@@ -282,6 +304,33 @@ func (c *ConsulAlertClient) UpdateCheckData() {
 			c.registerHealthCheck(key, &localHealth)
 		} else {
 			c.updateHealthCheck(key, &localHealth)
+		}
+
+		reminderkey := fmt.Sprintf("consul-alerts/reminders/%s/%s", node, check)
+		reminderstatus, _, err := kvApi.Get(reminderkey, nil)
+		reminderexists := reminderstatus != nil
+
+		if err != nil {
+			log.Println("Unable to get kv value: ", err)
+		}
+
+		if reminderexists {
+
+			var remindermap map[string]interface{}
+
+			json.Unmarshal((reminderstatus.Value), &remindermap)
+
+			if remindermap["Output"] != health.Output {
+				log.Printf("Updating reminder data for %s", reminderkey)
+
+				remindermap["Output"] = health.Output
+				newreminder, _ := json.Marshal(remindermap)
+
+				_, err := kvApi.Put(&consulapi.KVPair{Key: reminderkey, Value: newreminder}, nil)
+				if err != nil {
+					log.Println("Unable to set kv value: ", err)
+				}
+			}
 		}
 
 	}
@@ -386,7 +435,7 @@ func (c *ConsulAlertClient) NewAlertsWithFilter(nodeName string, serviceName str
 		if len(statuses) > 0 {
 			inStatuses := false
 			for _, s := range statuses {
-				inStatuses =  check.Status == s
+				inStatuses = check.Status == s
 			}
 			if !inStatuses {
 				continue
@@ -394,9 +443,9 @@ func (c *ConsulAlertClient) NewAlertsWithFilter(nodeName string, serviceName str
 		}
 
 		if !ignoreBlacklist && c.IsBlacklisted(status.HealthCheck) {
-            continue
+			continue
 		}
-	    alerts = append(alerts, *status.HealthCheck)
+		alerts = append(alerts, *status.HealthCheck)
 	}
 	return alerts
 }
