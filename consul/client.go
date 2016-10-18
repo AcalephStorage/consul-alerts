@@ -268,7 +268,7 @@ func (c *ConsulAlertClient) UpdateCheckData() {
 		settodelete := true
 
 		for j := range nodecat {
-			# if (nodecat[j].CheckID == check) && (nodecat[j].Status != "passing") {
+			// if (nodecat[j].CheckID == check) && (nodecat[j].Status != "passing") {
 			if nodecat[j].CheckID == check {
 				settodelete = false
 				break
