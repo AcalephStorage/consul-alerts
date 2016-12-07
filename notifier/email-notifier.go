@@ -154,7 +154,7 @@ Content-Type: text/html; charset="UTF-8";
 			emailNotifier.SenderAlias,
 			emailNotifier.SenderEmail,
 			strings.Join(emailNotifier.Receivers, ", "),
-			emailNotifier.ClusterName,
+			e.ClusterName,
 			e.SystemStatus,
 			body.String())
 
