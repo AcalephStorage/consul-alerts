@@ -149,7 +149,6 @@ func daemonMode(arguments map[string]interface{}) {
 
 	hostname, _ := os.Hostname()
 
-	log.Println("Consul ACL Token:", consulAclToken)
 	log.Println("Consul Alerts daemon started")
 	log.Println("Consul Alerts Host:", hostname)
 	log.Println("Consul Agent:", consulAddr)
