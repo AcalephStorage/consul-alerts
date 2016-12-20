@@ -618,29 +618,66 @@ func (c *ConsulAlertClient) CheckStatus(node, serviceId, checkId string) (status
 	return
 }
 
+// getProfileForEntity returns the profile matching the exact path or the regexp
+// entity is either 'service', 'check' or 'host'
+func (c *ConsulAlertClient) getProfileForEntity(entity string, id string) string {
+	kvPair, _, _ := c.api.KV().Get(
+		fmt.Sprintf("consul-alerts/config/notif-selection/%ss/%s",
+			entity, id), nil)
+	if kvPair != nil {
+		log.Printf("%s selection key found.\n", entity)
+		return string(kvPair.Value)
+	} else if kvPair, _, _ := c.api.KV().Get(
+		fmt.Sprintf("consul-alerts/config/notif-selection/%ss", entity),
+		nil); kvPair != nil {
+		var regexMap map[string]string
+		json.Unmarshal(kvPair.Value, &regexMap)
+		for pattern, profile := range regexMap {
+			matched, err := regexp.MatchString(pattern, id)
+			if err != nil {
+				log.Printf("unable to match %s %s against pattern %s. Error: %s\n",
+					entity, id, pattern, err.Error())
+			} else if matched {
+				log.Printf("Regexp matching %s found (%s).\n", entity, pattern)
+				return profile
+			}
+		}
+	}
+	return ""
+}
+
+func (c *ConsulAlertClient) getProfileForService(serviceID string) string {
+	return c.getProfileForEntity("service", serviceID)
+}
+
+func (c *ConsulAlertClient) getProfileForCheck(checkID string) string {
+	return c.getProfileForEntity("check", checkID)
+}
+
+func (c *ConsulAlertClient) getProfileForNode(node string) string {
+	return c.getProfileForEntity("host", node)
+}
+
 // GetProfileInfo returns profile info for check
 func (c *ConsulAlertClient) GetProfileInfo(node, serviceID, checkID string) (notifiersList map[string]bool, interval int) {
 	log.Println("Getting profile for node: ", node, " service: ", serviceID, " check: ", checkID)
 
 	var profile string
 
-	kvPair, _, _ := c.api.KV().Get(fmt.Sprintf("consul-alerts/config/notif-selection/services/%s", serviceID), nil)
-	if kvPair != nil {
-		profile = string(kvPair.Value)
-		log.Println("service selection key found.")
-	} else if kvPair, _, _ = c.api.KV().Get(fmt.Sprintf("consul-alerts/config/notif-selection/checks/%s", checkID), nil); kvPair != nil {
-		profile = string(kvPair.Value)
-		log.Println("check selection key found.")
-	} else if kvPair, _, _ = c.api.KV().Get(fmt.Sprintf("consul-alerts/config/notif-selection/hosts/%s", node), nil); kvPair != nil {
-		profile = string(kvPair.Value)
-		log.Println("host selection key found.")
-	} else {
+	profile = c.getProfileForService(serviceID)
+	if profile == "" {
+		profile = c.getProfileForCheck(checkID)
+	}
+	if profile == "" {
+		profile = c.getProfileForNode(node)
+	}
+	if profile == "" {
 		profile = "default"
 	}
 
 	key := fmt.Sprintf("consul-alerts/config/notif-profiles/%s", profile)
 	log.Println("profile key: ", key)
-	kvPair, _, _ = c.api.KV().Get(key, nil)
+	kvPair, _, _ := c.api.KV().Get(key, nil)
 	if kvPair == nil {
 		log.Println("profile key not found.")
 		return

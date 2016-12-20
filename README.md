@@ -239,6 +239,19 @@ Ex. `emailer_only` would be located at `consul-alerts/config/notif-profiles/emai
 
 Notification Profile selection is done by setting keys in `consul-alerts/config/notif-selection/services/`, `consul-alerts/config/notif-selection/checks/`, or `consul-alerts/config/notif-selection/hosts/` with the appropriate service, check, or host name as the key and the desired Notification Profile name as the value.
 
+It is also possible to activate a Notification Profile for a set of entities matching a regular expression. It is done by passing a json map of type `regexp->notification-profile` as a value for the keys `consul-alerts/config/notif-selection/services`, `consul-alerts/config/notif-selection/checks`, or `consul-alerts/config/notif-selection/hosts`.
+
+**Example - Notification Profile activated for all the services which names start with team-1**
+
+**Key:** `consul-alerts/config/notif-selection/services`
+
+**Value:**
+```
+{
+  "^team-1-.*$": "profile1"
+}
+```
+
 In addition to the service, check and host specific Notification Profiles, the operator can setup a default Notification Profile by creating a Notification Profile kv `consul-alerts/config/notif-profiles/default`, which acts as a fallback in the event a specific Notification Profile is not found.  If there are no Notification Profiles matching the criteria, consul-alerts will send the notification to the full list of enabled Notifiers and no reminders will be sent.
 
 As consul-alerts attempts to process a given notification, it has a series of lookups it does to associate an event with a given Notification Profile by matching on:
