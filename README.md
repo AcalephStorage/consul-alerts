@@ -267,19 +267,31 @@ Reminders resend the notifications at programmable intervals until they are reso
 
 #### Enable/Disable Specific Health Checks
 
-There are four ways to enable/disable health check notifications: mark them by node, serviceID, checkID, or mark individually by node/serviceID/checkID. This is done by adding a KV entry in `consul-alerts/config/checks/blacklist/...`. Removing the entry will re-enable the check notifications.
+There are multiple ways to enable/disable health check notifications: mark them by node, serviceID, checkID, or mark individually by node/serviceID/checkID. This is done by adding a KV entry in `consul-alerts/config/checks/blacklist/...`. Removing the entry will re-enable the check notifications. Additionally, it is possible to disable notifications for a set of nodes, services or checks matching a regular expression.
 
 ##### Disable all notification by node
 
 Add a KV entry with the key `consul-alerts/config/checks/blacklist/nodes/{{ nodeName }}`. This will disable notifications for the specified `nodeName`.
 
+##### Disable all notifications for the nodes matching regular expressions
+
+Add a KV entry with the key `consul-alerts/config/checks/blacklist/nodes` and the value containing a list of regular expressions. This will disable notifications for all the nodes, which names match at least one of the regular expressions.
+
 ##### Disable all notification by service
 
 Add a KV entry with the key `consul-alerts/config/checks/blacklist/services/{{ serviceId }}`. This will disable notifications for the specified `serviceId`.
 
+##### Disable all notifications for the services matching regular expressions
+
+Add a KV entry with the key `consul-alerts/config/checks/blacklist/services` and the value containing a list of regular expressions. This will disable notifications for all the services, which names match at least one of the regular expressions.
+
 ##### Disable all notification by healthCheck
 
 Add a KV entry with the key `consul-alerts/config/checks/blacklist/checks/{{ checkId }}`. This will disable notifications for the specified `checkId`.
+
+##### Disable all notifications for the healthChecks matching regular expressions
+
+Add a KV entry with the key `consul-alerts/config/checks/blacklist/checks` and the value containing a list of regular expressions. This will disable notifications for all the healthchecks, which names match at least one of the regular expressions.
 
 ##### Disable a single health check
 

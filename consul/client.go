@@ -695,19 +695,19 @@ func (c *ConsulAlertClient) GetProfileInfo(node, serviceID, checkID string) (not
 func (c *ConsulAlertClient) IsBlacklisted(check *Check) bool {
 	node := check.Node
 	nodeCheckKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/nodes/%s", node)
-	nodeBlacklisted := c.CheckKeyExists(nodeCheckKey)
+	nodeBlacklisted := c.CheckKeyExists(nodeCheckKey) || c.CheckKeyMatchesRegexp("consul-alerts/config/checks/blacklist/nodes", node)
 
 	service := "_"
 	serviceBlacklisted := false
 	if check.ServiceID != "" {
 		service = check.ServiceID
 		serviceCheckKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/services/%s", service)
-		serviceBlacklisted = c.CheckKeyExists(serviceCheckKey)
+		serviceBlacklisted = c.CheckKeyExists(serviceCheckKey) || c.CheckKeyMatchesRegexp("consul-alerts/config/checks/blacklist/services", service)
 	}
 
 	checkId := check.CheckID
 	checkCheckKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/checks/%s", checkId)
-	checkBlacklisted := c.CheckKeyExists(checkCheckKey)
+	checkBlacklisted := c.CheckKeyExists(checkCheckKey) || c.CheckKeyMatchesRegexp("consul-alerts/config/checks/blacklist/checks", checkId)
 
 	singleKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/single/%s/%s/%s", node, service, checkId)
 	singleBlacklisted := c.CheckKeyExists(singleKey)
@@ -718,4 +718,23 @@ func (c *ConsulAlertClient) IsBlacklisted(check *Check) bool {
 func (c *ConsulAlertClient) CheckKeyExists(key string) bool {
 	kvpair, _, err := c.api.KV().Get(key, nil)
 	return kvpair != nil && err == nil
+}
+
+func (c *ConsulAlertClient) CheckKeyMatchesRegexp(regexpKey string, key string) bool {
+	kvPair, _, _ := c.api.KV().Get(regexpKey, nil)
+	if kvPair != nil {
+		var regexpList []string
+		json.Unmarshal(kvPair.Value, &regexpList)
+		for _, pattern := range regexpList {
+			matched, err := regexp.MatchString(pattern, key)
+			if err != nil {
+				log.Printf("unable to match %s against pattern %s. Error: %s\n",
+					key, pattern, err.Error())
+			}
+			if matched {
+				return true
+			}
+		}
+	}
+	return false
 }

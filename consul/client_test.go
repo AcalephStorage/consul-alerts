@@ -2,6 +2,7 @@ package consul
 
 import (
 	"encoding/json"
+	"fmt"
 	"reflect"
 	"strconv"
 	"testing"
@@ -175,5 +176,66 @@ func TestGetProfileInfo(t *testing.T) {
 	profileNotifiersList, profileInterval = client.GetProfileInfo("node", "serviceID", "checkID")
 	if !reflect.DeepEqual(notifiersList, profileNotifiersList) || interval != profileInterval {
 		t.Error("notif-selection based on services loaded an incorrect profile")
+	}
+}
+
+func TestIsBlacklisted(t *testing.T) {
+	client, err := testClient()
+	if err != nil {
+		t.Error(err.Error())
+	}
+	clearKVPath(t, client, "consul-alerts/config/checks/blacklist/")
+	node := "test-node"
+	checkID := "test-check"
+	serviceID := "test-service"
+	check := Check{Node: node, CheckID: checkID, ServiceID: serviceID}
+	isBlackListed := client.IsBlacklisted(&check)
+	if isBlackListed {
+		t.Error("isBlackListed should be false if there is no corresponding entry in the blacklist")
+	}
+
+	testCombinations := []map[string]string{
+		{"type": "node",
+			"key": fmt.Sprintf("consul-alerts/config/checks/blacklist/nodes/%s", node)},
+		{"type": "service",
+			"key": fmt.Sprintf("consul-alerts/config/checks/blacklist/services/%s", serviceID)},
+		{"type": "check",
+			"key": fmt.Sprintf("consul-alerts/config/checks/blacklist/checks/%s", checkID)},
+		{"type": "node-service-check combination",
+			"key": fmt.Sprintf("consul-alerts/config/checks/blacklist/single/%s/%s/%s",
+				node, serviceID, checkID)},
+	}
+
+	// test that blacklisting the exact key works
+	for _, m := range testCombinations {
+		clearKVPath(t, client, "consul-alerts/config/checks/blacklist/")
+		client.api.KV().Put(&consulapi.KVPair{
+			Key:   m["key"],
+			Value: []byte{}}, nil)
+		isBlackListed = client.IsBlacklisted(&check)
+		if !isBlackListed {
+			t.Errorf("isBlackListed should be true if the %s is blacklisted", m["type"])
+		}
+	}
+
+	// test that blacklisting by regexp works
+	testCombinations = []map[string]string{
+		{"type": "node",
+			"regexp": `["test-.*", "111"]`},
+		{"type": "service",
+			"regexp": `["test-.*"]`},
+		{"type": "check",
+			"regexp": `["test-.*", ""]`},
+	}
+	for _, m := range testCombinations {
+		clearKVPath(t, client, "consul-alerts/config/checks/blacklist/")
+		client.api.KV().Put(&consulapi.KVPair{
+			Key:   fmt.Sprintf("consul-alerts/config/checks/blacklist/%ss", m["type"]),
+			Value: []byte(m["regexp"])}, nil)
+		isBlackListed = client.IsBlacklisted(&check)
+		if !isBlackListed {
+			t.Errorf("isBlackListed should be true if there is a regexp for %s matching the key",
+				m["type"])
+		}
 	}
 }
