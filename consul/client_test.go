@@ -118,64 +118,47 @@ func TestGetProfileInfo(t *testing.T) {
 		t.Error("Default interval is loaded incorrectly")
 	}
 
-	// test notifier-selection based on nodes
-	notifiersList = map[string]bool{"email": true}
-	interval = 2
-	nodeProfileInfo := ProfileInfo{Interval: interval, NotifList: notifiersList}
-	data, err = json.Marshal(nodeProfileInfo)
-	if err != nil {
-		t.Error(err.Error())
+	var testCombinations = []struct {
+		Interval       int
+		NotifiersList  map[string]bool
+		NotifProfile   string
+		NotifSelection string
+	}{
+		{
+			Interval:       2,
+			NotifiersList:  map[string]bool{"email": true},
+			NotifProfile:   "nodes",
+			NotifSelection: "hosts/node",
+		},
+		{
+			Interval:       5,
+			NotifiersList:  map[string]bool{"slack": true},
+			NotifProfile:   "checks",
+			NotifSelection: "checks/checkID",
+		},
+		{
+			Interval:       99,
+			NotifiersList:  map[string]bool{"influxdb": true},
+			NotifProfile:   "services",
+			NotifSelection: "services/serviceID",
+		},
 	}
-	client.api.KV().Put(&consulapi.KVPair{
-		Key:   "consul-alerts/config/notif-profiles/node-profile",
-		Value: data}, nil)
-
-	client.api.KV().Put(&consulapi.KVPair{
-		Key:   "consul-alerts/config/notif-selection/hosts/node",
-		Value: []byte("node-profile")}, nil)
-	profileNotifiersList, profileInterval = client.GetProfileInfo("node", "serviceID", "checkID")
-	if !reflect.DeepEqual(notifiersList, profileNotifiersList) || interval != profileInterval {
-		t.Error("notif-selection based on nodes loaded an incorrect profile")
-	}
-
-	// test notifier-selection based on checks
-	notifiersList = map[string]bool{"influxdb": true}
-	interval = 99
-	checkProfileInfo := ProfileInfo{Interval: interval, NotifList: notifiersList}
-	data, err = json.Marshal(checkProfileInfo)
-	if err != nil {
-		t.Error(err.Error())
-	}
-	client.api.KV().Put(&consulapi.KVPair{
-		Key:   "consul-alerts/config/notif-profiles/check-profile",
-		Value: data}, nil)
-
-	client.api.KV().Put(&consulapi.KVPair{
-		Key:   "consul-alerts/config/notif-selection/checks/checkID",
-		Value: []byte("check-profile")}, nil)
-	profileNotifiersList, profileInterval = client.GetProfileInfo("node", "serviceID", "checkID")
-	if !reflect.DeepEqual(notifiersList, profileNotifiersList) || interval != profileInterval {
-		t.Error("notif-selection based on checks loaded an incorrect profile")
-	}
-
-	// test notifier-selection based on services
-	notifiersList = map[string]bool{"slack": true}
-	interval = 5
-	serviceProfileInfo := ProfileInfo{Interval: interval, NotifList: notifiersList}
-	data, err = json.Marshal(serviceProfileInfo)
-	if err != nil {
-		t.Error(err.Error())
-	}
-	client.api.KV().Put(&consulapi.KVPair{
-		Key:   "consul-alerts/config/notif-profiles/service-profile",
-		Value: data}, nil)
-
-	client.api.KV().Put(&consulapi.KVPair{
-		Key:   "consul-alerts/config/notif-selection/services/serviceID",
-		Value: []byte("service-profile")}, nil)
-	profileNotifiersList, profileInterval = client.GetProfileInfo("node", "serviceID", "checkID")
-	if !reflect.DeepEqual(notifiersList, profileNotifiersList) || interval != profileInterval {
-		t.Error("notif-selection based on services loaded an incorrect profile")
+	for _, s := range testCombinations {
+		profileInfo := ProfileInfo{Interval: s.Interval, NotifList: s.NotifiersList}
+		data, err = json.Marshal(profileInfo)
+		if err != nil {
+			t.Error(err.Error())
+		}
+		client.api.KV().Put(&consulapi.KVPair{
+			Key:   fmt.Sprintf("consul-alerts/config/notif-profiles/%s", s.NotifProfile),
+			Value: data}, nil)
+		client.api.KV().Put(&consulapi.KVPair{
+			Key:   fmt.Sprintf("consul-alerts/config/notif-selection/%s", s.NotifSelection),
+			Value: []byte(s.NotifProfile)}, nil)
+		profileNotifiersList, profileInterval = client.GetProfileInfo("node", "serviceID", "checkID")
+		if !reflect.DeepEqual(s.NotifiersList, profileNotifiersList) || s.Interval != profileInterval {
+			t.Errorf("notif-selection based on %s loaded an incorrect profile", s.NotifProfile)
+		}
 	}
 }
 
