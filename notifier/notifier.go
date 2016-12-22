@@ -36,6 +36,19 @@ type Notifier interface {
 	NotifierName() string
 }
 
+type Notifiers struct {
+	Email     *EmailNotifier
+	Log       *LogNotifier
+	Influxdb  *InfluxdbNotifier
+	Slack     *SlackNotifier
+	PagerDuty *PagerDutyNotifier
+	HipChat   *HipChatNotifier
+	OpsGenie  *OpsGenieNotifier
+	AwsSns    *AwsSnsNotifier
+	VictorOps *VictorOpsNotifier
+	Custom    []string
+}
+
 func (m Message) IsCritical() bool {
 	return m.Status == "critical"
 }

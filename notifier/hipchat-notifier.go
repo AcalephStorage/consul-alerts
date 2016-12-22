@@ -13,6 +13,7 @@ import (
 )
 
 type HipChatNotifier struct {
+	Enabled     bool
 	ClusterName string
 	RoomId      string
 	AuthToken   string

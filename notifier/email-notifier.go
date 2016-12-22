@@ -15,6 +15,7 @@ var sendMail = smtp.SendMail
 
 type EmailNotifier struct {
 	ClusterName string
+	Enabled     bool
 	Template    string
 	Url         string
 	Port        int

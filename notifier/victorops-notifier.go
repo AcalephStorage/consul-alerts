@@ -12,6 +12,7 @@ import (
 
 // VictorOpsNotifier provides configuration options for the VictorOps notifier
 type VictorOpsNotifier struct {
+	Enabled    bool
 	NotifName  string
 	APIKey     string
 	RoutingKey string

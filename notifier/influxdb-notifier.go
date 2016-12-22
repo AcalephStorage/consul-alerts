@@ -6,6 +6,7 @@ import (
 )
 
 type InfluxdbNotifier struct {
+	Enabled    bool
 	Host       string
 	Username   string
 	Password   string

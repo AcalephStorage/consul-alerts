@@ -9,6 +9,7 @@ import (
 )
 
 type AwsSnsNotifier struct {
+	Enabled   bool
 	Region    string
 	TopicArn  string
 	NotifName string

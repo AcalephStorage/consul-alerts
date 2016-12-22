@@ -10,7 +10,7 @@ import (
 
 	"encoding/json"
 
-	"github.com/AcalephStorage/consul-alerts/notifier"
+	notifier "github.com/AcalephStorage/consul-alerts/notifier"
 
 	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
 	consulapi "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/hashicorp/consul/api"
@@ -275,10 +275,9 @@ func (c *ConsulAlertClient) UpdateCheckData() {
 		}
 		if settodelete {
 			log.Printf("Reminder %s %s needs to be deleted, stale", node, check)
-		        c.DeleteReminder(node, check)
+			c.DeleteReminder(node, check)
 		}
 	}
-
 
 	for _, health := range healths {
 
@@ -451,40 +450,40 @@ func (c *ConsulAlertClient) NewAlertsWithFilter(nodeName string, serviceName str
 }
 
 // EmailConfig exports the email config
-func (c *ConsulAlertClient) EmailConfig() *EmailNotifierConfig {
+func (c *ConsulAlertClient) EmailNotifier() *notifier.EmailNotifier {
 	return c.config.Notifiers.Email
 }
 
-func (c *ConsulAlertClient) LogConfig() *LogNotifierConfig {
+func (c *ConsulAlertClient) LogNotifier() *notifier.LogNotifier {
 	return c.config.Notifiers.Log
 }
 
-func (c *ConsulAlertClient) InfluxdbConfig() *InfluxdbNotifierConfig {
+func (c *ConsulAlertClient) InfluxdbNotifier() *notifier.InfluxdbNotifier {
 	return c.config.Notifiers.Influxdb
 }
 
-func (c *ConsulAlertClient) SlackConfig() *SlackNotifierConfig {
+func (c *ConsulAlertClient) SlackNotifier() *notifier.SlackNotifier {
 	return c.config.Notifiers.Slack
 }
 
-func (c *ConsulAlertClient) PagerDutyConfig() *PagerDutyNotifierConfig {
+func (c *ConsulAlertClient) PagerDutyNotifier() *notifier.PagerDutyNotifier {
 	return c.config.Notifiers.PagerDuty
 }
 
-func (c *ConsulAlertClient) HipChatConfig() *HipChatNotifierConfig {
+func (c *ConsulAlertClient) HipChatNotifier() *notifier.HipChatNotifier {
 	return c.config.Notifiers.HipChat
 }
 
-func (c *ConsulAlertClient) OpsGenieConfig() *OpsGenieNotifierConfig {
+func (c *ConsulAlertClient) OpsGenieNotifier() *notifier.OpsGenieNotifier {
 	return c.config.Notifiers.OpsGenie
 }
 
-func (c *ConsulAlertClient) AwsSnsConfig() *AwsSnsNotifierConfig {
+func (c *ConsulAlertClient) AwsSnsNotifier() *notifier.AwsSnsNotifier {
 	return c.config.Notifiers.AwsSns
 }
 
 // VictorOpsConfig provides configuration for the VictorOps integration
-func (c *ConsulAlertClient) VictorOpsConfig() *VictorOpsNotifierConfig {
+func (c *ConsulAlertClient) VictorOpsNotifier() *notifier.VictorOpsNotifier {
 	return c.config.Notifiers.VictorOps
 }
 

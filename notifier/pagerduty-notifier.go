@@ -7,6 +7,7 @@ import (
 )
 
 type PagerDutyNotifier struct {
+	Enabled    bool
 	ServiceKey string
 	ClientName string
 	ClientUrl  string

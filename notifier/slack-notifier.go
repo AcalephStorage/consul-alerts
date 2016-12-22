@@ -24,6 +24,7 @@ type SlackNotifier struct {
 	Attachments []attachment `json:"attachments,omitempty"`
 	Detailed    bool         `json:"-"`
 	NotifName   string
+	Enabled     bool
 }
 
 type attachment struct {

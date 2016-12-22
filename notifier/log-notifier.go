@@ -9,7 +9,8 @@ import (
 )
 
 type LogNotifier struct {
-	LogFile   string
+	Enabled   bool
+	Path      string
 	NotifName string
 }
 
@@ -23,14 +24,14 @@ func (logNotifier *LogNotifier) Notify(alerts Messages) bool {
 
 	logrus.Println("logging messages...")
 
-	logDir := path.Dir(logNotifier.LogFile)
+	logDir := path.Dir(logNotifier.Path)
 	err := os.MkdirAll(logDir, os.ModePerm)
 	if err != nil {
 		logrus.Printf("unable to create directory for logfile: %v\n", err)
 		return false
 	}
 
-	file, err := os.OpenFile(logNotifier.LogFile, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0666)
+	file, err := os.OpenFile(logNotifier.Path, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0666)
 	if err != nil {
 		logrus.Printf("unable to write to logfile: %v\n", err)
 		return false

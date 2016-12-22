@@ -10,6 +10,7 @@ import (
 )
 
 type OpsGenieNotifier struct {
+	Enabled     bool
 	ClusterName string
 	ApiKey      string
 	NotifName   string
