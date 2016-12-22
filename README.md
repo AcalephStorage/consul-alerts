@@ -237,18 +237,18 @@ Ex. `emailer_only` would be located at `consul-alerts/config/notif-profiles/emai
 
 #### Notification Profile Activation
 
-Notification Profile selection is done by setting keys in `consul-alerts/config/notif-selection/services/`, `consul-alerts/config/notif-selection/checks/`, or `consul-alerts/config/notif-selection/hosts/` with the appropriate service, check, or host name as the key and the desired Notification Profile name as the value.
+It is possible to activate Notification Profiles in 2 ways - for a specific entity or for a set of entities matching a regular expression.
+For a specific item the selection is done by setting keys in `consul-alerts/config/notif-selection/services/`, `consul-alerts/config/notif-selection/checks/`, or `consul-alerts/config/notif-selection/hosts/` with the appropriate service, check, or host name as the key and the desired Notification Profile name as the value.
+To activate a Notification Profile for a set of entities matching a regular expression, create a json map of type `regexp->notification-profile` as a value for the keys `consul-alerts/config/notif-selection/services`, `consul-alerts/config/notif-selection/checks`, or `consul-alerts/config/notif-selection/hosts`.
 
-It is also possible to activate a Notification Profile for a set of entities matching a regular expression. It is done by passing a json map of type `regexp->notification-profile` as a value for the keys `consul-alerts/config/notif-selection/services`, `consul-alerts/config/notif-selection/checks`, or `consul-alerts/config/notif-selection/hosts`.
-
-**Example - Notification Profile activated for all the services which names start with team-1**
+**Example - Notification Profile activated for all the services which names start with infra-**
 
 **Key:** `consul-alerts/config/notif-selection/services`
 
 **Value:**
 ```
 {
-  "^team-1-.*$": "profile1"
+  "^infra-.*$": "infra-support-profile"
 }
 ```
 
@@ -267,7 +267,7 @@ Reminders resend the notifications at programmable intervals until they are reso
 
 #### Enable/Disable Specific Health Checks
 
-There are multiple ways to enable/disable health check notifications: mark them by node, serviceID, checkID, or mark individually by node/serviceID/checkID. This is done by adding a KV entry in `consul-alerts/config/checks/blacklist/...`. Removing the entry will re-enable the check notifications. Additionally, it is possible to disable notifications for a set of nodes, services or checks matching a regular expression.
+There are multiple ways to enable/disable health check notifications: mark them by node, serviceID, checkID, regular expression, or mark individually by node/serviceID/checkID. This is done by adding a KV entry in `consul-alerts/config/checks/blacklist/...`. Removing the entry will re-enable the check notifications.
 
 ##### Disable all notification by node
 
