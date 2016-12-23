@@ -24,7 +24,6 @@ type EmailNotifier struct {
 	SenderAlias string
 	SenderEmail string
 	Receivers   []string
-	NotifName   string
 	OnePerAlert bool
 	OnePerNode  bool
 }
@@ -52,7 +51,7 @@ func (e EmailData) IsPassing() bool {
 
 // NotifierName provides name for notifier selection
 func (emailNotifier *EmailNotifier) NotifierName() string {
-	return emailNotifier.NotifName
+	return "email"
 }
 
 //Notify sends messages to the endpoint notifier

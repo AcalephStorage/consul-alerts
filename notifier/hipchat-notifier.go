@@ -19,12 +19,11 @@ type HipChatNotifier struct {
 	AuthToken   string
 	BaseURL     string
 	From        string
-	NotifName   string
 }
 
 // NotifierName provides name for notifier selection
 func (notifier *HipChatNotifier) NotifierName() string {
-	return notifier.NotifName
+	return "hipchat"
 }
 
 //Notify sends messages to the endpoint notifier

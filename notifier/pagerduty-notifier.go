@@ -11,12 +11,11 @@ type PagerDutyNotifier struct {
 	ServiceKey string
 	ClientName string
 	ClientUrl  string
-	NotifName  string
 }
 
 // NotifierName provides name for notifier selection
 func (pd *PagerDutyNotifier) NotifierName() string {
-	return pd.NotifName
+	return "pagerduty"
 }
 
 //Notify sends messages to the endpoint notifier

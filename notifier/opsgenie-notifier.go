@@ -13,12 +13,11 @@ type OpsGenieNotifier struct {
 	Enabled     bool
 	ClusterName string
 	ApiKey      string
-	NotifName   string
 }
 
 // NotifierName provides name for notifier selection
 func (opsgenie *OpsGenieNotifier) NotifierName() string {
-	return opsgenie.NotifName
+	return "opsgenie"
 }
 
 //Notify sends messages to the endpoint notifier

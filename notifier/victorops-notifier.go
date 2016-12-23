@@ -13,7 +13,6 @@ import (
 // VictorOpsNotifier provides configuration options for the VictorOps notifier
 type VictorOpsNotifier struct {
 	Enabled    bool
-	NotifName  string
 	APIKey     string
 	RoutingKey string
 }
@@ -46,7 +45,7 @@ const apiEndpointTemplate string = "https://alert.victorops.com/integrations/gen
 
 // NotifierName provides name for notifier selection
 func (vo *VictorOpsNotifier) NotifierName() string {
-	return vo.NotifName
+	return "victorops"
 }
 
 // Notify sends messages to the endpoint notifier

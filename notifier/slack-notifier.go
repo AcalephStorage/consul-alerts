@@ -23,7 +23,6 @@ type SlackNotifier struct {
 	Text        string       `json:"text,omitempty"`
 	Attachments []attachment `json:"attachments,omitempty"`
 	Detailed    bool         `json:"-"`
-	NotifName   string
 	Enabled     bool
 }
 
@@ -37,7 +36,7 @@ type attachment struct {
 
 // NotifierName provides name for notifier selection
 func (slack *SlackNotifier) NotifierName() string {
-	return slack.NotifName
+	return "slack"
 }
 
 //Notify sends messages to the endpoint notifier

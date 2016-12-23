@@ -9,14 +9,13 @@ import (
 )
 
 type LogNotifier struct {
-	Enabled   bool
-	Path      string
-	NotifName string
+	Enabled bool
+	Path    string
 }
 
 // NotifierName provides name for notifier selection
 func (logNotifier *LogNotifier) NotifierName() string {
-	return logNotifier.NotifName
+	return "log"
 }
 
 //Notify sends messages to the endpoint notifier

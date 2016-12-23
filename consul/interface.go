@@ -112,55 +112,46 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 
 	email := &notifier.EmailNotifier{
 		ClusterName: "Consul-Alerts",
-		NotifName:   "email",
 		Enabled:     false,
 		SenderAlias: "Consul Alerts",
 		Receivers:   []string{},
 	}
 
 	log := &notifier.LogNotifier{
-		Enabled:   true,
-		NotifName: "log",
-		Path:      "/tmp/consul-notifications.log",
+		Enabled: true,
+		Path:    "/tmp/consul-notifications.log",
 	}
 
 	influxdb := &notifier.InfluxdbNotifier{
 		Enabled:    false,
-		NotifName:  "influx",
 		SeriesName: "consul-alerts",
 	}
 
 	slack := &notifier.SlackNotifier{
 		Enabled:     false,
-		NotifName:   "slack",
 		ClusterName: "Consul-Alerts",
 	}
 
 	pagerduty := &notifier.PagerDutyNotifier{
-		NotifName: "pagerduty",
-		Enabled:   false,
+		Enabled: false,
 	}
 
 	hipchat := &notifier.HipChatNotifier{
 		Enabled:     false,
-		NotifName:   "hipchat",
 		ClusterName: "Consul-Alerts",
 	}
 
 	opsgenie := &notifier.OpsGenieNotifier{
 		Enabled:     false,
-		NotifName:   "opsgenie",
 		ClusterName: "Consul-Alerts",
 	}
 
 	awsSns := &notifier.AwsSnsNotifier{
-		Enabled:   false,
-		NotifName: "awssns",
+		Enabled: false,
 	}
 
 	victorOps := &notifier.VictorOpsNotifier{
-		Enabled:   false,
-		NotifName: "victorops",
+		Enabled: false,
 	}
 
 	notifiers := &notifier.Notifiers{
