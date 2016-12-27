@@ -110,14 +110,12 @@ func TestGetProfileInfo(t *testing.T) {
 	client.api.KV().Put(&consulapi.KVPair{
 		Key:   "consul-alerts/config/notif-profiles/default",
 		Value: data}, nil)
-	profileNotifiersList, profileInterval := client.GetProfileInfo("node", "serviceID", "checkID")
-	if !reflect.DeepEqual(notifiersList, profileNotifiersList) {
-		t.Error("Default notifiers list is loaded incorrectly")
-	}
-	if interval != profileInterval {
-		t.Error("Default interval is loaded incorrectly")
+	checkProfileInfo := client.GetProfileInfo("node", "serviceID", "checkID")
+	if !reflect.DeepEqual(checkProfileInfo, defaultProfileInfo) {
+		t.Error("Default profile info is loaded incorrectly")
 	}
 
+	// test that profiles based on checks, nodes and services are loaded correctly
 	var testCombinations = []struct {
 		Interval       int
 		NotifiersList  map[string]bool
@@ -155,9 +153,9 @@ func TestGetProfileInfo(t *testing.T) {
 		client.api.KV().Put(&consulapi.KVPair{
 			Key:   fmt.Sprintf("consul-alerts/config/notif-selection/%s", s.NotifSelection),
 			Value: []byte(s.NotifProfile)}, nil)
-		profileNotifiersList, profileInterval = client.GetProfileInfo("node", "serviceID", "checkID")
-		if !reflect.DeepEqual(s.NotifiersList, profileNotifiersList) || s.Interval != profileInterval {
-			t.Errorf("notif-selection based on %s loaded an incorrect profile", s.NotifProfile)
+		checkProfileInfo := client.GetProfileInfo("node", "serviceID", "checkID")
+		if !reflect.DeepEqual(checkProfileInfo, profileInfo) {
+			t.Error("Profile info is loaded incorrectly")
 		}
 	}
 }

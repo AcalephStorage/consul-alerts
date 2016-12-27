@@ -236,7 +236,7 @@ func cleanup(stopables ...stopable) {
 	}
 }
 
-func builtinNotifiers() []notifier.Notifier {
+func builtinNotifiers() map[string]notifier.Notifier {
 
 	emailNotifier := consulClient.EmailNotifier()
 	logNotifier := consulClient.LogNotifier()
@@ -248,33 +248,33 @@ func builtinNotifiers() []notifier.Notifier {
 	awssnsNotifier := consulClient.AwsSnsNotifier()
 	victoropsNotifier := consulClient.VictorOpsNotifier()
 
-	notifiers := []notifier.Notifier{}
+	notifiers := map[string]notifier.Notifier{}
 	if emailNotifier.Enabled {
-		notifiers = append(notifiers, emailNotifier)
+		notifiers[emailNotifier.NotifierName()] = emailNotifier
 	}
 	if logNotifier.Enabled {
-		notifiers = append(notifiers, logNotifier)
+		notifiers[logNotifier.NotifierName()] = logNotifier
 	}
 	if influxdbNotifier.Enabled {
-		notifiers = append(notifiers, influxdbNotifier)
+		notifiers[influxdbNotifier.NotifierName()] = influxdbNotifier
 	}
 	if slackNotifier.Enabled {
-		notifiers = append(notifiers, slackNotifier)
+		notifiers[slackNotifier.NotifierName()] = slackNotifier
 	}
 	if pagerdutyNotifier.Enabled {
-		notifiers = append(notifiers, pagerdutyNotifier)
+		notifiers[pagerdutyNotifier.NotifierName()] = pagerdutyNotifier
 	}
 	if hipchatNotifier.Enabled {
-		notifiers = append(notifiers, hipchatNotifier)
+		notifiers[hipchatNotifier.NotifierName()] = hipchatNotifier
 	}
 	if opsgenieNotifier.Enabled {
-		notifiers = append(notifiers, opsgenieNotifier)
+		notifiers[opsgenieNotifier.NotifierName()] = opsgenieNotifier
 	}
 	if awssnsNotifier.Enabled {
-		notifiers = append(notifiers, awssnsNotifier)
+		notifiers[awssnsNotifier.NotifierName()] = awssnsNotifier
 	}
 	if victoropsNotifier.Enabled {
-		notifiers = append(notifiers, victoropsNotifier)
+		notifiers[victoropsNotifier.NotifierName()] = victoropsNotifier
 	}
 
 	return notifiers

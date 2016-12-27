@@ -192,6 +192,14 @@ Ex. `emailer_only` would be located at `consul-alerts/config/notif-profiles/emai
       "patternProperties" : {
         ".{1,}" : { "type" : "string" }
       }
+    },
+    "VarOverrides": {
+      "type": "object",
+      "title": "Hash of Notifier variables to override.",
+      "description": "A listing of Notifier names with hash values containing the parameters to be overridden",
+      "patternProperties" : {
+        ".{1,}" : { "type" : "object" }
+      }
     }
   },
   "required": [
@@ -234,6 +242,25 @@ Ex. `emailer_only` would be located at `consul-alerts/config/notif-profiles/emai
 ```
 
 **NOTE:** The Interval being set to 0 **disables** Reminders from being sent for a given alert.  If the service stays in a critical status for an extended period, only that first notification will be sent.
+
+**Example - Notification Profile to only send Emails to the overridden receivers:**
+
+**Key:** `consul-alerts/config/notif-profiles/emailer_overridden`
+
+**Value:**
+```
+{
+  "Interval": 10,
+  "NotifList": {
+    "email":true
+  },
+  "VarOverrides": {
+    "email": {
+      "receivers": ["my-team@company.com"]
+    }
+  }
+}
+```
 
 #### Notification Profile Activation
 

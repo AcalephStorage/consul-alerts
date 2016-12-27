@@ -8,9 +8,9 @@ import (
 
 type PagerDutyNotifier struct {
 	Enabled    bool
-	ServiceKey string
-	ClientName string
-	ClientUrl  string
+	ServiceKey string `json:"service-key"`
+	ClientName string `json:"client-name"`
+	ClientUrl  string `json:"client-url"`
 }
 
 // NotifierName provides name for notifier selection

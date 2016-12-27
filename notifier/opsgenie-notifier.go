@@ -11,8 +11,8 @@ import (
 
 type OpsGenieNotifier struct {
 	Enabled     bool
-	ClusterName string
-	ApiKey      string
+	ClusterName string `json:"cluster-name"`
+	ApiKey      string `json:"api-key"`
 }
 
 // NotifierName provides name for notifier selection
@@ -59,7 +59,7 @@ func (opsgenie *OpsGenieNotifier) Notify(messages Messages) bool {
 	return ok
 }
 
-func (opsgenie *OpsGenieNotifier) createAlias(message Message) string {
+func (opsgenie OpsGenieNotifier) createAlias(message Message) string {
 	incidentKey := message.Node
 	if message.ServiceId != "" {
 		incidentKey += ":" + message.ServiceId

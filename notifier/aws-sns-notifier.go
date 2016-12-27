@@ -10,8 +10,8 @@ import (
 
 type AwsSnsNotifier struct {
 	Enabled  bool
-	Region   string
-	TopicArn string
+	Region   string `json:"region"`
+	TopicArn string `json:"topic-arn"`
 }
 
 // NotifierName provides name for notifier selection

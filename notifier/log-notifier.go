@@ -10,7 +10,7 @@ import (
 
 type LogNotifier struct {
 	Enabled bool
-	Path    string
+	Path    string `json:"path"`
 }
 
 // NotifierName provides name for notifier selection

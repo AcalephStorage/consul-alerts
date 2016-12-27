@@ -2,8 +2,8 @@ package main
 
 import (
 	"bytes"
-
 	"encoding/json"
+	"github.com/imdario/mergo"
 	"os/exec"
 
 	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
@@ -47,17 +47,35 @@ func (n *NotifEngine) queueMessages(messages notifier.Messages) {
 
 func (n *NotifEngine) sendBuiltin(messages notifier.Messages) {
 	log.Println("sendBuiltin running")
-	for _, n := range builtinNotifiers() {
-		filteredMessages := make(notifier.Messages, 0)
-		notifName := n.NotifierName()
-		for _, m := range messages {
-			if boolVal, exists := m.NotifList[notifName]; (exists && boolVal) || len(m.NotifList) == 0 {
-				filteredMessages = append(filteredMessages, m)
+
+	defaultNotifiers := builtinNotifiers()
+	messagesPerNotifier := make(map[notifier.Notifier]notifier.Messages)
+
+	for _, m := range messages {
+		// if notification list is empty -> notify by all the enabled notifiers
+		if len(m.NotifList) == 0 {
+			for _, notifier := range defaultNotifiers {
+				messagesPerNotifier[notifier] = append(messagesPerNotifier[notifier], m)
 			}
 		}
-		if len(filteredMessages) > 0 {
-			n.Notify(filteredMessages)
+
+		for notifName, enabled := range m.NotifList {
+			// get the default notifier
+			if defaultNotifier, defaultNotifierExists := defaultNotifiers[notifName]; defaultNotifierExists && enabled {
+				notif := defaultNotifier
+				if varOverride, varOverrideExists := m.VarOverrides.GetNotifier(notifName); varOverrideExists {
+					err := mergo.MergeWithOverwrite(notif, varOverride)
+					if err != nil {
+						log.Error(err)
+					}
+				}
+				messagesPerNotifier[notif] = append(messagesPerNotifier[notif], m)
+			}
 		}
+	}
+
+	for notifier, msgs := range messagesPerNotifier {
+		notifier.Notify(msgs)
 	}
 }
 

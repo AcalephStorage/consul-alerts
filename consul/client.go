@@ -449,7 +449,6 @@ func (c *ConsulAlertClient) NewAlertsWithFilter(nodeName string, serviceName str
 	return alerts
 }
 
-// EmailConfig exports the email config
 func (c *ConsulAlertClient) EmailNotifier() *notifier.EmailNotifier {
 	return c.config.Notifiers.Email
 }
@@ -482,7 +481,6 @@ func (c *ConsulAlertClient) AwsSnsNotifier() *notifier.AwsSnsNotifier {
 	return c.config.Notifiers.AwsSns
 }
 
-// VictorOpsConfig provides configuration for the VictorOps integration
 func (c *ConsulAlertClient) VictorOpsNotifier() *notifier.VictorOpsNotifier {
 	return c.config.Notifiers.VictorOps
 }
@@ -658,7 +656,7 @@ func (c *ConsulAlertClient) getProfileForNode(node string) string {
 }
 
 // GetProfileInfo returns profile info for check
-func (c *ConsulAlertClient) GetProfileInfo(node, serviceID, checkID string) (notifiersList map[string]bool, interval int) {
+func (c *ConsulAlertClient) GetProfileInfo(node, serviceID, checkID string) ProfileInfo {
 	log.Println("Getting profile for node: ", node, " service: ", serviceID, " check: ", checkID)
 
 	var profile string
@@ -674,20 +672,22 @@ func (c *ConsulAlertClient) GetProfileInfo(node, serviceID, checkID string) (not
 		profile = "default"
 	}
 
+	var checkProfile ProfileInfo
 	key := fmt.Sprintf("consul-alerts/config/notif-profiles/%s", profile)
 	log.Println("profile key: ", key)
 	kvPair, _, _ := c.api.KV().Get(key, nil)
 	if kvPair == nil {
 		log.Println("profile key not found.")
-		return
+		return checkProfile
 	}
-	var checkProfile ProfileInfo
-	json.Unmarshal(kvPair.Value, &checkProfile)
 
-	notifiersList = checkProfile.NotifList
-	interval = checkProfile.Interval
-	log.Println("Interval: ", interval, " List: ", notifiersList)
-	return
+	if err := json.Unmarshal(kvPair.Value, &checkProfile); err != nil {
+		log.Error("Profile unmarshalling error: ", err.Error())
+	} else {
+		log.Println("Interval: ", checkProfile.Interval, " List: ", checkProfile.NotifList)
+	}
+
+	return checkProfile
 }
 
 // IsBlacklisted gets the blacklist status of check

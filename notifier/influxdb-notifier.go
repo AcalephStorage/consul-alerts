@@ -7,11 +7,11 @@ import (
 
 type InfluxdbNotifier struct {
 	Enabled    bool
-	Host       string
-	Username   string
-	Password   string
-	Database   string
-	SeriesName string
+	Host       string `json:"host"`
+	Username   string `json:"username"`
+	Password   string `json:"password"`
+	Database   string `json:"database"`
+	SeriesName string `json:"series-name"`
 }
 
 // NotifierName provides name for notifier selection
@@ -47,7 +47,7 @@ func (influxdb *InfluxdbNotifier) Notify(messages Messages) bool {
 	return true
 }
 
-func (influxdb *InfluxdbNotifier) toSeries(messages Messages) []*client.Series {
+func (influxdb InfluxdbNotifier) toSeries(messages Messages) []*client.Series {
 
 	seriesName := influxdb.SeriesName
 	columns := []string{

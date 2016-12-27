@@ -13,8 +13,8 @@ import (
 // VictorOpsNotifier provides configuration options for the VictorOps notifier
 type VictorOpsNotifier struct {
 	Enabled    bool
-	APIKey     string
-	RoutingKey string
+	APIKey     string `json:"api-key"`
+	RoutingKey string `json:"routing-key"`
 }
 
 // VictorOpsEvent represents the options we'll pass to the VictorOps API

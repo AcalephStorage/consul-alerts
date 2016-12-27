@@ -1,7 +1,9 @@
 // Package notifier manages notifications for consul-alerts
 package notifier
 
-import "time"
+import (
+	"time"
+)
 
 const (
 	SYSTEM_HEALTHY  string = "HEALTHY"
@@ -15,18 +17,19 @@ Fail: %d, Warn: %d, Pass: %d
 `
 
 type Message struct {
-	Node      string
-	ServiceId string
-	Service   string
-	CheckId   string
-	Check     string
-	Status    string
-	Output    string
-	Notes     string
-	Interval  int
-	RmdCheck  time.Time
-	NotifList map[string]bool
-	Timestamp time.Time
+	Node         string
+	ServiceId    string
+	Service      string
+	CheckId      string
+	Check        string
+	Status       string
+	Output       string
+	Notes        string
+	Interval     int
+	RmdCheck     time.Time
+	NotifList    map[string]bool
+	VarOverrides Notifiers
+	Timestamp    time.Time
 }
 
 type Messages []Message
@@ -37,16 +40,41 @@ type Notifier interface {
 }
 
 type Notifiers struct {
-	Email     *EmailNotifier
-	Log       *LogNotifier
-	Influxdb  *InfluxdbNotifier
-	Slack     *SlackNotifier
-	PagerDuty *PagerDutyNotifier
-	HipChat   *HipChatNotifier
-	OpsGenie  *OpsGenieNotifier
-	AwsSns    *AwsSnsNotifier
-	VictorOps *VictorOpsNotifier
-	Custom    []string
+	Email     *EmailNotifier     `json:"email"`
+	Log       *LogNotifier       `json:"log"`
+	Influxdb  *InfluxdbNotifier  `json:"influxdb"`
+	Slack     *SlackNotifier     `json:"slack"`
+	PagerDuty *PagerDutyNotifier `json:"pagerduty"`
+	HipChat   *HipChatNotifier   `json:"hipchat"`
+	OpsGenie  *OpsGenieNotifier  `json:"opsgenie"`
+	AwsSns    *AwsSnsNotifier    `json:"awssns"`
+	VictorOps *VictorOpsNotifier `json:"victorops"`
+	Custom    []string           `json:"custom"`
+}
+
+func (n Notifiers) GetNotifier(name string) (Notifier, bool) {
+	switch name {
+	case n.Email.NotifierName():
+		return n.Email, true
+	case n.Log.NotifierName():
+		return n.Log, true
+	case n.Influxdb.NotifierName():
+		return n.Influxdb, true
+	case n.Slack.NotifierName():
+		return n.Slack, true
+	case n.HipChat.NotifierName():
+		return n.HipChat, true
+	case n.PagerDuty.NotifierName():
+		return n.PagerDuty, true
+	case n.OpsGenie.NotifierName():
+		return n.OpsGenie, true
+	case n.AwsSns.NotifierName():
+		return n.AwsSns, true
+	case n.VictorOps.NotifierName():
+		return n.VictorOps, true
+	default:
+		return nil, false
+	}
 }
 
 func (m Message) IsCritical() bool {

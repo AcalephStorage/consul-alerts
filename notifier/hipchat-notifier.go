@@ -14,11 +14,11 @@ import (
 
 type HipChatNotifier struct {
 	Enabled     bool
-	ClusterName string
-	RoomId      string
-	AuthToken   string
-	BaseURL     string
-	From        string
+	ClusterName string `json:"cluster-name"`
+	RoomId      string `json:"room-id"`
+	AuthToken   string `json:"auth-token"`
+	BaseURL     string `json:"base-url"`
+	From        string `json:"from"`
 }
 
 // NotifierName provides name for notifier selection
