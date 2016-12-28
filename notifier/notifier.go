@@ -53,24 +53,24 @@ type Notifiers struct {
 }
 
 func (n Notifiers) GetNotifier(name string) (Notifier, bool) {
-	switch name {
-	case n.Email.NotifierName():
+	switch {
+	case n.Email != nil && n.Email.NotifierName() == name:
 		return n.Email, true
-	case n.Log.NotifierName():
+	case n.Log != nil && n.Log.NotifierName() == name:
 		return n.Log, true
-	case n.Influxdb.NotifierName():
+	case n.Influxdb != nil && n.Influxdb.NotifierName() == name:
 		return n.Influxdb, true
-	case n.Slack.NotifierName():
+	case n.Slack != nil && n.Slack.NotifierName() == name:
 		return n.Slack, true
-	case n.HipChat.NotifierName():
+	case n.HipChat != nil && n.HipChat.NotifierName() == name:
 		return n.HipChat, true
-	case n.PagerDuty.NotifierName():
+	case n.PagerDuty != nil && n.PagerDuty.NotifierName() == name:
 		return n.PagerDuty, true
-	case n.OpsGenie.NotifierName():
+	case n.OpsGenie != nil && n.OpsGenie.NotifierName() == name:
 		return n.OpsGenie, true
-	case n.AwsSns.NotifierName():
+	case n.AwsSns != nil && n.AwsSns.NotifierName() == name:
 		return n.AwsSns, true
-	case n.VictorOps.NotifierName():
+	case n.VictorOps != nil && n.VictorOps.NotifierName() == name:
 		return n.VictorOps, true
 	default:
 		return nil, false
