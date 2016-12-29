@@ -136,20 +136,16 @@ type MatterMostNotifier struct {
 }
 
 func (mattermost *MatterMostNotifier) GetURL() string {
-	proto := "http"
 
+	proto := "http"
 	u := strings.TrimSpace(strings.ToLower(mattermost.Url))
 	if u[:5] == "https" && u[5] == ':' {
 		proto = "https"
 	}
 
 	host := ""
-	port := 80
+	port := 0
 	buf := strings.Split(u, ":")
-
-	log.Printf("mattermost: Url = %s\n", mattermost.Url)
-	log.Printf("mattermost: buf = %s\n", buf)
-
 	if (u[:4] == "http" && u[4] == ':') ||
 		(u[:5] == "https" && u[5] == ':') {
 
@@ -168,7 +164,12 @@ func (mattermost *MatterMostNotifier) GetURL() string {
 		host = strings.TrimSpace(buf[0])
 	}
 
-	return fmt.Sprintf("%s://%s:%d/api/v3", proto, host, port)
+	portstr := ""
+	if port > 0 {
+		portstr = fmt.Sprintf(":%d", port)
+	}
+
+	return fmt.Sprintf("%s://%s%s/api/v3", proto, host, portstr)
 }
 
 func (mattermost *MatterMostNotifier) Authenticate() bool {
@@ -455,6 +456,7 @@ func (mattermost *MatterMostNotifier) Init() bool {
 	}
 
 	if mattermost.Token == "" && !mattermost.Authenticate() {
+		log.Println("MatterMost: Unable to authenticate!")
 		return false
 	}
 
@@ -462,6 +464,7 @@ func (mattermost *MatterMostNotifier) Init() bool {
 		var teams []MatterMostTeamInfo
 
 		if !mattermost.GetAllTeams(&teams) {
+			log.Println("MatterMost: Unable to get teams!")
 			return false
 		}
 
@@ -473,6 +476,7 @@ func (mattermost *MatterMostNotifier) Init() bool {
 		}
 
 		if mattermost.TeamID == "" {
+			log.Println("MatterMost: Unable to find team!")
 			return false
 		}
 	}
@@ -481,10 +485,12 @@ func (mattermost *MatterMostNotifier) Init() bool {
 		var me MatterMostUserInfo
 
 		if !mattermost.GetMe(&me) {
+			log.Println("MatterMost: Unable to get user!")
 			return false
 		}
 
 		if me.UserID == "" {
+			log.Println("MatterMost: Unable to get user ID!")
 			return false
 		}
 
@@ -495,6 +501,7 @@ func (mattermost *MatterMostNotifier) Init() bool {
 		var channels []MatterMostChannelInfo
 
 		if !mattermost.GetChannels(mattermost.TeamID, &channels) {
+			log.Println("MatterMost: Unable to get channels!")
 			return false
 		}
 
@@ -506,6 +513,7 @@ func (mattermost *MatterMostNotifier) Init() bool {
 		}
 
 		if mattermost.ChannelID == "" {
+			log.Println("MatterMost: Unable to find channel!")
 			return false
 		}
 	}
@@ -541,7 +549,7 @@ func (mattermost *MatterMostNotifier) notifySimple(messages Messages) bool {
 	for _, message := range messages {
 		text += fmt.Sprintf("\n%s:%s:%s is %s.",
 			message.Node, message.Service, message.Check, message.Status)
-		text += fmt.Sprintf("\n%s", message.Output)
+		text += fmt.Sprintf("\n%s\n\n", message.Output)
 	}
 
 	mattermost.Text = text
@@ -578,7 +586,7 @@ func (mattermost *MatterMostNotifier) notifyDetailed(messages Messages) bool {
 		detailedBody += fmt.Sprintf("\n`%s`", strings.TrimSpace(message.Output))
 	}
 
-	mattermost.Text = fmt.Sprintf("%s\n%s\n%s\n", title, pretext, detailedBody)
+	mattermost.Text = fmt.Sprintf("%s\n%s\n%s\n\n", title, pretext, detailedBody)
 
 	return mattermost.postToMatterMost()
 
