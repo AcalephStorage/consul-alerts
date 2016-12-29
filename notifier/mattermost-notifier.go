@@ -134,7 +134,7 @@ func (mattermost *MatterMostNotifier) GetURL() string {
 		host = strings.TrimSpace(buf[0])
 	}
 
-	return fmt.Printf("%s://%s:%d/api/v3", proto, host, port)
+	return fmt.Sprintf("%s://%s:%d/api/v3", proto, host, port)
 }
 
 func (mattermost *MatterMostNotifier) Authenticate() bool {
