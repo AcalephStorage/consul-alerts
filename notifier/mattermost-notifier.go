@@ -38,6 +38,31 @@ type MatterMostAuthInfo struct {
 	LastPictureUpdate  int64     `json:"last_picture_update"`
 }
 
+type MatterMostUserInfo struct {
+	UserID             string    `json:"id"`
+	CreateAt           int64     `json:"create_at"`
+	UpdateAt           int64     `json:"update_at"`
+	DeleteAt           int64     `json:"delete_at"`
+	Username           string    `json:"username"`
+	FirstName          string    `json:"first_name"`
+	LastName           string    `json:"last_name"`
+	Nickname           string    `json:"nickname"`
+	Email              string    `json:"email"`
+	EmailVerified      bool      `json:"email_verified"`
+	Password           string    `json:"password"`
+	AuthData           *string   `json:"auth_data"`
+	AuthService        string    `json:"auth_service"`
+	Roles              string    `json:"roles"`
+	NotifyProps        StringMap `json:"notify_props"`
+	Props              StringMap `json:"props,omitempty"`
+	LastPasswordUpdate int64     `json:"last_password_update"`
+	LastPictureUpdate  int64     `json:"last_picture_update"`
+	FailedAttempts     int       `json:"failed_attempts"`
+	MfaActive          bool      `json:"mfa_active"`
+	MfaSecret          string    `json:"mfa_secret"`
+}
+
+
 type MatterMostTeamInfo struct {
 	TeamID          string `json:"id"`
 	CreateAt        int64  `json:"create_at"`
