@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"io/ioutil"
 	"encoding/json"
 	"net/http"
 	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
@@ -560,32 +559,3 @@ func (mattermost *MatterMostNotifier) postToMatterMost() bool {
 
 	return mattermost.PostMessage(mattermost.TeamID, mattermost.ChannelID, &postInfo)
 }
-
-/*
-func (mattermost *MatterMostNotifier) postToMatterMost() bool {
-
-	data, err := json.Marshal(mattermost)
-	if err != nil {
-		log.Println("Unable to marshal mattermost payload:", err)
-		return false
-	}
-	log.Debugf("struct = %+v, json = %s", mattermost, string(data))
-
-	b := bytes.NewBuffer(data)
-	if res, err := http.Post(mattermost.Url, "application/json", b); err != nil {
-		log.Println("Unable to send data to mattermost:", err)
-		return false
-	} else {
-		defer res.Body.Close()
-		statusCode := res.StatusCode
-		if statusCode != 200 {
-			body, _ := ioutil.ReadAll(res.Body)
-			log.Println("Unable to notify mattermost:", string(body))
-			return false
-		} else {
-			log.Println("MatterMost notification sent.")
-			return true
-		}
-	}
-}
-*/
