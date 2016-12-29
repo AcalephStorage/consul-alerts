@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"io/ioutil"
 	"encoding/json"
 	"net/http"
 	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
@@ -61,7 +62,6 @@ type MatterMostUserInfo struct {
 	MfaActive          bool      `json:"mfa_active"`
 	MfaSecret          string    `json:"mfa_secret"`
 }
-
 
 type MatterMostTeamInfo struct {
 	TeamID          string `json:"id"`

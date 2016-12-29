@@ -242,7 +242,7 @@ func builtinNotifiers() map[string]notifier.Notifier {
 	logNotifier := consulClient.LogNotifier()
 	influxdbNotifier := consulClient.InfluxdbNotifier()
 	slackNotifier := consulClient.SlackNotifier()
-	mattermostNotifier := consulClient.MatterMostNotifier()
+	mattermostNotifier := consulClient.MattermostNotifier()
 	pagerdutyNotifier := consulClient.PagerDutyNotifier()
 	hipchatNotifier := consulClient.HipChatNotifier()
 	opsgenieNotifier := consulClient.OpsGenieNotifier()
