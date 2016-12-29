@@ -136,12 +136,10 @@ type MatterMostNotifier struct {
 }
 
 func (mattermost *MatterMostNotifier) GetURL() string {
-	ssl := false
 	proto := "http"
 
 	u := strings.TrimSpace(strings.ToLower(mattermost.Url))
 	if u[:5] == "https" && u[5] == ':' {
-		ssl = true
 		proto = "https"
 	}
 
@@ -545,17 +543,14 @@ func (mattermost *MatterMostNotifier) notifyDetailed(messages Messages) bool {
 
 	overallStatus, pass, warn, fail := messages.Summary()
 
-	var emoji, color string
+	var emoji
 	switch overallStatus {
 	case SYSTEM_HEALTHY:
 		emoji = ":white_check_mark:"
-		color = "good"
 	case SYSTEM_UNSTABLE:
 		emoji = ":question:"
-		color = "warning"
 	case SYSTEM_CRITICAL:
 		emoji = ":x:"
-		color = "danger"
 	default:
 		emoji = ":question:"
 	}
