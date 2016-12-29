@@ -248,7 +248,7 @@ func (mattermost *MatterMostNotifier) GetAllTeams(teams *[]MatterMostTeamInfo) b
 
 func (mattermost *MatterMostNotifier) GetUser(userID string, userInfo *MatterMostUserInfo) bool {
 
-	if userId == "" || userInfo == nil {
+	if userID == "" || userInfo == nil {
 		return false
 	}
 
