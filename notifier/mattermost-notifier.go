@@ -155,12 +155,10 @@ func (mattermost *MatterMostNotifier) GetURL() string {
 		}
 
 	} else if len(buf) == 2 {
-		log.Printf("mattermost: len(buf) == 2\n")
 		host = strings.Trim(buf[0], "/")
 		port, _ = strconv.Atoi(strings.TrimSpace(buf[1]))
 
 	} else {
-		log.Printf("mattermost: len(buf) == 1\n")
 		host = strings.TrimSpace(buf[0])
 	}
 
