@@ -181,7 +181,7 @@ func (mattermost *MatterMostNotifier) Authenticate() bool {
 
 	req, err := http.NewRequest("POST", loginURL, buf)
 	if err != nil {
-		log.Fatal("NewRequest: ", err)
+		log.Error("NewRequest: ", err)
 		return false
 	}
 
@@ -190,7 +190,7 @@ func (mattermost *MatterMostNotifier) Authenticate() bool {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Fatal("Do: ", err)
+		log.Error("Do: ", err)
 		return false
 	}
 
@@ -200,7 +200,7 @@ func (mattermost *MatterMostNotifier) Authenticate() bool {
 	var a MatterMostAuthInfo
 	err = decoder.Decode(&a)
 	if err != nil {
-		log.Fatal("Decode: ", err)
+		log.Error("Decode: ", err)
 		return false
 	}
 
@@ -219,7 +219,7 @@ func (mattermost *MatterMostNotifier) GetAllTeams(teams *[]MatterMostTeamInfo) b
 	teamURL := fmt.Sprintf("%s/teams/all", mattermost.GetURL())
 	req, err := http.NewRequest("GET", teamURL, nil)
 	if err != nil {
-		log.Fatal("NewRequest: ", err)
+		log.Error("NewRequest: ", err)
 		return false
 	}
 
@@ -230,7 +230,7 @@ func (mattermost *MatterMostNotifier) GetAllTeams(teams *[]MatterMostTeamInfo) b
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Fatal("Do: ", err)
+		log.Error("Do: ", err)
 		return false
 	}
 
@@ -240,7 +240,7 @@ func (mattermost *MatterMostNotifier) GetAllTeams(teams *[]MatterMostTeamInfo) b
 	var buf map[string]*MatterMostTeamInfo
 	err = decoder.Decode(&buf)
 	if err != nil {
-		log.Fatal("Decode: ", err)
+		log.Error("Decode: ", err)
 		return false
 	}
 
@@ -264,7 +264,7 @@ func (mattermost *MatterMostNotifier) GetUser(userID string, userInfo *MatterMos
 
 	req, err := http.NewRequest("GET", userURL, nil)
 	if err != nil {
-		log.Fatal("NewRequest: ", err)
+		log.Error("NewRequest: ", err)
 		return false
 	}
 
@@ -275,7 +275,7 @@ func (mattermost *MatterMostNotifier) GetUser(userID string, userInfo *MatterMos
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Fatal("Do: ", err)
+		log.Error("Do: ", err)
 		return false
 	}
 
@@ -284,7 +284,7 @@ func (mattermost *MatterMostNotifier) GetUser(userID string, userInfo *MatterMos
 	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(userInfo)
 	if err != nil {
-		log.Fatal("Decode: ", err)
+		log.Error("Decode: ", err)
 		return false
 	}
 
@@ -301,7 +301,7 @@ func (mattermost *MatterMostNotifier) GetMe(me *MatterMostUserInfo) bool {
 
 	req, err := http.NewRequest("GET", userURL, nil)
 	if err != nil {
-		log.Fatal("NewRequest: ", err)
+		log.Error("NewRequest: ", err)
 		return false
 	}
 
@@ -312,7 +312,7 @@ func (mattermost *MatterMostNotifier) GetMe(me *MatterMostUserInfo) bool {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Fatal("Do: ", err)
+		log.Error("Do: ", err)
 		return false
 	}
 
@@ -321,7 +321,7 @@ func (mattermost *MatterMostNotifier) GetMe(me *MatterMostUserInfo) bool {
 	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(me)
 	if err != nil {
-		log.Fatal("Decode: ", err)
+		log.Error("Decode: ", err)
 		return false
 	}
 
@@ -338,7 +338,7 @@ func (mattermost *MatterMostNotifier) GetTeam(teamID string, teamInfo *MatterMos
 
 	req, err := http.NewRequest("GET", teamURL, nil)
 	if err != nil {
-		log.Fatal("NewRequest: ", err)
+		log.Error("NewRequest: ", err)
 		return false
 	}
 
@@ -349,7 +349,7 @@ func (mattermost *MatterMostNotifier) GetTeam(teamID string, teamInfo *MatterMos
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Fatal("Do: ", err)
+		log.Error("Do: ", err)
 		return false
 	}
 
@@ -358,7 +358,7 @@ func (mattermost *MatterMostNotifier) GetTeam(teamID string, teamInfo *MatterMos
 	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(teamInfo)
 	if err != nil {
-		log.Fatal("Decode: ", err)
+		log.Error("Decode: ", err)
 		return false
 	}
 
@@ -374,7 +374,7 @@ func (mattermost *MatterMostNotifier) GetChannels(teamID string, channels *[]Mat
 	channelURL := fmt.Sprintf("%s/teams/%s/channels/", mattermost.GetURL(), teamID)
 	req, err := http.NewRequest("GET", channelURL, nil)
 	if err != nil {
-		log.Fatal("NewRequest: ", err)
+		log.Error("NewRequest: ", err)
 		return false
 	}
 
@@ -385,7 +385,7 @@ func (mattermost *MatterMostNotifier) GetChannels(teamID string, channels *[]Mat
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Fatal("Do: ", err)
+		log.Error("Do: ", err)
 		return false
 	}
 
@@ -395,7 +395,7 @@ func (mattermost *MatterMostNotifier) GetChannels(teamID string, channels *[]Mat
 	fc := &MatterMostChannelList{}
 	err = decoder.Decode(&fc)
 	if err != nil {
-		log.Fatal("Decode: ", err)
+		log.Error("Decode: ", err)
 		return false
 	}
 	*channels = fc.Channels
@@ -419,7 +419,7 @@ func (mattermost *MatterMostNotifier) PostMessage(teamID string, channelID strin
 
 	req, err := http.NewRequest("POST", postURL, buf)
 	if err != nil {
-		log.Fatal("NewRequest: ", err)
+		log.Error("NewRequest: ", err)
 		return false
 	}
 
@@ -430,7 +430,7 @@ func (mattermost *MatterMostNotifier) PostMessage(teamID string, channelID strin
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Fatal("Do: ", err)
+		log.Error("Do: ", err)
 		return false
 	}
 
@@ -440,7 +440,7 @@ func (mattermost *MatterMostNotifier) PostMessage(teamID string, channelID strin
 	var p MatterMostPostInfo
 	err = decoder.Decode(&p)
 	if err != nil {
-		log.Fatal("Decode: ", err)
+		log.Error("Decode: ", err)
 		return false
 	}
 	*postInfo = p
