@@ -110,7 +110,6 @@ type MatterMostNotifier struct {
 }
 
 func (mattermost *MatterMostNotifier) GetURL() string {
-	port := 80
 	ssl := false
 	proto := "http"
 
@@ -120,6 +119,8 @@ func (mattermost *MatterMostNotifier) GetURL() string {
 		proto = "https"
 	}
 
+	host := ""
+	port := 80
 	buf := strings.Split(u, ":")
 	if (u[:4] == "http" && u[4] == ':') ||
 		(u[:5] == "https" && u[5] == ':') && len(buf) == 3 {
