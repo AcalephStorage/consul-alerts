@@ -146,15 +146,25 @@ func (mattermost *MatterMostNotifier) GetURL() string {
 	host := ""
 	port := 80
 	buf := strings.Split(u, ":")
+
+	log.Printf("mattermost: Url = %s\n", mattermost.Url)
+	log.Printf("mattermost: buf = %s\n", buf)
+
 	if (u[:4] == "http" && u[4] == ':') ||
-		(u[:5] == "https" && u[5] == ':') && len(buf) == 3 {
+		(u[:5] == "https" && u[5] == ':') {
+
 		host = strings.Trim(buf[1], "/")
-		port, _ = strconv.Atoi(strings.TrimSpace(buf[2]))
+		if len(buf) == 3 {
+			port, _ = strconv.Atoi(strings.TrimSpace(buf[2]))
+		}
 
 	} else if len(buf) == 2 {
+		log.Printf("mattermost: len(buf) == 2\n")
 		host = strings.Trim(buf[0], "/")
 		port, _ = strconv.Atoi(strings.TrimSpace(buf[1]))
+
 	} else {
+		log.Printf("mattermost: len(buf) == 1\n")
 		host = strings.TrimSpace(buf[0])
 	}
 
