@@ -242,6 +242,7 @@ func builtinNotifiers() []notifier.Notifier {
 	logConfig := consulClient.LogConfig()
 	influxdbConfig := consulClient.InfluxdbConfig()
 	slackConfig := consulClient.SlackConfig()
+	mattermostConfig := consulClient.MatterMostConfig()
 	pagerdutyConfig := consulClient.PagerDutyConfig()
 	hipchatConfig := consulClient.HipChatConfig()
 	opsgenieConfig := consulClient.OpsGenieConfig()
@@ -296,6 +297,19 @@ func builtinNotifiers() []notifier.Notifier {
 			NotifName:   "slack",
 		}
 		notifiers = append(notifiers, slackNotifier)
+	}
+	if mattermostConfig.Enabled {
+		mattermostNotifier := &notifier.MatterMostNotifier{
+			ClusterName: mattermostConfig.ClusterName,
+			Url:         mattermostConfig.Url,
+			UserName:    mattermostConfig.UserName,
+			Password:    mattermostConfig.Password,
+			TeamName:    mattermostConfig.TeamName,
+			Channel:     mattermostConfig.Channel,
+			Detailed:    mattermostConfig.Detailed,
+			NotifName:   "mattermost",
+		}
+		notifiers = append(notifiers, mattermostNotifier)
 	}
 	if pagerdutyConfig.Enabled {
 		pagerdutyNotifier := &notifier.PagerDutyNotifier{

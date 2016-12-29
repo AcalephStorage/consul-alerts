@@ -152,6 +152,24 @@ func (c *ConsulAlertClient) LoadConfig() {
 			case "consul-alerts/config/notifiers/slack/detailed":
 				valErr = loadCustomValue(&config.Notifiers.Slack.Detailed, val, ConfigTypeBool)
 
+			// mattermost notfier config
+			case "consul-alerts/config/notifiers/mattermost/enabled":
+				valErr = loadCustomValue(&config.Notifiers.MatterMost.Enabled, val, ConfigTypeBool)
+			case "consul-alerts/config/notifiers/mattermost/cluster-name":
+				valErr = loadCustomValue(&config.Notifiers.MatterMost.ClusterName, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/mattermost/url":
+				valErr = loadCustomValue(&config.Notifiers.MatterMost.Url, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/mattermost/channel":
+				valErr = loadCustomValue(&config.Notifiers.MatterMost.Channel, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/mattermost/username":
+				valErr = loadCustomValue(&config.Notifiers.MatterMost.Username, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/mattermost/icon-url":
+				valErr = loadCustomValue(&config.Notifiers.MatterMost.IconUrl, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/mattermost/icon-emoji":
+				valErr = loadCustomValue(&config.Notifiers.MatterMost.IconEmoji, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/mattermost/detailed":
+				valErr = loadCustomValue(&config.Notifiers.MatterMost.Detailed, val, ConfigTypeBool)
+
 			// pager-duty notfier config
 			case "consul-alerts/config/notifiers/pagerduty/enabled":
 				valErr = loadCustomValue(&config.Notifiers.PagerDuty.Enabled, val, ConfigTypeBool)
@@ -465,6 +483,10 @@ func (c *ConsulAlertClient) InfluxdbConfig() *InfluxdbNotifierConfig {
 
 func (c *ConsulAlertClient) SlackConfig() *SlackNotifierConfig {
 	return c.config.Notifiers.Slack
+}
+
+func (c *ConsulAlertClient) MatterMostConfig() *MatterMostNotifierConfig {
+	return c.config.Notifiers.MatterMost
 }
 
 func (c *ConsulAlertClient) PagerDutyConfig() *PagerDutyNotifierConfig {

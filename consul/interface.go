@@ -46,16 +46,17 @@ type EventsConfig struct {
 }
 
 type NotifiersConfig struct {
-	Email     *EmailNotifierConfig
-	Log       *LogNotifierConfig
-	Influxdb  *InfluxdbNotifierConfig
-	Slack     *SlackNotifierConfig
-	PagerDuty *PagerDutyNotifierConfig
-	HipChat   *HipChatNotifierConfig
-	OpsGenie  *OpsGenieNotifierConfig
-	AwsSns    *AwsSnsNotifierConfig
-	VictorOps *VictorOpsNotifierConfig
-	Custom    []string
+	Email      *EmailNotifierConfig
+	Log        *LogNotifierConfig
+	Influxdb   *InfluxdbNotifierConfig
+	Slack      *SlackNotifierConfig
+	MatterMost *MatterMostNotifierConfig
+	PagerDuty  *PagerDutyNotifierConfig
+	HipChat    *HipChatNotifierConfig
+	OpsGenie   *OpsGenieNotifierConfig
+	AwsSns     *AwsSnsNotifierConfig
+	VictorOps  *VictorOpsNotifierConfig
+	Custom     []string
 }
 
 type EmailNotifierConfig struct {
@@ -96,6 +97,10 @@ type SlackNotifierConfig struct {
 	IconUrl     string
 	IconEmoji   string
 	Detailed    bool
+}
+
+type MatterMostNotifierConfig strct {
+	/* XXXX */
 }
 
 type PagerDutyNotifierConfig struct {
@@ -160,6 +165,7 @@ type Consul interface {
 	LogConfig() *LogNotifierConfig
 	InfluxdbConfig() *InfluxdbNotifierConfig
 	SlackConfig() *SlackNotifierConfig
+	MatterMostConfig() *MatterMostNotifierConfig
 	PagerDutyConfig() *PagerDutyNotifierConfig
 	HipChatConfig() *HipChatNotifierConfig
 	OpsGenieConfig() *OpsGenieNotifierConfig
@@ -220,6 +226,11 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 		ClusterName: "Consul-Alerts",
 	}
 
+	mattermost := &MatterMostNotifierConfig{
+		Enabled:     false,
+		ClusterName: "Consul-Alerts",
+	}
+
 	pagerduty := &PagerDutyNotifierConfig{
 		Enabled: false,
 	}
@@ -243,16 +254,17 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 	}
 
 	notifiers := &NotifiersConfig{
-		Email:     email,
-		Log:       log,
-		Influxdb:  influxdb,
-		Slack:     slack,
-		PagerDuty: pagerduty,
-		HipChat:   hipchat,
-		OpsGenie:  opsgenie,
-		AwsSns:    awsSns,
-		VictorOps: victorOps,
-		Custom:    []string{},
+		Email:      email,
+		Log:        log,
+		Influxdb:   influxdb,
+		Slack:      slack,
+		MatterMost: mattermost,
+		PagerDuty:  pagerduty,
+		HipChat:    hipchat,
+		OpsGenie:   opsgenie,
+		AwsSns:     awsSns,
+		VictorOps:  victorOps,
+		Custom:     []string{},
 	}
 
 	return &ConsulAlertConfig{
