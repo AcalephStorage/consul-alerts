@@ -127,6 +127,7 @@ type MatterMostNotifier struct {
 	NotifName   string
 
 	/* Filled in after authentication */
+	Initialized bool
 	Token       string
 	TeamID      string
 	UserID      string
@@ -572,7 +573,7 @@ func (mattermost *MatterMostNotifier) notifyDetailed(messages Messages) bool {
 		detailedBody += fmt.Sprintf("\n`%s`", strings.TrimSpace(message.Output))
 	}
 
-	mattermost.Text := fmt.Sprintf("%s\n%s\n%s\n", title, pretext, detailedBody)
+	mattermost.Text = fmt.Sprintf("%s\n%s\n%s\n", title, pretext, detailedBody)
 
 	return mattermost.postToMatterMost()
 
