@@ -304,7 +304,7 @@ func builtinNotifiers() []notifier.Notifier {
 			Url:         mattermostConfig.Url,
 			UserName:    mattermostConfig.UserName,
 			Password:    mattermostConfig.Password,
-			TeamName:    mattermostConfig.TeamName,
+			Team:        mattermostConfig.Team,
 			Channel:     mattermostConfig.Channel,
 			Detailed:    mattermostConfig.Detailed,
 			NotifName:   "mattermost",

@@ -105,7 +105,7 @@ type MatterMostNotifierConfig struct {
 	Url         string
 	UserName    string
 	Password    string
-	TeamName    string
+	Team        string
 	Channel     string
 	Detailed    bool
 }

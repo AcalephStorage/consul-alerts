@@ -159,14 +159,14 @@ func (c *ConsulAlertClient) LoadConfig() {
 				valErr = loadCustomValue(&config.Notifiers.MatterMost.ClusterName, val, ConfigTypeString)
 			case "consul-alerts/config/notifiers/mattermost/url":
 				valErr = loadCustomValue(&config.Notifiers.MatterMost.Url, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/mattermost/username":
+				valErr = loadCustomValue(&config.Notifiers.MatterMost.UserName, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/mattermost/password":
+				valErr = loadCustomValue(&config.Notifiers.MatterMost.Password, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/mattermost/team":
+				valErr = loadCustomValue(&config.Notifiers.MatterMost.Team, val, ConfigTypeString)
 			case "consul-alerts/config/notifiers/mattermost/channel":
 				valErr = loadCustomValue(&config.Notifiers.MatterMost.Channel, val, ConfigTypeString)
-			case "consul-alerts/config/notifiers/mattermost/username":
-				valErr = loadCustomValue(&config.Notifiers.MatterMost.Username, val, ConfigTypeString)
-			case "consul-alerts/config/notifiers/mattermost/icon-url":
-				valErr = loadCustomValue(&config.Notifiers.MatterMost.IconUrl, val, ConfigTypeString)
-			case "consul-alerts/config/notifiers/mattermost/icon-emoji":
-				valErr = loadCustomValue(&config.Notifiers.MatterMost.IconEmoji, val, ConfigTypeString)
 			case "consul-alerts/config/notifiers/mattermost/detailed":
 				valErr = loadCustomValue(&config.Notifiers.MatterMost.Detailed, val, ConfigTypeBool)
 

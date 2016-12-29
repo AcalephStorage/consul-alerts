@@ -121,7 +121,7 @@ type MatterMostNotifier struct {
 	Url         string
 	UserName    string
 	Password    string
-	TeamName    string
+	Team        string
 	Channel     string
 	Detailed    bool
 	NotifName   string
@@ -456,7 +456,7 @@ func (mattermost *MatterMostNotifier) Init() bool {
 		}
 
 		for i := 0;i < len(teams);i++ {
-			if teams[i].Name == mattermost.TeamName {
+			if teams[i].Name == mattermost.Team {
 				mattermost.TeamID = teams[i].TeamID
 				break
 			}
