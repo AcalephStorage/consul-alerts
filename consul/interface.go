@@ -99,7 +99,7 @@ type SlackNotifierConfig struct {
 	Detailed    bool
 }
 
-type MatterMostNotifierConfig strct {
+type MatterMostNotifierConfig struct {
 	Enabled     bool
 	ClusterName string
 	Url         string
