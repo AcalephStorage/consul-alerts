@@ -100,7 +100,14 @@ type SlackNotifierConfig struct {
 }
 
 type MatterMostNotifierConfig strct {
-	/* XXXX */
+	Enabled     bool
+	ClusterName string
+	Url         string
+	UserName    string
+	Password    string
+	TeamName    string
+	Channel     string
+	Detailed    bool
 }
 
 type PagerDutyNotifierConfig struct {
