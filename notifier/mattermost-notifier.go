@@ -543,7 +543,7 @@ func (mattermost *MatterMostNotifier) notifyDetailed(messages Messages) bool {
 
 	overallStatus, pass, warn, fail := messages.Summary()
 
-	var emoji
+	var emoji string
 	switch overallStatus {
 	case SYSTEM_HEALTHY:
 		emoji = ":white_check_mark:"
