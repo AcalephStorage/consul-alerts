@@ -26,6 +26,11 @@ func (notifier *HipChatNotifier) NotifierName() string {
 	return "hipchat"
 }
 
+func (notifier *HipChatNotifier) Copy() Notifier {
+	n := *notifier
+	return &n
+}
+
 //Notify sends messages to the endpoint notifier
 func (notifier *HipChatNotifier) Notify(messages Messages) bool {
 

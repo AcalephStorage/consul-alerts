@@ -19,6 +19,11 @@ func (awssns *AwsSnsNotifier) NotifierName() string {
 	return "awsns"
 }
 
+func (awssns *AwsSnsNotifier) Copy() Notifier {
+	notifier := *awssns
+	return &notifier
+}
+
 func (awssns *AwsSnsNotifier) Notify(messages Messages) bool {
 	subject := MakeSubject(messages)
 	body := MakeBody(messages)

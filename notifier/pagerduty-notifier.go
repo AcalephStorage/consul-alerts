@@ -18,6 +18,11 @@ func (pd *PagerDutyNotifier) NotifierName() string {
 	return "pagerduty"
 }
 
+func (pd *PagerDutyNotifier) Copy() Notifier {
+	notifier := *pd
+	return &notifier
+}
+
 //Notify sends messages to the endpoint notifier
 func (pd *PagerDutyNotifier) Notify(messages Messages) bool {
 

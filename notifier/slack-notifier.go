@@ -39,6 +39,11 @@ func (slack *SlackNotifier) NotifierName() string {
 	return "slack"
 }
 
+func (slack *SlackNotifier) Copy() Notifier {
+	notifier := *slack
+	return &notifier
+}
+
 //Notify sends messages to the endpoint notifier
 func (slack *SlackNotifier) Notify(messages Messages) bool {
 

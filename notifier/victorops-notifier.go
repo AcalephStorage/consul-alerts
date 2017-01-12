@@ -48,6 +48,11 @@ func (vo *VictorOpsNotifier) NotifierName() string {
 	return "victorops"
 }
 
+func (vo *VictorOpsNotifier) Copy() Notifier {
+	notifier := *vo
+	return &notifier
+}
+
 // Notify sends messages to the endpoint notifier
 func (vo *VictorOpsNotifier) Notify(messages Messages) bool {
 	endpoint := fmt.Sprintf(apiEndpointTemplate, vo.APIKey, vo.RoutingKey)

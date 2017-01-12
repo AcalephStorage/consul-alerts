@@ -62,7 +62,7 @@ func (n *NotifEngine) sendBuiltin(messages notifier.Messages) {
 		for notifName, enabled := range m.NotifList {
 			// get the default notifier
 			if defaultNotifier, defaultNotifierExists := defaultNotifiers[notifName]; defaultNotifierExists && enabled {
-				notif := defaultNotifier
+				notif := defaultNotifier.Copy()
 				if varOverride, varOverrideExists := m.VarOverrides.GetNotifier(notifName); varOverrideExists {
 					err := mergo.MergeWithOverwrite(notif, varOverride)
 					if err != nil {
@@ -76,7 +76,6 @@ func (n *NotifEngine) sendBuiltin(messages notifier.Messages) {
 
 	for notifier, msgs := range messagesPerNotifier {
 		notifier.Notify(msgs)
-	}
 }
 
 func (n *NotifEngine) sendCustom(messages notifier.Messages) {

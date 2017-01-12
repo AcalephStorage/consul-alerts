@@ -18,6 +18,11 @@ func (logNotifier *LogNotifier) NotifierName() string {
 	return "log"
 }
 
+func (logNotifier *LogNotifier) Copy() Notifier {
+	notifier := *logNotifier
+	return &notifier
+}
+
 //Notify sends messages to the endpoint notifier
 func (logNotifier *LogNotifier) Notify(alerts Messages) bool {
 

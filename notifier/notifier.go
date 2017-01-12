@@ -37,6 +37,7 @@ type Messages []Message
 type Notifier interface {
 	Notify(alerts Messages) bool
 	NotifierName() string
+	Copy() Notifier
 }
 
 type Notifiers struct {

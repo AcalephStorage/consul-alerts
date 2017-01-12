@@ -20,6 +20,11 @@ func (opsgenie *OpsGenieNotifier) NotifierName() string {
 	return "opsgenie"
 }
 
+func (opsgenie *OpsGenieNotifier) Copy() Notifier {
+	notifier := *opsgenie
+	return &notifier
+}
+
 //Notify sends messages to the endpoint notifier
 func (opsgenie *OpsGenieNotifier) Notify(messages Messages) bool {
 

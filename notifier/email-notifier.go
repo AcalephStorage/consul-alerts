@@ -54,6 +54,11 @@ func (emailNotifier *EmailNotifier) NotifierName() string {
 	return "email"
 }
 
+func (emailNotifier *EmailNotifier) Copy() Notifier {
+	notifier := *emailNotifier
+	return &notifier
+}
+
 //Notify sends messages to the endpoint notifier
 func (emailNotifier *EmailNotifier) Notify(alerts Messages) bool {
 
