@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/imdario/mergo"
+	"github.com/mitchellh/hashstructure"
 	"os/exec"
 
 	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
@@ -48,14 +49,23 @@ func (n *NotifEngine) queueMessages(messages notifier.Messages) {
 func (n *NotifEngine) sendBuiltin(messages notifier.Messages) {
 	log.Println("sendBuiltin running")
 
+	notifierMap := make(map[uint64]notifier.Notifier)
 	defaultNotifiers := builtinNotifiers()
-	messagesPerNotifier := make(map[notifier.Notifier]notifier.Messages)
+	messagesPerNotifier := make(map[uint64]notifier.Messages)
+
+	var hash uint64
+	var err error
 
 	for _, m := range messages {
 		// if notification list is empty -> notify by all the enabled notifiers
 		if len(m.NotifList) == 0 {
 			for _, notifier := range defaultNotifiers {
-				messagesPerNotifier[notifier] = append(messagesPerNotifier[notifier], m)
+				hash, err = hashstructure.Hash(notifier, nil)
+				if err != nil {
+					log.Error(err)
+				}
+				notifierMap[hash] = notifier
+				messagesPerNotifier[hash] = append(messagesPerNotifier[hash], m)
 			}
 		}
 
@@ -64,18 +74,27 @@ func (n *NotifEngine) sendBuiltin(messages notifier.Messages) {
 			if defaultNotifier, defaultNotifierExists := defaultNotifiers[notifName]; defaultNotifierExists && enabled {
 				notif := defaultNotifier.Copy()
 				if varOverride, varOverrideExists := m.VarOverrides.GetNotifier(notifName); varOverrideExists {
-					err := mergo.MergeWithOverwrite(notif, varOverride)
+					err = mergo.MergeWithOverwrite(notif, varOverride)
 					if err != nil {
 						log.Error(err)
 					}
 				}
-				messagesPerNotifier[notif] = append(messagesPerNotifier[notif], m)
+
+				hash, err = hashstructure.Hash(notif, nil)
+				if err != nil {
+					log.Error(err)
+				}
+				notifierMap[hash] = notif
+				messagesPerNotifier[hash] = append(messagesPerNotifier[hash], m)
 			}
 		}
 	}
 
-	for notifier, msgs := range messagesPerNotifier {
-		notifier.Notify(msgs)
+	for hash, msgs := range messagesPerNotifier {
+		log.Printf("hash: %d, messages: %+v", hash, msgs)
+		n := notifierMap[hash]
+		n.Notify(msgs)
+	}
 }
 
 func (n *NotifEngine) sendCustom(messages notifier.Messages) {

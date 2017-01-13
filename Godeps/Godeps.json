@@ -74,6 +74,10 @@
 		{
 			"ImportPath": "github.com/imdario/mergo",
 			"Rev": "50d4dbd4eb0e84778abe37cefef140271d96fade"
+		},
+		{
+			"ImportPath": "github.com/mitchellh/hashstructure",
+			"Rev": "b098c52ef6beab8cd82bc4a32422cf54b890e8fa"
 		}
 	]
 }
