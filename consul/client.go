@@ -573,11 +573,18 @@ func (c *ConsulAlertClient) updateHealthCheck(key string, health *Check) {
 				storedStatus.Pending,
 			)
 
+			// do not trigger a notification if the check was just registered and
+			// the first status is passing
+			if storedStatus.Current == "" && storedStatus.Pending == "passing" {
+				storedStatus.ForNotification = false
+			} else {
+				storedStatus.ForNotification = true
+			}
+
 			storedStatus.Current = storedStatus.Pending
 			storedStatus.CurrentTimestamp = time.Now()
 			storedStatus.Pending = ""
 			storedStatus.PendingTimestamp = time.Time{}
-			storedStatus.ForNotification = true
 		} else {
 			log.Printf(
 				"%s:%s:%s is pending status change from %s to %s for %s.",
