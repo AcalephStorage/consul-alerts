@@ -91,7 +91,6 @@ func (n *NotifEngine) sendBuiltin(messages notifier.Messages) {
 	}
 
 	for hash, msgs := range messagesPerNotifier {
-		log.Printf("hash: %d, messages: %+v", hash, msgs)
 		n := notifierMap[hash]
 		n.Notify(msgs)
 	}
