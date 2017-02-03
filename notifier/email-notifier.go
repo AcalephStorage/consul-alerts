@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"html/template"
+	texttemplate "text/template"
 	"net/smtp"
 
 	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
@@ -14,18 +15,19 @@ import (
 var sendMail = smtp.SendMail
 
 type EmailNotifier struct {
-	ClusterName string
-	Template    string
-	Url         string
-	Port        int
-	Username    string
-	Password    string
-	SenderAlias string
-	SenderEmail string
-	Receivers   []string
-	NotifName   string
-	OnePerAlert bool
-	OnePerNode  bool
+	ClusterName       string
+	Template          string
+	TemplateTextPlain string
+	Url               string
+	Port              int
+	Username          string
+	Password          string
+	SenderAlias       string
+	SenderEmail       string
+	Receivers      [] string
+	NotifName         string
+	OnePerAlert       bool
+	OnePerNode        bool
 }
 
 type EmailData struct {
@@ -143,10 +145,37 @@ func (emailNotifier *EmailNotifier) Notify(alerts Messages) bool {
 			continue
 		}
 
+		var tmplTextPlain *texttemplate.Template
+		var errTextPlain error
+		if emailNotifier.TemplateTextPlain == "" {
+			tmplTextPlain, errTextPlain = texttemplate.New("base").Parse(defaultTemplateTextPlain)
+		} else {
+			tmplTextPlain, errTextPlain = texttemplate.ParseFiles(emailNotifier.TemplateTextPlain)
+		}
+
+		if errTextPlain != nil {
+			log.Println("Template error, unable to send email notification: ", errTextPlain)
+			success = false
+			continue
+		}
+
+		var bodyTextPlain bytes.Buffer
+		if errTextPlain := tmplTextPlain.Execute(&body, e); errTextPlain != nil {
+			log.Println("Template error, unable to send email notification: ", errTextPlain)
+			success = false
+			continue
+		}
+
 		msg := fmt.Sprintf(`From: "%s" <%s>
 To: %s
 Subject: %s is %s
 MIME-version: 1.0;
+Content-Type: multipart/alternatives; boundary="-------BOUNDARY42-zDVtbgHN";
+-------BOUNDARY42-zDVtbgHN
+Content-Type: text/plain; charset="UTF-8";
+
+%s
+-------BOUNDARY42-zDVtbgHN
 Content-Type: text/html; charset="UTF-8";
 
 %s
@@ -156,6 +185,7 @@ Content-Type: text/html; charset="UTF-8";
 			strings.Join(emailNotifier.Receivers, ", "),
 			e.ClusterName,
 			e.SystemStatus,
+			bodyTextPlain.String(),
 			body.String())
 
 		addr := fmt.Sprintf("%s:%d", emailNotifier.Url, emailNotifier.Port)
@@ -262,4 +292,32 @@ var defaultTemplate string = `
 	</body>
 
 </html>
+`
+
+var defaultTemplateTextPlain string = `
+{{ .ClusterName }} is {{ .SystemStatus }}
+
+Failed: {{ .FailCount }}
+Warning: {{ .WarnCount }}
+Passed: {{ .PassCount }}
+
+The following nodes are currently experiencing issues:
+
+{{ range $name, $checks := .Nodes }}
+Node: {{ $name }}
+{{ range $check := $checks }}
+	{{ if $check.IsCritical }} CRITICAL {{ else if $check.IsWarning }} WARNING {{ else if $check.IsPassing }} PASSING {{ end }}
+	Since: {{ $check.Timestamp }}
+	{{ with $check.Service }}
+		{{ $check.Service }}:
+	{{ end }}
+	{{ $check.Check }}
+	{{ with $check.Notes }}
+	Notes:
+		{{ $check.Notes }}
+	{{end }}
+	Output:
+		{{ $check.Output }}
+{{ end }}
+{{ end }}
 `
