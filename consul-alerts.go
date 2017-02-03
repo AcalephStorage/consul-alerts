@@ -247,6 +247,7 @@ func builtinNotifiers() []notifier.Notifier {
 	opsgenieConfig := consulClient.OpsGenieConfig()
 	awssnsConfig := consulClient.AwsSnsConfig()
 	victoropsConfig := consulClient.VictorOpsConfig()
+	elasticsearchConfig := consulClient.ElasticSearchConfig()
 
 	notifiers := []notifier.Notifier{}
 	if emailConfig.Enabled {
@@ -340,6 +341,14 @@ func builtinNotifiers() []notifier.Notifier {
 			NotifName:  "victorops",
 		}
 		notifiers = append(notifiers, victoropsNotifier)
+	}
+	if elasticsearchConfig.Enabled {
+		elasticsearchNotifier := &notifier.ElasticSearchNotifier{
+			Host:      elasticsearchConfig.Host,
+			IndexName: elasticsearchConfig.IndexName,
+			NotifName: "elasticsearch",
+		}
+		notifiers = append(notifiers, elasticsearchNotifier)
 	}
 
 	return notifiers
