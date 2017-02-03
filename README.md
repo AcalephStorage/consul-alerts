@@ -325,7 +325,7 @@ prefix: `consul-alerts/config/notifiers/influxdb/`
 | key         | description                                    |
 |-------------|------------------------------------------------|
 | enabled     | Enable the influxdb notifier. [Default: false] |
-| host        | The influxdb host. (eg. localhost:8086)        |
+| host        | The influxdb host. (eg. http://localhost:8086) |
 | username    | The influxdb username                          |
 | password    | The influxdb password                          |
 | database    | The influxdb database name                     |
