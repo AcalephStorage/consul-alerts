@@ -293,10 +293,9 @@ func (c *ConsulAlertClient) UpdateCheckData() {
 		}
 		if settodelete {
 			log.Printf("Reminder %s %s needs to be deleted, stale", node, check)
-		        c.DeleteReminder(node, check)
+			c.DeleteReminder(node, check)
 		}
 	}
-
 
 	for _, health := range healths {
 
@@ -555,12 +554,16 @@ func (c *ConsulAlertClient) updateHealthCheck(key string, health *Check) {
 	// status is still pending for change. will change if it reaches threshold
 	stillPendingStatus := storedStatus.Current != health.Status && storedStatus.Pending == health.Status
 
+	// indicate whether we are changing storedStatus to prevent unnecessary PUT to KV
+	changed := false
+
 	switch {
 
 	case noStatusChange:
 		if storedStatus.Pending != "" {
 			storedStatus.Pending = ""
 			storedStatus.PendingTimestamp = time.Time{}
+			changed = true
 			log.Printf(
 				"%s:%s:%s is now back to %s.",
 				health.Node,
@@ -573,6 +576,7 @@ func (c *ConsulAlertClient) updateHealthCheck(key string, health *Check) {
 	case newPendingStatus:
 		storedStatus.Pending = health.Status
 		storedStatus.PendingTimestamp = time.Now()
+		changed = true
 		log.Printf(
 			"%s:%s:%s is now pending status change from %s to %s.",
 			health.Node,
@@ -600,6 +604,7 @@ func (c *ConsulAlertClient) updateHealthCheck(key string, health *Check) {
 			storedStatus.Pending = ""
 			storedStatus.PendingTimestamp = time.Time{}
 			storedStatus.ForNotification = true
+			changed = true
 		} else {
 			log.Printf(
 				"%s:%s:%s is pending status change from %s to %s for %s.",
@@ -614,6 +619,10 @@ func (c *ConsulAlertClient) updateHealthCheck(key string, health *Check) {
 
 	}
 	storedStatus.HealthCheck = health
+
+	if !changed {
+		return
+	}
 
 	data, _ := json.Marshal(storedStatus)
 	c.api.KV().Put(&consulapi.KVPair{Key: key, Value: data}, nil)
