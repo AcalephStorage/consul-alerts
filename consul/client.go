@@ -721,8 +721,8 @@ func (c *ConsulAlertClient) IsBlacklisted(check *Check) bool {
 	}
 
 	checkID := check.CheckID
-	checkCheckKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/checks/%s", checkId)
-	checkBlacklisted := func() bool { return c.CheckKeyExists(checkCheckKey) || c.CheckKeyMatchesRegexp("consul-alerts/config/checks/blacklist/checks", checkId) }
+	checkCheckKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/checks/%s", checkID)
+	checkBlacklisted := func() bool { return c.CheckKeyExists(checkCheckKey) || c.CheckKeyMatchesRegexp("consul-alerts/config/checks/blacklist/checks", checkID) }
 
 	singleKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/single/%s/%s/%s", node, service, checkID)
 	singleBlacklisted := func() bool { return c.CheckKeyExists(singleKey) }
