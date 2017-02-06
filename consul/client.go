@@ -530,12 +530,16 @@ func (c *ConsulAlertClient) updateHealthCheck(key string, health *Check) {
 	// status is still pending for change. will change if it reaches threshold
 	stillPendingStatus := storedStatus.Current != health.Status && storedStatus.Pending == health.Status
 
+	// indicate whether we are changing storedStatus to prevent unnecessary PUT to KV
+	changed := false
+
 	switch {
 
 	case noStatusChange:
 		if storedStatus.Pending != "" {
 			storedStatus.Pending = ""
 			storedStatus.PendingTimestamp = time.Time{}
+			changed = true
 			log.Printf(
 				"%s:%s:%s is now back to %s.",
 				health.Node,
@@ -548,6 +552,7 @@ func (c *ConsulAlertClient) updateHealthCheck(key string, health *Check) {
 	case newPendingStatus:
 		storedStatus.Pending = health.Status
 		storedStatus.PendingTimestamp = time.Now()
+		changed = true
 		log.Printf(
 			"%s:%s:%s is now pending status change from %s to %s.",
 			health.Node,
@@ -575,6 +580,7 @@ func (c *ConsulAlertClient) updateHealthCheck(key string, health *Check) {
 			storedStatus.Pending = ""
 			storedStatus.PendingTimestamp = time.Time{}
 			storedStatus.ForNotification = true
+			changed = true
 		} else {
 			log.Printf(
 				"%s:%s:%s is pending status change from %s to %s for %s.",
@@ -589,6 +595,10 @@ func (c *ConsulAlertClient) updateHealthCheck(key string, health *Check) {
 
 	}
 	storedStatus.HealthCheck = health
+
+	if !changed {
+		return
+	}
 
 	data, _ := json.Marshal(storedStatus)
 	c.api.KV().Put(&consulapi.KVPair{Key: key, Value: data}, nil)
@@ -692,26 +702,32 @@ func (c *ConsulAlertClient) GetProfileInfo(node, serviceID, checkID string) Prof
 
 // IsBlacklisted gets the blacklist status of check
 func (c *ConsulAlertClient) IsBlacklisted(check *Check) bool {
+	blacklistExist := func() bool {
+		kvPairs, _, err := c.api.KV().List("consul-alerts/config/checks/blacklist/", nil)
+		return len(kvPairs) != 0 && err == nil
+	}
+
 	node := check.Node
 	nodeCheckKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/nodes/%s", node)
-	nodeBlacklisted := c.CheckKeyExists(nodeCheckKey) || c.CheckKeyMatchesRegexp("consul-alerts/config/checks/blacklist/nodes", node)
+	nodeBlacklisted := func() bool { return c.CheckKeyExists(nodeCheckKey) || c.CheckKeyMatchesRegexp("consul-alerts/config/checks/blacklist/nodes", node) }
 
 	service := "_"
-	serviceBlacklisted := false
+	serviceBlacklisted := func() bool { return false }
 	if check.ServiceID != "" {
 		service = check.ServiceID
 		serviceCheckKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/services/%s", service)
-		serviceBlacklisted = c.CheckKeyExists(serviceCheckKey) || c.CheckKeyMatchesRegexp("consul-alerts/config/checks/blacklist/services", service)
+
+		serviceBlacklisted = func() bool { return c.CheckKeyExists(serviceCheckKey) || c.CheckKeyMatchesRegexp("consul-alerts/config/checks/blacklist/services", service) }
 	}
 
-	checkId := check.CheckID
+	checkID := check.CheckID
 	checkCheckKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/checks/%s", checkId)
-	checkBlacklisted := c.CheckKeyExists(checkCheckKey) || c.CheckKeyMatchesRegexp("consul-alerts/config/checks/blacklist/checks", checkId)
+	checkBlacklisted := func() bool { return c.CheckKeyExists(checkCheckKey) || c.CheckKeyMatchesRegexp("consul-alerts/config/checks/blacklist/checks", checkId) }
 
-	singleKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/single/%s/%s/%s", node, service, checkId)
-	singleBlacklisted := c.CheckKeyExists(singleKey)
+	singleKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/single/%s/%s/%s", node, service, checkID)
+	singleBlacklisted := func() bool { return c.CheckKeyExists(singleKey) }
 
-	return nodeBlacklisted || serviceBlacklisted || checkBlacklisted || singleBlacklisted
+	return blacklistExist() && (nodeBlacklisted() || serviceBlacklisted() || checkBlacklisted() || singleBlacklisted())
 }
 
 func (c *ConsulAlertClient) CheckKeyExists(key string) bool {
