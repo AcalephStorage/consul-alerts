@@ -192,6 +192,14 @@ Ex. `emailer_only` would be located at `consul-alerts/config/notif-profiles/emai
       "patternProperties" : {
         ".{1,}" : { "type" : "string" }
       }
+    },
+    "VarOverrides": {
+      "type": "object",
+      "title": "Hash of Notifier variables to override.",
+      "description": "A listing of Notifier names with hash values containing the parameters to be overridden",
+      "patternProperties" : {
+        ".{1,}" : { "type" : "object" }
+      }
     }
   },
   "required": [
@@ -235,9 +243,41 @@ Ex. `emailer_only` would be located at `consul-alerts/config/notif-profiles/emai
 
 **NOTE:** The Interval being set to 0 **disables** Reminders from being sent for a given alert.  If the service stays in a critical status for an extended period, only that first notification will be sent.
 
+**Example - Notification Profile to only send Emails to the overridden receivers:**
+
+**Key:** `consul-alerts/config/notif-profiles/emailer_overridden`
+
+**Value:**
+```
+{
+  "Interval": 10,
+  "NotifList": {
+    "email":true
+  },
+  "VarOverrides": {
+    "email": {
+      "receivers": ["my-team@company.com"]
+    }
+  }
+}
+```
+
 #### Notification Profile Activation
 
-Notification Profile selection is done by setting keys in `consul-alerts/config/notif-selection/services/`, `consul-alerts/config/notif-selection/checks/`, or `consul-alerts/config/notif-selection/hosts/` with the appropriate service, check, or host name as the key and the desired Notification Profile name as the value.
+It is possible to activate Notification Profiles in 2 ways - for a specific entity or for a set of entities matching a regular expression.
+For a specific item the selection is done by setting keys in `consul-alerts/config/notif-selection/services/`, `consul-alerts/config/notif-selection/checks/`, or `consul-alerts/config/notif-selection/hosts/` with the appropriate service, check, or host name as the key and the desired Notification Profile name as the value.
+To activate a Notification Profile for a set of entities matching a regular expression, create a json map of type `regexp->notification-profile` as a value for the keys `consul-alerts/config/notif-selection/services`, `consul-alerts/config/notif-selection/checks`, or `consul-alerts/config/notif-selection/hosts`.
+
+**Example - Notification Profile activated for all the services which names start with infra-**
+
+**Key:** `consul-alerts/config/notif-selection/services`
+
+**Value:**
+```
+{
+  "^infra-.*$": "infra-support-profile"
+}
+```
 
 In addition to the service, check and host specific Notification Profiles, the operator can setup a default Notification Profile by creating a Notification Profile kv `consul-alerts/config/notif-profiles/default`, which acts as a fallback in the event a specific Notification Profile is not found.  If there are no Notification Profiles matching the criteria, consul-alerts will send the notification to the full list of enabled Notifiers and no reminders will be sent.
 
@@ -254,19 +294,31 @@ Reminders resend the notifications at programmable intervals until they are reso
 
 #### Enable/Disable Specific Health Checks
 
-There are four ways to enable/disable health check notifications: mark them by node, serviceID, checkID, or mark individually by node/serviceID/checkID. This is done by adding a KV entry in `consul-alerts/config/checks/blacklist/...`. Removing the entry will re-enable the check notifications.
+There are multiple ways to enable/disable health check notifications: mark them by node, serviceID, checkID, regular expression, or mark individually by node/serviceID/checkID. This is done by adding a KV entry in `consul-alerts/config/checks/blacklist/...`. Removing the entry will re-enable the check notifications.
 
 ##### Disable all notification by node
 
 Add a KV entry with the key `consul-alerts/config/checks/blacklist/nodes/{{ nodeName }}`. This will disable notifications for the specified `nodeName`.
 
+##### Disable all notifications for the nodes matching regular expressions
+
+Add a KV entry with the key `consul-alerts/config/checks/blacklist/nodes` and the value containing a list of regular expressions. This will disable notifications for all the nodes, which names match at least one of the regular expressions.
+
 ##### Disable all notification by service
 
 Add a KV entry with the key `consul-alerts/config/checks/blacklist/services/{{ serviceId }}`. This will disable notifications for the specified `serviceId`.
 
+##### Disable all notifications for the services matching regular expressions
+
+Add a KV entry with the key `consul-alerts/config/checks/blacklist/services` and the value containing a list of regular expressions. This will disable notifications for all the services, which names match at least one of the regular expressions.
+
 ##### Disable all notification by healthCheck
 
 Add a KV entry with the key `consul-alerts/config/checks/blacklist/checks/{{ checkId }}`. This will disable notifications for the specified `checkId`.
+
+##### Disable all notifications for the healthChecks matching regular expressions
+
+Add a KV entry with the key `consul-alerts/config/checks/blacklist/checks` and the value containing a list of regular expressions. This will disable notifications for all the healthchecks, which names match at least one of the regular expressions.
 
 ##### Disable a single health check
 
