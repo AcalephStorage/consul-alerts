@@ -6,22 +6,26 @@ import (
 )
 
 type InfluxdbNotifier struct {
-	Host       string
-	Username   string
-	Password   string
-	Database   string
-	SeriesName string
-	NotifName  string
+	Enabled    bool
+	Host       string `json:"host"`
+	Username   string `json:"username"`
+	Password   string `json:"password"`
+	Database   string `json:"database"`
+	SeriesName string `json:"series-name"`
 }
 
 // NotifierName provides name for notifier selection
 func (influxdb *InfluxdbNotifier) NotifierName() string {
-	return influxdb.NotifName
+	return "influxdb"
+}
+
+func (influxdb *InfluxdbNotifier) Copy() Notifier {
+	notifier := *influxdb
+	return &notifier
 }
 
 //Notify sends messages to the endpoint notifier
 func (influxdb *InfluxdbNotifier) Notify(messages Messages) bool {
-
 	config := &client.ClientConfig{
 		Host:     influxdb.Host,
 		Username: influxdb.Username,
@@ -47,7 +51,7 @@ func (influxdb *InfluxdbNotifier) Notify(messages Messages) bool {
 	return true
 }
 
-func (influxdb *InfluxdbNotifier) toSeries(messages Messages) []*client.Series {
+func (influxdb InfluxdbNotifier) toSeries(messages Messages) []*client.Series {
 
 	seriesName := influxdb.SeriesName
 	columns := []string{
