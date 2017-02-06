@@ -13,17 +13,22 @@ import (
 )
 
 type HipChatNotifier struct {
-	ClusterName string
-	RoomId      string
-	AuthToken   string
-	BaseURL     string
-	From        string
-	NotifName   string
+	Enabled     bool
+	ClusterName string `json:"cluster-name"`
+	RoomId      string `json:"room-id"`
+	AuthToken   string `json:"auth-token"`
+	BaseURL     string `json:"base-url"`
+	From        string `json:"from"`
 }
 
 // NotifierName provides name for notifier selection
 func (notifier *HipChatNotifier) NotifierName() string {
-	return notifier.NotifName
+	return "hipchat"
+}
+
+func (notifier *HipChatNotifier) Copy() Notifier {
+	n := *notifier
+	return &n
 }
 
 //Notify sends messages to the endpoint notifier

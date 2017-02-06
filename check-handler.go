@@ -108,22 +108,23 @@ func (c *CheckProcessor) handleChecks(checks []consul.Check) {
 func (c *CheckProcessor) notify(alerts []consul.Check) {
 	messages := make([]notifier.Message, len(alerts))
 	for i, alert := range alerts {
-		notifMap, interval := consulClient.GetProfileInfo(alert.Node, alert.ServiceID, alert.CheckID)
+		profileInfo := consulClient.GetProfileInfo(alert.Node, alert.ServiceID, alert.CheckID)
 		messages[i] = notifier.Message{
-			Node:      alert.Node,
-			ServiceId: alert.ServiceID,
-			Service:   alert.ServiceName,
-			CheckId:   alert.CheckID,
-			Check:     alert.Name,
-			Status:    alert.Status,
-			Output:    alert.Output,
-			Notes:     alert.Notes,
-			Interval:  interval,
-			RmdCheck:  time.Now(),
-			NotifList: notifMap,
-			Timestamp: time.Now(),
+			Node:         alert.Node,
+			ServiceId:    alert.ServiceID,
+			Service:      alert.ServiceName,
+			CheckId:      alert.CheckID,
+			Check:        alert.Name,
+			Status:       alert.Status,
+			Output:       alert.Output,
+			Notes:        alert.Notes,
+			Interval:     profileInfo.Interval,
+			RmdCheck:     time.Now(),
+			NotifList:    profileInfo.NotifList,
+			VarOverrides: profileInfo.VarOverrides,
+			Timestamp:    time.Now(),
 		}
-		if interval > 0 {
+		if profileInfo.Interval > 0 {
 			switch alert.Status {
 			case "passing":
 				consulClient.DeleteReminder(alert.Node, alert.CheckID)

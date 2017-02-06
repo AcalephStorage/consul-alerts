@@ -14,18 +14,18 @@ import (
 var sendMail = smtp.SendMail
 
 type EmailNotifier struct {
-	ClusterName string
-	Template    string
-	Url         string
-	Port        int
-	Username    string
-	Password    string
-	SenderAlias string
-	SenderEmail string
-	Receivers   []string
-	NotifName   string
-	OnePerAlert bool
-	OnePerNode  bool
+	ClusterName string `json:"cluster-name"`
+	Enabled     bool
+	Template    string   `json:"template"`
+	Url         string   `json:"url"`
+	Port        int      `json:"port"`
+	Username    string   `json:"username"`
+	Password    string   `json:"password"`
+	SenderAlias string   `json:"sender-alias"`
+	SenderEmail string   `json:"sender-email"`
+	Receivers   []string `json:"receivers"`
+	OnePerAlert bool     `json:"one-per-alert"`
+	OnePerNode  bool     `json:"one-per-node"`
 }
 
 type EmailData struct {
@@ -51,7 +51,12 @@ func (e EmailData) IsPassing() bool {
 
 // NotifierName provides name for notifier selection
 func (emailNotifier *EmailNotifier) NotifierName() string {
-	return emailNotifier.NotifName
+	return "email"
+}
+
+func (emailNotifier *EmailNotifier) Copy() Notifier {
+	notifier := *emailNotifier
+	return &notifier
 }
 
 //Notify sends messages to the endpoint notifier
