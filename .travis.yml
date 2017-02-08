@@ -2,4 +2,6 @@ language: go
 install:
     - go get github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus
     - go get github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/docopt/docopt-go
+    - go get github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/imdario/mergo
+    - go get github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/mitchellh/hashstructure
     - go get github.com/aws/aws-sdk-go/aws

@@ -10,14 +10,19 @@ import (
 )
 
 type OpsGenieNotifier struct {
-	ClusterName string
-	ApiKey      string
-	NotifName   string
+	Enabled     bool
+	ClusterName string `json:"cluster-name"`
+	ApiKey      string `json:"api-key"`
 }
 
 // NotifierName provides name for notifier selection
 func (opsgenie *OpsGenieNotifier) NotifierName() string {
-	return opsgenie.NotifName
+	return "opsgenie"
+}
+
+func (opsgenie *OpsGenieNotifier) Copy() Notifier {
+	notifier := *opsgenie
+	return &notifier
 }
 
 //Notify sends messages to the endpoint notifier
@@ -59,7 +64,7 @@ func (opsgenie *OpsGenieNotifier) Notify(messages Messages) bool {
 	return ok
 }
 
-func (opsgenie *OpsGenieNotifier) createAlias(message Message) string {
+func (opsgenie OpsGenieNotifier) createAlias(message Message) string {
 	incidentKey := message.Node
 	if message.ServiceId != "" {
 		incidentKey += ":" + message.ServiceId

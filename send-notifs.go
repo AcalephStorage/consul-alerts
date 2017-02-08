@@ -2,8 +2,9 @@ package main
 
 import (
 	"bytes"
-
 	"encoding/json"
+	"github.com/imdario/mergo"
+	"github.com/mitchellh/hashstructure"
 	"os/exec"
 
 	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
@@ -47,17 +48,51 @@ func (n *NotifEngine) queueMessages(messages notifier.Messages) {
 
 func (n *NotifEngine) sendBuiltin(messages notifier.Messages) {
 	log.Println("sendBuiltin running")
-	for _, n := range builtinNotifiers() {
-		filteredMessages := make(notifier.Messages, 0)
-		notifName := n.NotifierName()
-		for _, m := range messages {
-			if boolVal, exists := m.NotifList[notifName]; (exists && boolVal) || len(m.NotifList) == 0 {
-				filteredMessages = append(filteredMessages, m)
+
+	notifierMap := make(map[uint64]notifier.Notifier)
+	defaultNotifiers := builtinNotifiers()
+	messagesPerNotifier := make(map[uint64]notifier.Messages)
+
+	var hash uint64
+	var err error
+
+	for _, m := range messages {
+		// if notification list is empty -> notify by all the enabled notifiers
+		if len(m.NotifList) == 0 {
+			for _, notifier := range defaultNotifiers {
+				hash, err = hashstructure.Hash(notifier, nil)
+				if err != nil {
+					log.Error(err)
+				}
+				notifierMap[hash] = notifier
+				messagesPerNotifier[hash] = append(messagesPerNotifier[hash], m)
 			}
 		}
-		if len(filteredMessages) > 0 {
-			n.Notify(filteredMessages)
+
+		for notifName, enabled := range m.NotifList {
+			// get the default notifier
+			if defaultNotifier, defaultNotifierExists := defaultNotifiers[notifName]; defaultNotifierExists && enabled {
+				notif := defaultNotifier.Copy()
+				if varOverride, varOverrideExists := m.VarOverrides.GetNotifier(notifName); varOverrideExists {
+					err = mergo.MergeWithOverwrite(notif, varOverride)
+					if err != nil {
+						log.Error(err)
+					}
+				}
+
+				hash, err = hashstructure.Hash(notif, nil)
+				if err != nil {
+					log.Error(err)
+				}
+				notifierMap[hash] = notif
+				messagesPerNotifier[hash] = append(messagesPerNotifier[hash], m)
+			}
 		}
+	}
+
+	for hash, msgs := range messagesPerNotifier {
+		n := notifierMap[hash]
+		n.Notify(msgs)
 	}
 }
 

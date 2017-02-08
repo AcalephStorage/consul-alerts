@@ -9,14 +9,19 @@ import (
 )
 
 type AwsSnsNotifier struct {
-	Region    string
-	TopicArn  string
-	NotifName string
+	Enabled  bool
+	Region   string `json:"region"`
+	TopicArn string `json:"topic-arn"`
 }
 
 // NotifierName provides name for notifier selection
 func (awssns *AwsSnsNotifier) NotifierName() string {
-	return awssns.NotifName
+	return "awsns"
+}
+
+func (awssns *AwsSnsNotifier) Copy() Notifier {
+	notifier := *awssns
+	return &notifier
 }
 
 func (awssns *AwsSnsNotifier) Notify(messages Messages) bool {

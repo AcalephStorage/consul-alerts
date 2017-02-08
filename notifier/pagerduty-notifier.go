@@ -7,15 +7,20 @@ import (
 )
 
 type PagerDutyNotifier struct {
-	ServiceKey string
-	ClientName string
-	ClientUrl  string
-	NotifName  string
+	Enabled    bool
+	ServiceKey string `json:"service-key"`
+	ClientName string `json:"client-name"`
+	ClientUrl  string `json:"client-url"`
 }
 
 // NotifierName provides name for notifier selection
 func (pd *PagerDutyNotifier) NotifierName() string {
-	return pd.NotifName
+	return "pagerduty"
+}
+
+func (pd *PagerDutyNotifier) Copy() Notifier {
+	notifier := *pd
+	return &notifier
 }
 
 //Notify sends messages to the endpoint notifier

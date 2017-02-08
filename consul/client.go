@@ -10,7 +10,7 @@ import (
 
 	"encoding/json"
 
-	"github.com/AcalephStorage/consul-alerts/notifier"
+	notifier "github.com/AcalephStorage/consul-alerts/notifier"
 
 	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
 	consulapi "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/hashicorp/consul/api"
@@ -275,10 +275,9 @@ func (c *ConsulAlertClient) UpdateCheckData() {
 		}
 		if settodelete {
 			log.Printf("Reminder %s %s needs to be deleted, stale", node, check)
-		        c.DeleteReminder(node, check)
+			c.DeleteReminder(node, check)
 		}
 	}
-
 
 	for _, health := range healths {
 
@@ -450,41 +449,39 @@ func (c *ConsulAlertClient) NewAlertsWithFilter(nodeName string, serviceName str
 	return alerts
 }
 
-// EmailConfig exports the email config
-func (c *ConsulAlertClient) EmailConfig() *EmailNotifierConfig {
+func (c *ConsulAlertClient) EmailNotifier() *notifier.EmailNotifier {
 	return c.config.Notifiers.Email
 }
 
-func (c *ConsulAlertClient) LogConfig() *LogNotifierConfig {
+func (c *ConsulAlertClient) LogNotifier() *notifier.LogNotifier {
 	return c.config.Notifiers.Log
 }
 
-func (c *ConsulAlertClient) InfluxdbConfig() *InfluxdbNotifierConfig {
+func (c *ConsulAlertClient) InfluxdbNotifier() *notifier.InfluxdbNotifier {
 	return c.config.Notifiers.Influxdb
 }
 
-func (c *ConsulAlertClient) SlackConfig() *SlackNotifierConfig {
+func (c *ConsulAlertClient) SlackNotifier() *notifier.SlackNotifier {
 	return c.config.Notifiers.Slack
 }
 
-func (c *ConsulAlertClient) PagerDutyConfig() *PagerDutyNotifierConfig {
+func (c *ConsulAlertClient) PagerDutyNotifier() *notifier.PagerDutyNotifier {
 	return c.config.Notifiers.PagerDuty
 }
 
-func (c *ConsulAlertClient) HipChatConfig() *HipChatNotifierConfig {
+func (c *ConsulAlertClient) HipChatNotifier() *notifier.HipChatNotifier {
 	return c.config.Notifiers.HipChat
 }
 
-func (c *ConsulAlertClient) OpsGenieConfig() *OpsGenieNotifierConfig {
+func (c *ConsulAlertClient) OpsGenieNotifier() *notifier.OpsGenieNotifier {
 	return c.config.Notifiers.OpsGenie
 }
 
-func (c *ConsulAlertClient) AwsSnsConfig() *AwsSnsNotifierConfig {
+func (c *ConsulAlertClient) AwsSnsNotifier() *notifier.AwsSnsNotifier {
 	return c.config.Notifiers.AwsSns
 }
 
-// VictorOpsConfig provides configuration for the VictorOps integration
-func (c *ConsulAlertClient) VictorOpsConfig() *VictorOpsNotifierConfig {
+func (c *ConsulAlertClient) VictorOpsNotifier() *notifier.VictorOpsNotifier {
 	return c.config.Notifiers.VictorOps
 }
 
@@ -533,12 +530,16 @@ func (c *ConsulAlertClient) updateHealthCheck(key string, health *Check) {
 	// status is still pending for change. will change if it reaches threshold
 	stillPendingStatus := storedStatus.Current != health.Status && storedStatus.Pending == health.Status
 
+	// indicate whether we are changing storedStatus to prevent unnecessary PUT to KV
+	changed := false
+
 	switch {
 
 	case noStatusChange:
 		if storedStatus.Pending != "" {
 			storedStatus.Pending = ""
 			storedStatus.PendingTimestamp = time.Time{}
+			changed = true
 			log.Printf(
 				"%s:%s:%s is now back to %s.",
 				health.Node,
@@ -551,6 +552,7 @@ func (c *ConsulAlertClient) updateHealthCheck(key string, health *Check) {
 	case newPendingStatus:
 		storedStatus.Pending = health.Status
 		storedStatus.PendingTimestamp = time.Now()
+		changed = true
 		log.Printf(
 			"%s:%s:%s is now pending status change from %s to %s.",
 			health.Node,
@@ -573,11 +575,19 @@ func (c *ConsulAlertClient) updateHealthCheck(key string, health *Check) {
 				storedStatus.Pending,
 			)
 
+			// do not trigger a notification if the check was just registered and
+			// the first status is passing
+			if storedStatus.Current == "" && storedStatus.Pending == "passing" {
+				storedStatus.ForNotification = false
+			} else {
+				storedStatus.ForNotification = true
+			}
+
 			storedStatus.Current = storedStatus.Pending
 			storedStatus.CurrentTimestamp = time.Now()
 			storedStatus.Pending = ""
 			storedStatus.PendingTimestamp = time.Time{}
-			storedStatus.ForNotification = true
+			changed = true
 		} else {
 			log.Printf(
 				"%s:%s:%s is pending status change from %s to %s for %s.",
@@ -592,6 +602,10 @@ func (c *ConsulAlertClient) updateHealthCheck(key string, health *Check) {
 
 	}
 	storedStatus.HealthCheck = health
+
+	if !changed {
+		return
+	}
 
 	data, _ := json.Marshal(storedStatus)
 	c.api.KV().Put(&consulapi.KVPair{Key: key, Value: data}, nil)
@@ -618,67 +632,131 @@ func (c *ConsulAlertClient) CheckStatus(node, serviceId, checkId string) (status
 	return
 }
 
+// getProfileForEntity returns the profile matching the exact path or the regexp
+// entity is either 'service', 'check' or 'host'
+func (c *ConsulAlertClient) getProfileForEntity(entity string, id string) string {
+	kvPair, _, _ := c.api.KV().Get(
+		fmt.Sprintf("consul-alerts/config/notif-selection/%ss/%s",
+			entity, id), nil)
+	if kvPair != nil {
+		log.Printf("%s selection key found.\n", entity)
+		return string(kvPair.Value)
+	} else if kvPair, _, _ := c.api.KV().Get(
+		fmt.Sprintf("consul-alerts/config/notif-selection/%ss", entity),
+		nil); kvPair != nil {
+		var regexMap map[string]string
+		json.Unmarshal(kvPair.Value, &regexMap)
+		for pattern, profile := range regexMap {
+			matched, err := regexp.MatchString(pattern, id)
+			if err != nil {
+				log.Printf("unable to match %s %s against pattern %s. Error: %s\n",
+					entity, id, pattern, err.Error())
+			} else if matched {
+				log.Printf("Regexp matching %s found (%s).\n", entity, pattern)
+				return profile
+			}
+		}
+	}
+	return ""
+}
+
+func (c *ConsulAlertClient) getProfileForService(serviceID string) string {
+	return c.getProfileForEntity("service", serviceID)
+}
+
+func (c *ConsulAlertClient) getProfileForCheck(checkID string) string {
+	return c.getProfileForEntity("check", checkID)
+}
+
+func (c *ConsulAlertClient) getProfileForNode(node string) string {
+	return c.getProfileForEntity("host", node)
+}
+
 // GetProfileInfo returns profile info for check
-func (c *ConsulAlertClient) GetProfileInfo(node, serviceID, checkID string) (notifiersList map[string]bool, interval int) {
+func (c *ConsulAlertClient) GetProfileInfo(node, serviceID, checkID string) ProfileInfo {
 	log.Println("Getting profile for node: ", node, " service: ", serviceID, " check: ", checkID)
 
 	var profile string
 
-	kvPair, _, _ := c.api.KV().Get(fmt.Sprintf("consul-alerts/config/notif-selection/services/%s", serviceID), nil)
-	if kvPair != nil {
-		profile = string(kvPair.Value)
-		log.Println("service selection key found.")
-	} else if kvPair, _, _ = c.api.KV().Get(fmt.Sprintf("consul-alerts/config/notif-selection/checks/%s", checkID), nil); kvPair != nil {
-		profile = string(kvPair.Value)
-		log.Println("check selection key found.")
-	} else if kvPair, _, _ = c.api.KV().Get(fmt.Sprintf("consul-alerts/config/notif-selection/hosts/%s", node), nil); kvPair != nil {
-		profile = string(kvPair.Value)
-		log.Println("host selection key found.")
-	} else {
+	profile = c.getProfileForService(serviceID)
+	if profile == "" {
+		profile = c.getProfileForCheck(checkID)
+	}
+	if profile == "" {
+		profile = c.getProfileForNode(node)
+	}
+	if profile == "" {
 		profile = "default"
 	}
 
+	var checkProfile ProfileInfo
 	key := fmt.Sprintf("consul-alerts/config/notif-profiles/%s", profile)
 	log.Println("profile key: ", key)
-	kvPair, _, _ = c.api.KV().Get(key, nil)
+	kvPair, _, _ := c.api.KV().Get(key, nil)
 	if kvPair == nil {
 		log.Println("profile key not found.")
-		return
+		return checkProfile
 	}
-	var checkProfile ProfileInfo
-	json.Unmarshal(kvPair.Value, &checkProfile)
 
-	notifiersList = checkProfile.NotifList
-	interval = checkProfile.Interval
-	log.Println("Interval: ", interval, " List: ", notifiersList)
-	return
+	if err := json.Unmarshal(kvPair.Value, &checkProfile); err != nil {
+		log.Error("Profile unmarshalling error: ", err.Error())
+	} else {
+		log.Println("Interval: ", checkProfile.Interval, " List: ", checkProfile.NotifList)
+	}
+
+	return checkProfile
 }
 
 // IsBlacklisted gets the blacklist status of check
 func (c *ConsulAlertClient) IsBlacklisted(check *Check) bool {
+	blacklistExist := func() bool {
+		kvPairs, _, err := c.api.KV().List("consul-alerts/config/checks/blacklist/", nil)
+		return len(kvPairs) != 0 && err == nil
+	}
+
 	node := check.Node
 	nodeCheckKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/nodes/%s", node)
-	nodeBlacklisted := c.CheckKeyExists(nodeCheckKey)
+	nodeBlacklisted := func() bool { return c.CheckKeyExists(nodeCheckKey) || c.CheckKeyMatchesRegexp("consul-alerts/config/checks/blacklist/nodes", node) }
 
 	service := "_"
-	serviceBlacklisted := false
+	serviceBlacklisted := func() bool { return false }
 	if check.ServiceID != "" {
 		service = check.ServiceID
 		serviceCheckKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/services/%s", service)
-		serviceBlacklisted = c.CheckKeyExists(serviceCheckKey)
+
+		serviceBlacklisted = func() bool { return c.CheckKeyExists(serviceCheckKey) || c.CheckKeyMatchesRegexp("consul-alerts/config/checks/blacklist/services", service) }
 	}
 
-	checkId := check.CheckID
-	checkCheckKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/checks/%s", checkId)
-	checkBlacklisted := c.CheckKeyExists(checkCheckKey)
+	checkID := check.CheckID
+	checkCheckKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/checks/%s", checkID)
+	checkBlacklisted := func() bool { return c.CheckKeyExists(checkCheckKey) || c.CheckKeyMatchesRegexp("consul-alerts/config/checks/blacklist/checks", checkID) }
 
-	singleKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/single/%s/%s/%s", node, service, checkId)
-	singleBlacklisted := c.CheckKeyExists(singleKey)
+	singleKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/single/%s/%s/%s", node, service, checkID)
+	singleBlacklisted := func() bool { return c.CheckKeyExists(singleKey) }
 
-	return nodeBlacklisted || serviceBlacklisted || checkBlacklisted || singleBlacklisted
+	return blacklistExist() && (nodeBlacklisted() || serviceBlacklisted() || checkBlacklisted() || singleBlacklisted())
 }
 
 func (c *ConsulAlertClient) CheckKeyExists(key string) bool {
 	kvpair, _, err := c.api.KV().Get(key, nil)
 	return kvpair != nil && err == nil
+}
+
+func (c *ConsulAlertClient) CheckKeyMatchesRegexp(regexpKey string, key string) bool {
+	kvPair, _, _ := c.api.KV().Get(regexpKey, nil)
+	if kvPair != nil {
+		var regexpList []string
+		json.Unmarshal(kvPair.Value, &regexpList)
+		for _, pattern := range regexpList {
+			matched, err := regexp.MatchString(pattern, key)
+			if err != nil {
+				log.Printf("unable to match %s against pattern %s. Error: %s\n",
+					key, pattern, err.Error())
+			}
+			if matched {
+				return true
+			}
+		}
+	}
+	return false
 }
