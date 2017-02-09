@@ -16,7 +16,7 @@ type AwsSnsNotifier struct {
 
 // NotifierName provides name for notifier selection
 func (awssns *AwsSnsNotifier) NotifierName() string {
-	return "awsns"
+	return "awssns"
 }
 
 func (awssns *AwsSnsNotifier) Copy() Notifier {
