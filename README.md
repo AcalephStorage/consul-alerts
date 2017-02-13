@@ -400,6 +400,7 @@ prefix: `consul-alerts/config/notifiers/slack/`
 | username     | The username to appear on the post                  |
 | icon-url     | URL of a custom image for the notification          |
 | icon-emoji   | Emoji (if not using icon-url) for the notification  |
+| detailed     | Enable "pretty" Slack notifications                 |
 
 In order to enable slack integration, you have to create a new
 [_Incoming WebHooks_](https://my.slack.com/services/new/incoming-webhook). Then use the
