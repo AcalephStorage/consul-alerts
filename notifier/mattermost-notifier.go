@@ -520,7 +520,7 @@ func (mattermost *MattermostNotifier) Init() bool {
 
 // NotifierName provides name for notifier selection
 func (mattermost *MattermostNotifier) NotifierName() string {
-	return mattermost.NotifName
+	return "mattermost"
 }
 
 func (mattermost *MattermostNotifier) Copy() Notifier {
