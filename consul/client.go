@@ -483,7 +483,7 @@ func (c *ConsulAlertClient) SlackNotifier() *notifier.SlackNotifier {
 	return c.config.Notifiers.Slack
 }
 
-func (c *ConsulAlertClient) MattermostNotifier() *MattermostNotifier {
+func (c *ConsulAlertClient) MattermostNotifier() *notifier.MattermostNotifier {
 	return c.config.Notifiers.MatterMost
 }
 
