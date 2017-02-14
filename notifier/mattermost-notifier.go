@@ -124,6 +124,7 @@ type MattermostNotifier struct {
 	Channel     string
 	Detailed    bool
 	NotifName   string
+	Enabled     bool
 
 	/* Filled in after authentication */
 	Initialized bool
