@@ -2,20 +2,19 @@ package notifier
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
+	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
+	"net/http"
 	"strconv"
 	"strings"
-	"io/ioutil"
-	"encoding/json"
-	"net/http"
-	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
 )
 
 type StringMap map[string]string
 
 type MattermostLoginInfo struct {
-	LoginID     string `json:"login_id"`
-	Password    string `json:"password"`
+	LoginID  string `json:"login_id"`
+	Password string `json:"password"`
 }
 
 type MattermostAuthInfo struct {
@@ -23,7 +22,7 @@ type MattermostAuthInfo struct {
 	CreateAt           int64     `json:"create_at"`
 	UpdateAt           int64     `json:"update_at"`
 	DeleteAt           int64     `json:"delete_at"`
-	UserName           string    `json:"username"` 
+	UserName           string    `json:"username"`
 	AuthData           string    `json:"auth_data"`
 	AuthService        string    `json:"auth_service"`
 	Email              string    `json:"email"`
@@ -82,10 +81,10 @@ type MattermostChannelInfo struct {
 	CreateAt      int64  `json:"create_at"`
 	UpdateAt      int64  `json:"update_at"`
 	DeleteAt      int64  `json:"delete_at"`
-	TeamID        string `json:"team_id"` 
+	TeamID        string `json:"team_id"`
 	Type          string `json:"type"`
 	DisplayName   string `json:"display_name"`
-	Name          string `json:"name"` 
+	Name          string `json:"name"`
 	Header        string `json:"header"`
 	Purpose       string `json:"purpose"`
 	LastPostAt    int64  `json:"last_post_at"`
@@ -99,21 +98,21 @@ type MattermostChannelList struct {
 }
 
 type MattermostPostInfo struct {
-	PostID        string   `json:"id"`
-	CreateAt      int64    `json:"create_at"`
-	UpdateAt      int64    `json:"update_at"`
-	DeleteAt      int64    `json:"delete_at"`
-	UserID        string   `json:"user_id"`
-	ChannelID     string   `json:"channel_id"`
-	RootID        string   `json:"root_id"`
-	ParentID      string   `json:"parent_id"`
-	OriginalID    string   `json:"original_id"`
-	Message       string   `json:"message"`
-	Type          string   `json:"type"`
-	Props         StringMap`json:"props"`
-	Hashtags      string   `json:"hashtags"`
-	Filenames     StringMap`json:"filenames"`
-	PendingPostID string   `json:"pending_post_id"`
+	PostID        string    `json:"id"`
+	CreateAt      int64     `json:"create_at"`
+	UpdateAt      int64     `json:"update_at"`
+	DeleteAt      int64     `json:"delete_at"`
+	UserID        string    `json:"user_id"`
+	ChannelID     string    `json:"channel_id"`
+	RootID        string    `json:"root_id"`
+	ParentID      string    `json:"parent_id"`
+	OriginalID    string    `json:"original_id"`
+	Message       string    `json:"message"`
+	Type          string    `json:"type"`
+	Props         StringMap `json:"props"`
+	Hashtags      string    `json:"hashtags"`
+	Filenames     StringMap `json:"filenames"`
+	PendingPostID string    `json:"pending_post_id"`
 }
 
 type MattermostNotifier struct {
@@ -173,11 +172,11 @@ func (mattermost *MattermostNotifier) GetURL() string {
 func (mattermost *MattermostNotifier) Authenticate() bool {
 
 	loginURL := fmt.Sprintf("%s/users/login", mattermost.GetURL())
-	loginInfo := MattermostLoginInfo{ LoginID: mattermost.UserName,
+	loginInfo := MattermostLoginInfo{LoginID: mattermost.UserName,
 		Password: mattermost.Password}
 
-    buf := new(bytes.Buffer)
-    json.NewEncoder(buf).Encode(loginInfo)
+	buf := new(bytes.Buffer)
+	json.NewEncoder(buf).Encode(loginInfo)
 
 	req, err := http.NewRequest("POST", loginURL, buf)
 	if err != nil {
@@ -403,7 +402,6 @@ func (mattermost *MattermostNotifier) GetChannels(teamID string, channels *[]Mat
 	return true
 }
 
-
 func (mattermost *MattermostNotifier) PostMessage(teamID string, channelID string, postInfo *MattermostPostInfo) bool {
 
 	if teamID == "" || channelID == "" || postInfo == nil {
@@ -466,7 +464,7 @@ func (mattermost *MattermostNotifier) Init() bool {
 			return false
 		}
 
-		for i := 0;i < len(teams);i++ {
+		for i := 0; i < len(teams); i++ {
 			if teams[i].Name == mattermost.Team {
 				mattermost.TeamID = teams[i].TeamID
 				break
@@ -503,7 +501,7 @@ func (mattermost *MattermostNotifier) Init() bool {
 			return false
 		}
 
-		for i := 0;i < len(channels);i++ {
+		for i := 0; i < len(channels); i++ {
 			if channels[i].Name == mattermost.Channel {
 				mattermost.ChannelID = channels[i].ChannelID
 				break
@@ -519,7 +517,6 @@ func (mattermost *MattermostNotifier) Init() bool {
 	mattermost.Initialized = true
 	return true
 }
-
 
 // NotifierName provides name for notifier selection
 func (mattermost *MattermostNotifier) NotifierName() string {
@@ -593,7 +590,7 @@ func (mattermost *MattermostNotifier) notifyDetailed(messages Messages) bool {
 func (mattermost *MattermostNotifier) postToMattermost() bool {
 	var postInfo = MattermostPostInfo{
 		ChannelID: mattermost.ChannelID,
-		Message: mattermost.Text }
+		Message:   mattermost.Text}
 
 	return mattermost.PostMessage(mattermost.TeamID, mattermost.ChannelID, &postInfo)
 }

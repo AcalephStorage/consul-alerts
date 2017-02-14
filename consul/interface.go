@@ -162,17 +162,17 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 	}
 
 	notifiers := &notifier.Notifiers{
-		Email:     email,
-		Log:       log,
-		Influxdb:  influxdb,
-		Slack:     slack,
+		Email:      email,
+		Log:        log,
+		Influxdb:   influxdb,
+		Slack:      slack,
 		MatterMost: mattermost,
-		PagerDuty: pagerduty,
-		HipChat:   hipchat,
-		OpsGenie:  opsgenie,
-		AwsSns:    awsSns,
-		VictorOps: victorOps,
-		Custom:    []string{},
+		PagerDuty:  pagerduty,
+		HipChat:    hipchat,
+		OpsGenie:   opsgenie,
+		AwsSns:     awsSns,
+		VictorOps:  victorOps,
+		Custom:     []string{},
 	}
 
 	return &ConsulAlertConfig{
