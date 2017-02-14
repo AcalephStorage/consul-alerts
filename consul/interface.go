@@ -166,7 +166,7 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 		Log:        log,
 		Influxdb:   influxdb,
 		Slack:      slack,
-		MatterMost: mattermost,
+		Mattermost: mattermost,
 		PagerDuty:  pagerduty,
 		HipChat:    hipchat,
 		OpsGenie:   opsgenie,

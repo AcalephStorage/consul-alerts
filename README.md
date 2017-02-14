@@ -416,7 +416,7 @@ prefix: `consul-alerts/config/notifiers/mattermost/`
 
 | key          | description                                         |
 |--------------|-----------------------------------------------------|
-| enabled      | Enable the MatterMost notifier. [Default: false]    |
+| enabled      | Enable the Mattermost notifier. [Default: false]    |
 | cluster-name | The name of the cluster. [Default: "Consul Alerts"] |
 | url          | The mattermost url (mandatory)                      |
 | username     | The mattermost username (mandatory)                 |

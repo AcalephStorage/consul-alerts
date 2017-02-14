@@ -154,21 +154,21 @@ func (c *ConsulAlertClient) LoadConfig() {
 
 			// mattermost notfier config
 			case "consul-alerts/config/notifiers/mattermost/enabled":
-				valErr = loadCustomValue(&config.Notifiers.MatterMost.Enabled, val, ConfigTypeBool)
+				valErr = loadCustomValue(&config.Notifiers.Mattermost.Enabled, val, ConfigTypeBool)
 			case "consul-alerts/config/notifiers/mattermost/cluster-name":
-				valErr = loadCustomValue(&config.Notifiers.MatterMost.ClusterName, val, ConfigTypeString)
+				valErr = loadCustomValue(&config.Notifiers.Mattermost.ClusterName, val, ConfigTypeString)
 			case "consul-alerts/config/notifiers/mattermost/url":
-				valErr = loadCustomValue(&config.Notifiers.MatterMost.Url, val, ConfigTypeString)
+				valErr = loadCustomValue(&config.Notifiers.Mattermost.Url, val, ConfigTypeString)
 			case "consul-alerts/config/notifiers/mattermost/username":
-				valErr = loadCustomValue(&config.Notifiers.MatterMost.UserName, val, ConfigTypeString)
+				valErr = loadCustomValue(&config.Notifiers.Mattermost.UserName, val, ConfigTypeString)
 			case "consul-alerts/config/notifiers/mattermost/password":
-				valErr = loadCustomValue(&config.Notifiers.MatterMost.Password, val, ConfigTypeString)
+				valErr = loadCustomValue(&config.Notifiers.Mattermost.Password, val, ConfigTypeString)
 			case "consul-alerts/config/notifiers/mattermost/team":
-				valErr = loadCustomValue(&config.Notifiers.MatterMost.Team, val, ConfigTypeString)
+				valErr = loadCustomValue(&config.Notifiers.Mattermost.Team, val, ConfigTypeString)
 			case "consul-alerts/config/notifiers/mattermost/channel":
-				valErr = loadCustomValue(&config.Notifiers.MatterMost.Channel, val, ConfigTypeString)
+				valErr = loadCustomValue(&config.Notifiers.Mattermost.Channel, val, ConfigTypeString)
 			case "consul-alerts/config/notifiers/mattermost/detailed":
-				valErr = loadCustomValue(&config.Notifiers.MatterMost.Detailed, val, ConfigTypeBool)
+				valErr = loadCustomValue(&config.Notifiers.Mattermost.Detailed, val, ConfigTypeBool)
 
 			// pager-duty notfier config
 			case "consul-alerts/config/notifiers/pagerduty/enabled":
@@ -484,7 +484,7 @@ func (c *ConsulAlertClient) SlackNotifier() *notifier.SlackNotifier {
 }
 
 func (c *ConsulAlertClient) MattermostNotifier() *notifier.MattermostNotifier {
-	return c.config.Notifiers.MatterMost
+	return c.config.Notifiers.Mattermost
 }
 
 func (c *ConsulAlertClient) PagerDutyNotifier() *notifier.PagerDutyNotifier {
