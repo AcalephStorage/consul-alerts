@@ -523,6 +523,11 @@ func (mattermost *MattermostNotifier) NotifierName() string {
 	return mattermost.NotifName
 }
 
+func (mattermost *MattermostNotifier) Copy() Notifier {
+	notifier := *mattermost
+	return &notifier
+}
+
 //Notify sends messages to the endpoint notifier
 func (mattermost *MattermostNotifier) Notify(messages Messages) bool {
 	if !mattermost.Init() {
