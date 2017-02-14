@@ -13,12 +13,12 @@ import (
 
 type StringMap map[string]string
 
-type MatterMostLoginInfo struct {
+type MattermostLoginInfo struct {
 	LoginID     string `json:"login_id"`
 	Password    string `json:"password"`
 }
 
-type MatterMostAuthInfo struct {
+type MattermostAuthInfo struct {
 	UserID             string    `json:"id"`
 	CreateAt           int64     `json:"create_at"`
 	UpdateAt           int64     `json:"update_at"`
@@ -39,7 +39,7 @@ type MatterMostAuthInfo struct {
 	LastPictureUpdate  int64     `json:"last_picture_update"`
 }
 
-type MatterMostUserInfo struct {
+type MattermostUserInfo struct {
 	UserID             string    `json:"id"`
 	CreateAt           int64     `json:"create_at"`
 	UpdateAt           int64     `json:"update_at"`
@@ -63,7 +63,7 @@ type MatterMostUserInfo struct {
 	MfaSecret          string    `json:"mfa_secret"`
 }
 
-type MatterMostTeamInfo struct {
+type MattermostTeamInfo struct {
 	TeamID          string `json:"id"`
 	CreateAt        int64  `json:"create_at"`
 	UpdateAt        int64  `json:"update_at"`
@@ -77,7 +77,7 @@ type MatterMostTeamInfo struct {
 	AllowOpenInvite bool   `json:"allow_open_invite"`
 }
 
-type MatterMostChannelInfo struct {
+type MattermostChannelInfo struct {
 	ChannelID     string `json:"id"`
 	CreateAt      int64  `json:"create_at"`
 	UpdateAt      int64  `json:"update_at"`
@@ -94,11 +94,11 @@ type MatterMostChannelInfo struct {
 	CreatorID     string `json:"creator_id"`
 }
 
-type MatterMostChannelList struct {
-	Channels []MatterMostChannelInfo
+type MattermostChannelList struct {
+	Channels []MattermostChannelInfo
 }
 
-type MatterMostPostInfo struct {
+type MattermostPostInfo struct {
 	PostID        string   `json:"id"`
 	CreateAt      int64    `json:"create_at"`
 	UpdateAt      int64    `json:"update_at"`
@@ -116,7 +116,7 @@ type MatterMostPostInfo struct {
 	PendingPostID string   `json:"pending_post_id"`
 }
 
-type MatterMostNotifier struct {
+type MattermostNotifier struct {
 	ClusterName string
 	Url         string
 	UserName    string
@@ -135,7 +135,7 @@ type MatterMostNotifier struct {
 	Text        string
 }
 
-func (mattermost *MatterMostNotifier) GetURL() string {
+func (mattermost *MattermostNotifier) GetURL() string {
 
 	proto := "http"
 	u := strings.TrimSpace(strings.ToLower(mattermost.Url))
@@ -170,10 +170,10 @@ func (mattermost *MatterMostNotifier) GetURL() string {
 	return fmt.Sprintf("%s://%s%s/api/v3", proto, host, portstr)
 }
 
-func (mattermost *MatterMostNotifier) Authenticate() bool {
+func (mattermost *MattermostNotifier) Authenticate() bool {
 
 	loginURL := fmt.Sprintf("%s/users/login", mattermost.GetURL())
-	loginInfo := MatterMostLoginInfo{ LoginID: mattermost.UserName,
+	loginInfo := MattermostLoginInfo{ LoginID: mattermost.UserName,
 		Password: mattermost.Password}
 
     buf := new(bytes.Buffer)
@@ -197,7 +197,7 @@ func (mattermost *MatterMostNotifier) Authenticate() bool {
 	defer resp.Body.Close()
 
 	decoder := json.NewDecoder(resp.Body)
-	var a MatterMostAuthInfo
+	var a MattermostAuthInfo
 	err = decoder.Decode(&a)
 	if err != nil {
 		log.Error("Decode: ", err)
@@ -214,7 +214,7 @@ func (mattermost *MatterMostNotifier) Authenticate() bool {
 	return false
 }
 
-func (mattermost *MatterMostNotifier) GetAllTeams(teams *[]MatterMostTeamInfo) bool {
+func (mattermost *MattermostNotifier) GetAllTeams(teams *[]MattermostTeamInfo) bool {
 
 	teamURL := fmt.Sprintf("%s/teams/all", mattermost.GetURL())
 	req, err := http.NewRequest("GET", teamURL, nil)
@@ -237,7 +237,7 @@ func (mattermost *MatterMostNotifier) GetAllTeams(teams *[]MatterMostTeamInfo) b
 	defer resp.Body.Close()
 
 	decoder := json.NewDecoder(resp.Body)
-	var buf map[string]*MatterMostTeamInfo
+	var buf map[string]*MattermostTeamInfo
 	err = decoder.Decode(&buf)
 	if err != nil {
 		log.Error("Decode: ", err)
@@ -254,7 +254,7 @@ func (mattermost *MatterMostNotifier) GetAllTeams(teams *[]MatterMostTeamInfo) b
 	return false
 }
 
-func (mattermost *MatterMostNotifier) GetUser(userID string, userInfo *MatterMostUserInfo) bool {
+func (mattermost *MattermostNotifier) GetUser(userID string, userInfo *MattermostUserInfo) bool {
 
 	if userID == "" || userInfo == nil {
 		return false
@@ -291,7 +291,7 @@ func (mattermost *MatterMostNotifier) GetUser(userID string, userInfo *MatterMos
 	return true
 }
 
-func (mattermost *MatterMostNotifier) GetMe(me *MatterMostUserInfo) bool {
+func (mattermost *MattermostNotifier) GetMe(me *MattermostUserInfo) bool {
 
 	if me == nil {
 		return false
@@ -328,7 +328,7 @@ func (mattermost *MatterMostNotifier) GetMe(me *MatterMostUserInfo) bool {
 	return true
 }
 
-func (mattermost *MatterMostNotifier) GetTeam(teamID string, teamInfo *MatterMostTeamInfo) bool {
+func (mattermost *MattermostNotifier) GetTeam(teamID string, teamInfo *MattermostTeamInfo) bool {
 
 	if teamID == "" || teamInfo == nil {
 		return false
@@ -365,7 +365,7 @@ func (mattermost *MatterMostNotifier) GetTeam(teamID string, teamInfo *MatterMos
 	return true
 }
 
-func (mattermost *MatterMostNotifier) GetChannels(teamID string, channels *[]MatterMostChannelInfo) bool {
+func (mattermost *MattermostNotifier) GetChannels(teamID string, channels *[]MattermostChannelInfo) bool {
 
 	if teamID == "" || channels == nil {
 		return false
@@ -392,7 +392,7 @@ func (mattermost *MatterMostNotifier) GetChannels(teamID string, channels *[]Mat
 	defer resp.Body.Close()
 
 	decoder := json.NewDecoder(resp.Body)
-	fc := &MatterMostChannelList{}
+	fc := &MattermostChannelList{}
 	err = decoder.Decode(&fc)
 	if err != nil {
 		log.Error("Decode: ", err)
@@ -404,7 +404,7 @@ func (mattermost *MatterMostNotifier) GetChannels(teamID string, channels *[]Mat
 }
 
 
-func (mattermost *MatterMostNotifier) PostMessage(teamID string, channelID string, postInfo *MatterMostPostInfo) bool {
+func (mattermost *MattermostNotifier) PostMessage(teamID string, channelID string, postInfo *MattermostPostInfo) bool {
 
 	if teamID == "" || channelID == "" || postInfo == nil {
 		return false
@@ -437,7 +437,7 @@ func (mattermost *MatterMostNotifier) PostMessage(teamID string, channelID strin
 	defer resp.Body.Close()
 
 	decoder := json.NewDecoder(resp.Body)
-	var p MatterMostPostInfo
+	var p MattermostPostInfo
 	err = decoder.Decode(&p)
 	if err != nil {
 		log.Error("Decode: ", err)
@@ -448,21 +448,21 @@ func (mattermost *MatterMostNotifier) PostMessage(teamID string, channelID strin
 	return false
 }
 
-func (mattermost *MatterMostNotifier) Init() bool {
+func (mattermost *MattermostNotifier) Init() bool {
 	if mattermost.Initialized == true {
 		return true
 	}
 
 	if mattermost.Token == "" && !mattermost.Authenticate() {
-		log.Println("MatterMost: Unable to authenticate!")
+		log.Println("Mattermost: Unable to authenticate!")
 		return false
 	}
 
 	if mattermost.TeamID == "" {
-		var teams []MatterMostTeamInfo
+		var teams []MattermostTeamInfo
 
 		if !mattermost.GetAllTeams(&teams) {
-			log.Println("MatterMost: Unable to get teams!")
+			log.Println("Mattermost: Unable to get teams!")
 			return false
 		}
 
@@ -474,21 +474,21 @@ func (mattermost *MatterMostNotifier) Init() bool {
 		}
 
 		if mattermost.TeamID == "" {
-			log.Println("MatterMost: Unable to find team!")
+			log.Println("Mattermost: Unable to find team!")
 			return false
 		}
 	}
 
 	if mattermost.UserID == "" {
-		var me MatterMostUserInfo
+		var me MattermostUserInfo
 
 		if !mattermost.GetMe(&me) {
-			log.Println("MatterMost: Unable to get user!")
+			log.Println("Mattermost: Unable to get user!")
 			return false
 		}
 
 		if me.UserID == "" {
-			log.Println("MatterMost: Unable to get user ID!")
+			log.Println("Mattermost: Unable to get user ID!")
 			return false
 		}
 
@@ -496,10 +496,10 @@ func (mattermost *MatterMostNotifier) Init() bool {
 	}
 
 	if mattermost.ChannelID == "" {
-		var channels []MatterMostChannelInfo
+		var channels []MattermostChannelInfo
 
 		if !mattermost.GetChannels(mattermost.TeamID, &channels) {
-			log.Println("MatterMost: Unable to get channels!")
+			log.Println("Mattermost: Unable to get channels!")
 			return false
 		}
 
@@ -511,7 +511,7 @@ func (mattermost *MatterMostNotifier) Init() bool {
 		}
 
 		if mattermost.ChannelID == "" {
-			log.Println("MatterMost: Unable to find channel!")
+			log.Println("Mattermost: Unable to find channel!")
 			return false
 		}
 	}
@@ -522,12 +522,12 @@ func (mattermost *MatterMostNotifier) Init() bool {
 
 
 // NotifierName provides name for notifier selection
-func (mattermost *MatterMostNotifier) NotifierName() string {
+func (mattermost *MattermostNotifier) NotifierName() string {
 	return mattermost.NotifName
 }
 
 //Notify sends messages to the endpoint notifier
-func (mattermost *MatterMostNotifier) Notify(messages Messages) bool {
+func (mattermost *MattermostNotifier) Notify(messages Messages) bool {
 	if !mattermost.Init() {
 		return false
 	}
@@ -539,7 +539,7 @@ func (mattermost *MatterMostNotifier) Notify(messages Messages) bool {
 	return mattermost.notifySimple(messages)
 }
 
-func (mattermost *MatterMostNotifier) notifySimple(messages Messages) bool {
+func (mattermost *MattermostNotifier) notifySimple(messages Messages) bool {
 	overallStatus, pass, warn, fail := messages.Summary()
 
 	text := fmt.Sprintf(header, mattermost.ClusterName, overallStatus, fail, warn, pass)
@@ -552,10 +552,10 @@ func (mattermost *MatterMostNotifier) notifySimple(messages Messages) bool {
 
 	mattermost.Text = text
 
-	return mattermost.postToMatterMost()
+	return mattermost.postToMattermost()
 }
 
-func (mattermost *MatterMostNotifier) notifyDetailed(messages Messages) bool {
+func (mattermost *MattermostNotifier) notifyDetailed(messages Messages) bool {
 
 	overallStatus, pass, warn, fail := messages.Summary()
 
@@ -586,12 +586,12 @@ func (mattermost *MatterMostNotifier) notifyDetailed(messages Messages) bool {
 
 	mattermost.Text = fmt.Sprintf("%s\n%s\n%s\n\n", title, pretext, detailedBody)
 
-	return mattermost.postToMatterMost()
+	return mattermost.postToMattermost()
 
 }
 
-func (mattermost *MatterMostNotifier) postToMatterMost() bool {
-	var postInfo = MatterMostPostInfo{
+func (mattermost *MattermostNotifier) postToMattermost() bool {
+	var postInfo = MattermostPostInfo{
 		ChannelID: mattermost.ChannelID,
 		Message: mattermost.Text }
 
