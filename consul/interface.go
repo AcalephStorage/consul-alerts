@@ -134,7 +134,7 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 		ClusterName: "Consul-Alerts",
 	}
 
-	matttermost := &notifier.MattermostNotifier{
+	mattermost := &notifier.MattermostNotifier{
 		Enabled:     false,
 		ClusterName: "Consul-Alerts",
 	}
