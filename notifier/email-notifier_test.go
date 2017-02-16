@@ -19,7 +19,12 @@ func TestNotify(t *testing.T) {
 
 	expectedAddr := fmt.Sprintf("%s:%d", host, port)
 	expectedFrom := "sender@example.com"
-	expectedTo := []string{"test1@example.com", "test2@example.com"}
+	expectedTo := make(map[string][]string)
+	admins := []string{"testadmin1@example.com", "testadmin2@example.com"}
+	users := []string{"testuser1@example.com", "testuser2@example.com"}
+	expectedTo["admins"] = admins
+	expectedTo["users"] = users
+
 	expectedMsg := `From: "Some Sender" <sender@example.com>
 To: test1@example.com, test2@example.com
 Subject: Some Cluster is HEALTHY
