@@ -76,6 +76,79 @@ func (emailNotifier *EmailNotifier) Notify(alerts Messages) bool {
 	return success
 }
 
+func (emailNotifier *EmailNotifier) notifyByType(alerts Messages, emailType string) bool {
+
+	success := true
+
+	filteredAlerts := filterMessagesByType(alerts, emailType)
+	emailTo := emailNotifier.filterReceiversByType(emailType)
+
+	//overAllStatus, pass, warn, fail := filteredAlerts.Summary()
+	nodeMap := mapByNodes(filteredAlerts)
+
+	var emailDataList []EmailData
+
+	if emailNotifier.OnePerAlert {
+		log.Println("Going to send one email per alert")
+		emailDataList = emailNotifier.buildEmailDataOnePerAlert(filteredAlerts)
+	} else if emailNotifier.OnePerNode {
+		log.Println("Going to send one email per node")
+		emailDataList = emailNotifier.buildEmailDataOnePerNode(filteredAlerts, nodeMap)
+	} else {
+		log.Println("Going to send one email for many alerts")
+		emailDataList = emailNotifier.buildEmailDataOneForManyAlerts(filteredAlerts, nodeMap)
+	}
+
+	for _, e := range emailDataList {
+
+		var tmpl *template.Template
+		var err error
+		if emailNotifier.Template == "" {
+			tmpl, err = template.New("base").Parse(defaultTemplate)
+		} else {
+			tmpl, err = template.ParseFiles(emailNotifier.Template)
+		}
+
+		if err != nil {
+			log.Println("Template error, unable to send email notification: ", err)
+			success = false
+			continue
+		}
+
+		var body bytes.Buffer
+		if err := tmpl.Execute(&body, e); err != nil {
+			log.Println("Template error, unable to send email notification: ", err)
+			success = false
+			continue
+		}
+
+		msg := fmt.Sprintf(`From: "%s" <%s>
+To: %s
+Subject: %s is %s
+MIME-version: 1.0;
+Content-Type: text/html; charset="UTF-8";
+
+%s
+`,
+			emailNotifier.SenderAlias,
+			emailNotifier.SenderEmail,
+			strings.Join(emailTo, ", "),
+			e.ClusterName,
+			e.SystemStatus,
+			body.String())
+
+		addr := fmt.Sprintf("%s:%d", emailNotifier.Url, emailNotifier.Port)
+		auth := smtp.PlainAuth("", emailNotifier.Username, emailNotifier.Password, emailNotifier.Url)
+		if err := sendMail(addr, auth, emailNotifier.SenderEmail, emailTo, []byte(msg)); err != nil {
+			log.Println("Unable to send notification:", err)
+			continue
+		}
+		log.Println("Email notification sent.")
+		success = success && true
+	}
+	return success
+}
+
 func filterMessagesByType(alerts Messages, emailType string) Messages {
 	filteredAlerts := make(Messages, 0)
 	for _, alert := range alerts {
@@ -150,79 +223,6 @@ func (emailNotifier *EmailNotifier) buildEmailDataOneForManyAlerts(filteredAlert
 		Nodes:        nodeMap,
 	}
 	return []EmailData{e}
-}
-
-func (emailNotifier *EmailNotifier) notifyByType(alerts Messages, emailType string) bool {
-
-	success := true
-
-	filteredAlerts := filterMessagesByType(alerts, emailType)
-	emailTo := emailNotifier.filterReceiversByType(emailType)
-
-	//overAllStatus, pass, warn, fail := filteredAlerts.Summary()
-	nodeMap := mapByNodes(filteredAlerts)
-
-	var emailDataList []EmailData
-
-	if emailNotifier.OnePerAlert {
-		log.Println("Going to send one email per alert")
-		emailDataList = emailNotifier.buildEmailDataOnePerAlert(filteredAlerts)
-	} else if emailNotifier.OnePerNode {
-		log.Println("Going to send one email per node")
-		emailDataList = emailNotifier.buildEmailDataOnePerNode(filteredAlerts, nodeMap)
-	} else {
-		log.Println("Going to send one email for many alerts")
-		emailDataList = emailNotifier.buildEmailDataOneForManyAlerts(filteredAlerts, nodeMap)
-	}
-
-	for _, e := range emailDataList {
-
-		var tmpl *template.Template
-		var err error
-		if emailNotifier.Template == "" {
-			tmpl, err = template.New("base").Parse(defaultTemplate)
-		} else {
-			tmpl, err = template.ParseFiles(emailNotifier.Template)
-		}
-
-		if err != nil {
-			log.Println("Template error, unable to send email notification: ", err)
-			success = false
-			continue
-		}
-
-		var body bytes.Buffer
-		if err := tmpl.Execute(&body, e); err != nil {
-			log.Println("Template error, unable to send email notification: ", err)
-			success = false
-			continue
-		}
-
-		msg := fmt.Sprintf(`From: "%s" <%s>
-To: %s
-Subject: %s is %s
-MIME-version: 1.0;
-Content-Type: text/html; charset="UTF-8";
-
-%s
-`,
-			emailNotifier.SenderAlias,
-			emailNotifier.SenderEmail,
-			strings.Join(emailTo, ", "),
-			e.ClusterName,
-			e.SystemStatus,
-			body.String())
-
-		addr := fmt.Sprintf("%s:%d", emailNotifier.Url, emailNotifier.Port)
-		auth := smtp.PlainAuth("", emailNotifier.Username, emailNotifier.Password, emailNotifier.Url)
-		if err := sendMail(addr, auth, emailNotifier.SenderEmail, emailTo, []byte(msg)); err != nil {
-			log.Println("Unable to send notification:", err)
-			continue
-		}
-		log.Println("Email notification sent.")
-		success = success && true
-	}
-	return success
 }
 
 func mapByNodes(alerts Messages) map[string]Messages {
