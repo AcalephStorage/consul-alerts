@@ -67,7 +67,7 @@ type EmailNotifierConfig struct {
 	Password    string
 	SenderAlias string
 	SenderEmail string
-	Receivers   []string
+	Receivers   map[string][]string
 	Template    string
 	OnePerAlert bool
 	OnePerNode  bool
@@ -144,8 +144,9 @@ type Status struct {
 
 // ProfileInfo is for reading in JSON from profile keys
 type ProfileInfo struct {
-	Interval  int
-	NotifList map[string]bool
+	Interval      int
+	NotifList     map[string]bool
+	NotifTypeList map[string][]string
 }
 
 // Consul interface provides access to consul client
@@ -178,7 +179,7 @@ type Consul interface {
 	CheckStatus(node, statusId, checkId string) (status, output string)
 	CheckKeyExists(key string) bool
 
-	GetProfileInfo(node, serviceID, checkID string) (notifiersList map[string]bool, interval int)
+	GetProfileInfo(node, serviceID, checkID string) (profileInfo ProfileInfo)
 
 	GetReminders() []notifier.Message
 	SetReminder(m notifier.Message)
@@ -202,7 +203,7 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 		ClusterName: "Consul-Alerts",
 		Enabled:     false,
 		SenderAlias: "Consul Alerts",
-		Receivers:   []string{},
+		Receivers:   map[string][]string{},
 	}
 
 	log := &LogNotifierConfig{
