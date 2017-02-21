@@ -236,110 +236,45 @@ func cleanup(stopables ...stopable) {
 	}
 }
 
-func builtinNotifiers() []notifier.Notifier {
+func builtinNotifiers() map[string]notifier.Notifier {
 
-	emailConfig := consulClient.EmailConfig()
-	logConfig := consulClient.LogConfig()
-	influxdbConfig := consulClient.InfluxdbConfig()
-	slackConfig := consulClient.SlackConfig()
-	pagerdutyConfig := consulClient.PagerDutyConfig()
-	hipchatConfig := consulClient.HipChatConfig()
-	opsgenieConfig := consulClient.OpsGenieConfig()
-	awssnsConfig := consulClient.AwsSnsConfig()
-	victoropsConfig := consulClient.VictorOpsConfig()
+	emailNotifier := consulClient.EmailNotifier()
+	logNotifier := consulClient.LogNotifier()
+	influxdbNotifier := consulClient.InfluxdbNotifier()
+	slackNotifier := consulClient.SlackNotifier()
+	pagerdutyNotifier := consulClient.PagerDutyNotifier()
+	hipchatNotifier := consulClient.HipChatNotifier()
+	opsgenieNotifier := consulClient.OpsGenieNotifier()
+	awssnsNotifier := consulClient.AwsSnsNotifier()
+	victoropsNotifier := consulClient.VictorOpsNotifier()
 
-	notifiers := []notifier.Notifier{}
-	if emailConfig.Enabled {
-		emailNotifier := &notifier.EmailNotifier{
-			Url:         emailConfig.Url,
-			Port:        emailConfig.Port,
-			Username:    emailConfig.Username,
-			Password:    emailConfig.Password,
-			SenderAlias: emailConfig.SenderAlias,
-			SenderEmail: emailConfig.SenderEmail,
-			Receivers:   emailConfig.Receivers,
-			Template:    emailConfig.Template,
-			ClusterName: emailConfig.ClusterName,
-			NotifName:   "email",
-			OnePerAlert: emailConfig.OnePerAlert,
-			OnePerNode:  emailConfig.OnePerNode,
-		}
-		notifiers = append(notifiers, emailNotifier)
+	notifiers := map[string]notifier.Notifier{}
+	if emailNotifier.Enabled {
+		notifiers[emailNotifier.NotifierName()] = emailNotifier
 	}
-	if logConfig.Enabled {
-		logNotifier := &notifier.LogNotifier{
-			LogFile:   logConfig.Path,
-			NotifName: "log",
-		}
-		notifiers = append(notifiers, logNotifier)
+	if logNotifier.Enabled {
+		notifiers[logNotifier.NotifierName()] = logNotifier
 	}
-	if influxdbConfig.Enabled {
-		influxdbNotifier := &notifier.InfluxdbNotifier{
-			Host:       influxdbConfig.Host,
-			Username:   influxdbConfig.Username,
-			Password:   influxdbConfig.Password,
-			Database:   influxdbConfig.Database,
-			SeriesName: influxdbConfig.SeriesName,
-			NotifName:  "influx",
-		}
-		notifiers = append(notifiers, influxdbNotifier)
+	if influxdbNotifier.Enabled {
+		notifiers[influxdbNotifier.NotifierName()] = influxdbNotifier
 	}
-	if slackConfig.Enabled {
-		slackNotifier := &notifier.SlackNotifier{
-			ClusterName: slackConfig.ClusterName,
-			Url:         slackConfig.Url,
-			Channel:     slackConfig.Channel,
-			Username:    slackConfig.Username,
-			IconUrl:     slackConfig.IconUrl,
-			IconEmoji:   slackConfig.IconEmoji,
-			Detailed:    slackConfig.Detailed,
-			NotifName:   "slack",
-		}
-		notifiers = append(notifiers, slackNotifier)
+	if slackNotifier.Enabled {
+		notifiers[slackNotifier.NotifierName()] = slackNotifier
 	}
-	if pagerdutyConfig.Enabled {
-		pagerdutyNotifier := &notifier.PagerDutyNotifier{
-			ServiceKey: pagerdutyConfig.ServiceKey,
-			ClientName: pagerdutyConfig.ClientName,
-			ClientUrl:  pagerdutyConfig.ClientUrl,
-			NotifName:  "pagerduty",
-		}
-		notifiers = append(notifiers, pagerdutyNotifier)
+	if pagerdutyNotifier.Enabled {
+		notifiers[pagerdutyNotifier.NotifierName()] = pagerdutyNotifier
 	}
-	if hipchatConfig.Enabled {
-		hipchatNotifier := &notifier.HipChatNotifier{
-			ClusterName: hipchatConfig.ClusterName,
-			RoomId:      hipchatConfig.RoomId,
-			AuthToken:   hipchatConfig.AuthToken,
-			BaseURL:     hipchatConfig.BaseURL,
-			From:        hipchatConfig.From,
-			NotifName:   "hipchat",
-		}
-		notifiers = append(notifiers, hipchatNotifier)
+	if hipchatNotifier.Enabled {
+		notifiers[hipchatNotifier.NotifierName()] = hipchatNotifier
 	}
-	if opsgenieConfig.Enabled {
-		opsgenieNotifier := &notifier.OpsGenieNotifier{
-			ClusterName: opsgenieConfig.ClusterName,
-			ApiKey:      opsgenieConfig.ApiKey,
-			NotifName:   "opsgenie",
-		}
-		notifiers = append(notifiers, opsgenieNotifier)
+	if opsgenieNotifier.Enabled {
+		notifiers[opsgenieNotifier.NotifierName()] = opsgenieNotifier
 	}
-	if awssnsConfig.Enabled {
-		awssnsNotifier := &notifier.AwsSnsNotifier{
-			Region:    awssnsConfig.Region,
-			TopicArn:  awssnsConfig.TopicArn,
-			NotifName: "awssns",
-		}
-		notifiers = append(notifiers, awssnsNotifier)
+	if awssnsNotifier.Enabled {
+		notifiers[awssnsNotifier.NotifierName()] = awssnsNotifier
 	}
-	if victoropsConfig.Enabled {
-		victoropsNotifier := &notifier.VictorOpsNotifier{
-			APIKey:     victoropsConfig.APIKey,
-			RoutingKey: victoropsConfig.RoutingKey,
-			NotifName:  "victorops",
-		}
-		notifiers = append(notifiers, victoropsNotifier)
+	if victoropsNotifier.Enabled {
+		notifiers[victoropsNotifier.NotifierName()] = victoropsNotifier
 	}
 
 	return notifiers

@@ -3,7 +3,7 @@ package consul
 import (
 	"time"
 
-	"github.com/AcalephStorage/consul-alerts/notifier"
+	notifier "github.com/AcalephStorage/consul-alerts/notifier"
 )
 
 // Event data from consul
@@ -32,7 +32,7 @@ type Check struct {
 type ConsulAlertConfig struct {
 	Checks    *ChecksConfig
 	Events    *EventsConfig
-	Notifiers *NotifiersConfig
+	Notifiers *notifier.Notifiers
 }
 
 type ChecksConfig struct {
@@ -147,6 +147,7 @@ type ProfileInfo struct {
 	Interval      int
 	NotifList     map[string]bool
 	NotifTypeList map[string][]string
+	VarOverrides  notifier.Notifiers
 }
 
 // Consul interface provides access to consul client
@@ -157,15 +158,15 @@ type Consul interface {
 	ChecksEnabled() bool
 	EventHandlers(eventName string) []string
 
-	EmailConfig() *EmailNotifierConfig
-	LogConfig() *LogNotifierConfig
-	InfluxdbConfig() *InfluxdbNotifierConfig
-	SlackConfig() *SlackNotifierConfig
-	PagerDutyConfig() *PagerDutyNotifierConfig
-	HipChatConfig() *HipChatNotifierConfig
-	OpsGenieConfig() *OpsGenieNotifierConfig
-	AwsSnsConfig() *AwsSnsNotifierConfig
-	VictorOpsConfig() *VictorOpsNotifierConfig
+	EmailNotifier() *notifier.EmailNotifier
+	LogNotifier() *notifier.LogNotifier
+	InfluxdbNotifier() *notifier.InfluxdbNotifier
+	SlackNotifier() *notifier.SlackNotifier
+	PagerDutyNotifier() *notifier.PagerDutyNotifier
+	HipChatNotifier() *notifier.HipChatNotifier
+	OpsGenieNotifier() *notifier.OpsGenieNotifier
+	AwsSnsNotifier() *notifier.AwsSnsNotifier
+	VictorOpsNotifier() *notifier.VictorOpsNotifier
 
 	CheckChangeThreshold() int
 	UpdateCheckData()
@@ -179,7 +180,7 @@ type Consul interface {
 	CheckStatus(node, statusId, checkId string) (status, output string)
 	CheckKeyExists(key string) bool
 
-	GetProfileInfo(node, serviceID, checkID string) (profileInfo ProfileInfo)
+	GetProfileInfo(node, serviceID, checkID string) ProfileInfo
 
 	GetReminders() []notifier.Message
 	SetReminder(m notifier.Message)
@@ -199,51 +200,51 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 		Handlers: []string{},
 	}
 
-	email := &EmailNotifierConfig{
+	email := &notifier.EmailNotifier{
 		ClusterName: "Consul-Alerts",
 		Enabled:     false,
 		SenderAlias: "Consul Alerts",
 		Receivers:   map[string][]string{},
 	}
 
-	log := &LogNotifierConfig{
+	log := &notifier.LogNotifier{
 		Enabled: true,
 		Path:    "/tmp/consul-notifications.log",
 	}
 
-	influxdb := &InfluxdbNotifierConfig{
+	influxdb := &notifier.InfluxdbNotifier{
 		Enabled:    false,
 		SeriesName: "consul-alerts",
 	}
 
-	slack := &SlackNotifierConfig{
+	slack := &notifier.SlackNotifier{
 		Enabled:     false,
 		ClusterName: "Consul-Alerts",
 	}
 
-	pagerduty := &PagerDutyNotifierConfig{
+	pagerduty := &notifier.PagerDutyNotifier{
 		Enabled: false,
 	}
 
-	hipchat := &HipChatNotifierConfig{
+	hipchat := &notifier.HipChatNotifier{
 		Enabled:     false,
 		ClusterName: "Consul-Alerts",
 	}
 
-	opsgenie := &OpsGenieNotifierConfig{
+	opsgenie := &notifier.OpsGenieNotifier{
 		Enabled:     false,
 		ClusterName: "Consul-Alerts",
 	}
 
-	awsSns := &AwsSnsNotifierConfig{
+	awsSns := &notifier.AwsSnsNotifier{
 		Enabled: false,
 	}
 
-	victorOps := &VictorOpsNotifierConfig{
+	victorOps := &notifier.VictorOpsNotifier{
 		Enabled: false,
 	}
 
-	notifiers := &NotifiersConfig{
+	notifiers := &notifier.Notifiers{
 		Email:     email,
 		Log:       log,
 		Influxdb:  influxdb,
