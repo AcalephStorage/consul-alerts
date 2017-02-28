@@ -655,16 +655,17 @@ func (c *ConsulAlertClient) CheckStatus(node, serviceId, checkId string) (status
 }
 
 // getProfileForEntity returns the profile matching the exact path or the regexp
-// entity is either 'service', 'check' or 'host'
-func (c *ConsulAlertClient) getProfileForEntity(entity string, id string) string {
+// entity is either 'service', 'check', 'host', or 'status'
+// plural should be the plural form of entity ('services', 'statuses', etc.)
+func (c *ConsulAlertClient) getProfileForEntity(plural, entity, id string) string {
 	kvPair, _, _ := c.api.KV().Get(
-		fmt.Sprintf("consul-alerts/config/notif-selection/%ss/%s",
-			entity, id), nil)
+		fmt.Sprintf("consul-alerts/config/notif-selection/%s/%s",
+			plural, id), nil)
 	if kvPair != nil {
 		log.Printf("%s selection key found.\n", entity)
 		return string(kvPair.Value)
 	} else if kvPair, _, _ := c.api.KV().Get(
-		fmt.Sprintf("consul-alerts/config/notif-selection/%ss", entity),
+		fmt.Sprintf("consul-alerts/config/notif-selection/%s", plural),
 		nil); kvPair != nil {
 		var regexMap map[string]string
 		json.Unmarshal(kvPair.Value, &regexMap)
@@ -682,21 +683,25 @@ func (c *ConsulAlertClient) getProfileForEntity(entity string, id string) string
 	return ""
 }
 
+func (c *ConsulAlertClient) getProfileForStatus(status string) string {
+	return c.getProfileForEntity("statuses", "status", status)
+}
+
 func (c *ConsulAlertClient) getProfileForService(serviceID string) string {
-	return c.getProfileForEntity("service", serviceID)
+	return c.getProfileForEntity("services", "service", serviceID)
 }
 
 func (c *ConsulAlertClient) getProfileForCheck(checkID string) string {
-	return c.getProfileForEntity("check", checkID)
+	return c.getProfileForEntity("checks", "check", checkID)
 }
 
 func (c *ConsulAlertClient) getProfileForNode(node string) string {
-	return c.getProfileForEntity("host", node)
+	return c.getProfileForEntity("hosts", "host", node)
 }
 
 // GetProfileInfo returns profile info for check
-func (c *ConsulAlertClient) GetProfileInfo(node, serviceID, checkID string) ProfileInfo {
-	log.Println("Getting profile for node: ", node, " service: ", serviceID, " check: ", checkID)
+func (c *ConsulAlertClient) GetProfileInfo(node, serviceID, checkID, status string) ProfileInfo {
+	log.Println("Getting profile for node: ", node, " service: ", serviceID, " check: ", checkID, " status: ", status)
 
 	var profile string
 
@@ -706,6 +711,9 @@ func (c *ConsulAlertClient) GetProfileInfo(node, serviceID, checkID string) Prof
 	}
 	if profile == "" {
 		profile = c.getProfileForNode(node)
+	}
+	if profile == "" {
+		profile = c.getProfileForStatus(status)
 	}
 	if profile == "" {
 		profile = "default"

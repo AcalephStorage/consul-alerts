@@ -78,7 +78,7 @@ func TestGetProfileForEntity(t *testing.T) {
 	client.api.KV().Put(&consulapi.KVPair{
 		Key:   "consul-alerts/config/notif-selection/services",
 		Value: data}, nil)
-	profile := client.getProfileForEntity("service", "_nomad-client")
+	profile := client.getProfileForEntity("services", "service", "_nomad-client")
 	if profile != "client-profile" {
 		t.Error("getProfileForEntity must have matched client-profile")
 	}
@@ -86,7 +86,7 @@ func TestGetProfileForEntity(t *testing.T) {
 	client.api.KV().Put(&consulapi.KVPair{
 		Key:   "consul-alerts/config/notif-selection/services/_nomad-server",
 		Value: []byte("server-profile")}, nil)
-	profile = client.getProfileForEntity("service", "_nomad-server")
+	profile = client.getProfileForEntity("services", "service", "_nomad-server")
 	if profile != "server-profile" {
 		t.Error("getProfileForEntity must have matched server-profile")
 	}
@@ -110,7 +110,7 @@ func TestGetProfileInfo(t *testing.T) {
 	client.api.KV().Put(&consulapi.KVPair{
 		Key:   "consul-alerts/config/notif-profiles/default",
 		Value: data}, nil)
-	checkProfileInfo := client.GetProfileInfo("node", "serviceID", "checkID")
+	checkProfileInfo := client.GetProfileInfo("node", "serviceID", "checkID", "status")
 	if !reflect.DeepEqual(checkProfileInfo, defaultProfileInfo) {
 		t.Error("Default profile info is loaded incorrectly")
 	}
@@ -153,7 +153,7 @@ func TestGetProfileInfo(t *testing.T) {
 		client.api.KV().Put(&consulapi.KVPair{
 			Key:   fmt.Sprintf("consul-alerts/config/notif-selection/%s", s.NotifSelection),
 			Value: []byte(s.NotifProfile)}, nil)
-		checkProfileInfo := client.GetProfileInfo("node", "serviceID", "checkID")
+		checkProfileInfo := client.GetProfileInfo("node", "serviceID", "checkID", "status")
 		if !reflect.DeepEqual(checkProfileInfo, profileInfo) {
 			t.Error("Profile info is loaded incorrectly")
 		}
