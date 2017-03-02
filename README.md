@@ -406,6 +406,24 @@ In order to enable slack integration, you have to create a new
 [_Incoming WebHooks_](https://my.slack.com/services/new/incoming-webhook). Then use the
 token created by the previous action.
 
+#### Mattermost
+
+Mattermost integration is also supported. To enable, set
+`consul-alerts/config/notifiers/mattermost/enabled` to `true`. Mattermost details needs to
+be configured.
+
+prefix: `consul-alerts/config/notifiers/mattermost/`
+
+| key          | description                                         |
+|--------------|-----------------------------------------------------|
+| enabled      | Enable the Mattermost notifier. [Default: false]    |
+| cluster-name | The name of the cluster. [Default: "Consul Alerts"] |
+| url          | The mattermost url (mandatory)                      |
+| username     | The mattermost username (mandatory)                 |
+| password     | The mattermost password (mandatory)                 |
+| team         | The mattermost team (mandatory)                     |
+| channel      | The channel to post the notification (mandatory)    |
+
 #### PagerDuty
 
 To enable PagerDuty built-in notifier, set `consul-alerts/config/notifiers/pagerduty/enabled` to `true`. This is disabled by default. Service key and client details also needs to be configured.

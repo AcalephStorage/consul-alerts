@@ -73,6 +73,7 @@ type Consul interface {
 	LogNotifier() *notifier.LogNotifier
 	InfluxdbNotifier() *notifier.InfluxdbNotifier
 	SlackNotifier() *notifier.SlackNotifier
+	MattermostNotifier() *notifier.MattermostNotifier
 	PagerDutyNotifier() *notifier.PagerDutyNotifier
 	HipChatNotifier() *notifier.HipChatNotifier
 	OpsGenieNotifier() *notifier.OpsGenieNotifier
@@ -133,6 +134,11 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 		ClusterName: "Consul-Alerts",
 	}
 
+	mattermost := &notifier.MattermostNotifier{
+		Enabled:     false,
+		ClusterName: "Consul-Alerts",
+	}
+
 	pagerduty := &notifier.PagerDutyNotifier{
 		Enabled: false,
 	}
@@ -156,16 +162,18 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 	}
 
 	notifiers := &notifier.Notifiers{
-		Email:     email,
-		Log:       log,
-		Influxdb:  influxdb,
-		Slack:     slack,
-		PagerDuty: pagerduty,
-		HipChat:   hipchat,
-		OpsGenie:  opsgenie,
-		AwsSns:    awsSns,
-		VictorOps: victorOps,
-		Custom:    []string{},
+		Email:      email,
+		Log:        log,
+		Influxdb:   influxdb,
+		Slack:      slack,
+		Mattermost: mattermost,
+		PagerDuty:  pagerduty,
+		HipChat:    hipchat,
+		OpsGenie:   opsgenie,
+		AwsSns:     awsSns,
+		VictorOps:  victorOps,
+		Custom:     []string{},
+
 	}
 
 	return &ConsulAlertConfig{

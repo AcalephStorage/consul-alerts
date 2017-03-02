@@ -20,7 +20,7 @@ import (
 	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/docopt/docopt-go"
 )
 
-const version = "Consul Alerts 0.3.3"
+const version = "Consul Alerts 0.4.0"
 const usage = `Consul Alerts.
 
 Usage:
@@ -241,7 +241,8 @@ func builtinNotifiers() map[string]notifier.Notifier {
 	emailNotifier := consulClient.EmailNotifier()
 	logNotifier := consulClient.LogNotifier()
 	influxdbNotifier := consulClient.InfluxdbNotifier()
-	slackNotifier := consulClient.SlackNotifier()
+	slackNotifier := consulClient.SlackNotifier
+	mattermostNotifier := consulClient.MattermostNotifier()
 	pagerdutyNotifier := consulClient.PagerDutyNotifier()
 	hipchatNotifier := consulClient.HipChatNotifier()
 	opsgenieNotifier := consulClient.OpsGenieNotifier()
@@ -261,6 +262,9 @@ func builtinNotifiers() map[string]notifier.Notifier {
 	if slackNotifier.Enabled {
 		notifiers[slackNotifier.NotifierName()] = slackNotifier
 	}
+	if mattermostNotifier.Enabled {
+		notifiers[mattermostNotifier.NotifierName()] = mattermostNotifier
+	}
 	if pagerdutyNotifier.Enabled {
 		notifiers[pagerdutyNotifier.NotifierName()] = pagerdutyNotifier
 	}
@@ -273,6 +277,7 @@ func builtinNotifiers() map[string]notifier.Notifier {
 	if awssnsNotifier.Enabled {
 		notifiers[awssnsNotifier.NotifierName()] = awssnsNotifier
 	}
+
 	if victoropsNotifier.Enabled {
 		notifiers[victoropsNotifier.NotifierName()] = victoropsNotifier
 	}
