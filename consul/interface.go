@@ -55,6 +55,7 @@ type NotifiersConfig struct {
 	OpsGenie  *OpsGenieNotifierConfig
 	AwsSns    *AwsSnsNotifierConfig
 	VictorOps *VictorOpsNotifierConfig
+	Sumologic *SumologicNotifierConfig
 	Custom    []string
 }
 
@@ -133,6 +134,11 @@ type VictorOpsNotifierConfig struct {
 	RoutingKey string
 }
 
+type SumologicNotifierConfig struct {
+	Enabled      bool
+	CollectorUri string
+}
+
 type Status struct {
 	Current          string
 	CurrentTimestamp time.Time
@@ -165,6 +171,7 @@ type Consul interface {
 	OpsGenieConfig() *OpsGenieNotifierConfig
 	AwsSnsConfig() *AwsSnsNotifierConfig
 	VictorOpsConfig() *VictorOpsNotifierConfig
+	SumologicNotifier() *SumologicNotifierConfig
 
 	CheckChangeThreshold() int
 	UpdateCheckData()
@@ -242,6 +249,10 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 		Enabled: false,
 	}
 
+	sumologic := &SumologicNotifierConfig{
+		Enabled: false,
+	}
+
 	notifiers := &NotifiersConfig{
 		Email:     email,
 		Log:       log,
@@ -252,7 +263,8 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 		OpsGenie:  opsgenie,
 		AwsSns:    awsSns,
 		VictorOps: victorOps,
-		Custom:    []string{},
+		Sumologic:  sumologic,
+		Custom:     []string{},
 	}
 
 	return &ConsulAlertConfig{

@@ -20,7 +20,7 @@ import (
 	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/docopt/docopt-go"
 )
 
-const version = "Consul Alerts 0.3.3"
+const version = "Consul Alerts 0.4.0"
 const usage = `Consul Alerts.
 
 Usage:
@@ -248,6 +248,7 @@ func builtinNotifiers() []notifier.Notifier {
 	opsgenieConfig := consulClient.OpsGenieConfig()
 	awssnsConfig := consulClient.AwsSnsConfig()
 	victoropsConfig := consulClient.VictorOpsConfig()
+	sumologicConfig := consulClient.SumologicNotifier()
 
 	notifiers := []notifier.Notifier{}
 	if emailConfig.Enabled {
@@ -341,6 +342,13 @@ func builtinNotifiers() []notifier.Notifier {
 			NotifName:  "victorops",
 		}
 		notifiers = append(notifiers, victoropsNotifier)
+	}
+	if sumologicConfig.Enabled {
+		sumologicNotifier := &notifier.SumologicNotifier{
+			CollectorUri: sumologicConfig.CollectorUri,
+			NotifName: "sumologic",
+		}
+		notifiers = append(notifiers, sumologicNotifier)
 	}
 
 	return notifiers

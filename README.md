@@ -422,7 +422,7 @@ prefix: `consul-alerts/config/notifiers/awssns/`
 
 To enable the VictorOps built-in notifier, set
 `consul-alerts/config/notifiers/victorops/enabled` to `true`. VictorOps details
-needs to be configured.
+need to be configured.
 
 prefix: `consul-alerts/config/notifiers/victorops/`
 
@@ -431,6 +431,20 @@ prefix: `consul-alerts/config/notifiers/victorops/`
 | enabled      | Enable the VictorOps notifier. [Default: false]     |
 | api-key      | API Key                              (mandatory)    |
 | routing-key  | Routing Key                          (mandatory)    |
+
+
+#### Sumologic
+
+To enable the Sumologic built-in notifier, set
+`consul-alerts/config/notifiers/sumologic/enabled` to `true`. Sumologic details
+need to be configured.
+
+prefix: `consul-alerts/config/notifiers/sumologic/`
+
+| key          | description                                         |
+|--------------|-----------------------------------------------------|
+| enabled      | Enable the Sumologic notifier. [Default: false]     |
+| collector-uri| HTTP Collector Endpoint URI          (mandatory)    |
 
 
 Health Check via API
