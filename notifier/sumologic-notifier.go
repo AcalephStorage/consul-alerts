@@ -76,7 +76,7 @@ func (n *SumologicNotifier) Notify(alerts Messages) bool {
 
 /// Send well-constructed message to sumologic
 ///  https://help.sumologic.com/Send_Data/Sources/02Sources_for_Hosted_Collectors/HTTP_Source/Upload_Data_to_an_HTTP_Source
-func (n *SumologicNotifier) sendMessage(host string, name string, category string, event SumologicMessage) error {
+func (n *SumologicNotifier) sendMessage(host string, category string, name string, event SumologicMessage) error {
 	jsonBody, err := json.Marshal(event)
 	if err != nil {
 		return fmt.Errorf("error serializing sumologic message to json: %s", err)
