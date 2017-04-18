@@ -31,7 +31,7 @@ func (opsgenie *OpsGenieNotifier) Notify(messages Messages) bool {
 	overallStatus, pass, warn, fail := messages.Summary()
 
 	client := new(ogcli.OpsGenieClient)
-	client.SetApiKey(opsgenie.ApiKey)
+	client.SetAPIKey(opsgenie.ApiKey)
 
 	alertCli, cliErr := client.Alert()
 
