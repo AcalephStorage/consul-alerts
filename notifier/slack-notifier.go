@@ -101,7 +101,7 @@ func (slack *SlackNotifier) notifyDetailed(messages Messages) bool {
 		detailedBody += fmt.Sprintf("\n*[%s:%s]* %s is *%s.*", message.Node, message.Service, message.Check, message.Status)
 		var msg = strings.TrimSpace(message.Output)
 		if len(msg) != 0 {
-			detailedBody += fmt.Sprintf("\n`%s`", msg)
+			detailedBody += fmt.Sprintf("\n```%s```", msg)
 		}
 	}
 
