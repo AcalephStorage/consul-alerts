@@ -586,7 +586,13 @@ func (c *ConsulAlertClient) updateHealthCheck(key string, health *Check) {
 
 	case stillPendingStatus:
 		duration := time.Since(storedStatus.PendingTimestamp)
-		if int(duration.Seconds()) >= c.config.Checks.ChangeThreshold {
+
+		changeThreshold := c.config.Checks.ChangeThreshold
+		if override := c.GetChangeThreshold(health); override >= 0 {
+			changeThreshold = override
+		}
+
+		if int(duration.Seconds()) >= changeThreshold {
 
 			log.Printf(
 				"%s:%s:%s has changed status from %s to %s.",
@@ -758,6 +764,34 @@ func (c *ConsulAlertClient) IsBlacklisted(check *Check) bool {
 	singleBlacklisted := func() bool { return c.CheckKeyExists(singleKey) }
 
 	return blacklistExist() && (nodeBlacklisted() || serviceBlacklisted() || checkBlacklisted() || singleBlacklisted())
+}
+
+// GetChangeThreshold gets the node/service/check specific override for change threshold
+func (c *ConsulAlertClient) GetChangeThreshold(check *Check) int {
+	service := check.ServiceID
+	if service == "" {
+		service = "_"
+	}
+	// List from most specific to least specific
+	keys := []string{
+		fmt.Sprintf("consul-alerts/config/checks/single/%s/%s/%s/change-threshold", check.Node, service, check.CheckID),
+		fmt.Sprintf("consul-alerts/config/checks/check/%s/change-threshold", check.CheckID),
+		fmt.Sprintf("consul-alerts/config/checks/service/%s/change-threshold", service),
+		fmt.Sprintf("consul-alerts/config/checks/node/%s/change-threshold", check.Node),
+	}
+
+	for _, key := range keys {
+		log.Debugf("Checking key %s for change-threshold override", key)
+		kvpair, _, err := c.api.KV().Get(key, nil)
+		if kvpair == nil || err != nil {
+			continue
+		}
+		if val, err := strconv.Atoi(string(kvpair.Value)); err == nil {
+			log.Debugf("Found change-threshold override: %d", val)
+			return val
+		}
+	}
+	return -1
 }
 
 func (c *ConsulAlertClient) CheckKeyExists(key string) bool {
