@@ -3,10 +3,10 @@ package notifier
 import (
 	"fmt"
 
-	alerts "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/opsgenie/opsgenie-go-sdk/alerts"
-	ogcli "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/opsgenie/opsgenie-go-sdk/client"
+	alerts "github.com/opsgenie/opsgenie-go-sdk/alerts"
+	ogcli "github.com/opsgenie/opsgenie-go-sdk/client"
 
-	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
+	log "github.com/Sirupsen/logrus"
 )
 
 type OpsGenieNotifier struct {
@@ -31,7 +31,7 @@ func (opsgenie *OpsGenieNotifier) Notify(messages Messages) bool {
 	overallStatus, pass, warn, fail := messages.Summary()
 
 	client := new(ogcli.OpsGenieClient)
-	client.SetApiKey(opsgenie.ApiKey)
+	client.SetAPIKey(opsgenie.ApiKey)
 
 	alertCli, cliErr := client.Alert()
 
