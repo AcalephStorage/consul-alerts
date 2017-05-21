@@ -149,7 +149,7 @@ A few suggestions on operating and bootstrapping your consul-alerts configuratio
 
 ### Health Checks
 
-Health checking is enabled by default and is at the core what consul-alerts provides. The Health Check functionality is responsible for triggering a notification when the given consul check has changed status.  To prevent flapping, notifications are only sent when a check status has been consistent for a specific time in seconds (60 by default).
+Health checking is enabled by default and is at the core what consul-alerts provides. The Health Check functionality is responsible for triggering a notification when the given consul check has changed status. To prevent flapping, notifications are only sent when a check status has been consistent for a specific time in seconds (60 by default). The threshold can be set globally or for a particular node, check, service and/or all of them.
 
 **Configuration Options:**
 The default Health Check configuration can be customized by setting kv with the prefix: `consul-alerts/config/checks/`
@@ -158,6 +158,12 @@ The default Health Check configuration can be customized by setting kv with the 
 |------------------|----------------------------------------------------------------------------------------------------|
 | enabled          | Globally enable the Health Check functionality. [Default: true]                                    |
 | change-threshold | The time, in seconds, that a check must be in a given status before an alert is sent [Default: 60] |
+| single/{{ node }}/{{ serviceID }}/{{ checkID }}/change-threshold | Overrides `change-threshold` for a specific check associated with a particular service running on a particular node |
+| check/{{ checkID }}/change-threshold | Overrides `change-threshold` for a specific check |
+| service/{{ serviceID }}/change-threshold | Overrides `change-threshold` for a specific service |
+| node/{{ node }}/change-threshold | Overrides `change-threshold` for a specific node |
+
+When `change-threshold` is overridden multiple times, the most specific condition will be used based on the following order: (most specific) `single` > `check` > `service` > `node` > `global settings` > `default settings` (least specific).
 
 ### Notification Profiles
 
