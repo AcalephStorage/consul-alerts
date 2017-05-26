@@ -286,7 +286,7 @@ func (c *ConsulAlertClient) UpdateCheckData() {
 		settodelete := true
 
 		for j := range nodecat {
-			if nodecat[j].CheckID == check {
+			if ((nodecat[j].CheckID == check) && (nodecat[j].Status != "passing")) {
 				settodelete = false
 				break
 			}
@@ -341,6 +341,8 @@ func (c *ConsulAlertClient) UpdateCheckData() {
 				log.Printf("Updating reminder data for %s", reminderkey)
 
 				remindermap["Output"] = health.Output
+				remindermap["Status"] = health.Status
+
 				newreminder, _ := json.Marshal(remindermap)
 
 				_, err := kvApi.Put(&consulapi.KVPair{Key: reminderkey, Value: newreminder}, nil)
