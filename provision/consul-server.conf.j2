@@ -8,7 +8,7 @@ stop on starting shutdown
 export GOMAXPROCS=`nproc`
 
 # Needed on first server -bootstrap
-exec /usr/local/bin/consul agent -server -bootstrap-expect 3 -config-dir /etc/consul.d -data-dir /var/lib/consul -ui-dir /opt/consul/ui -bind {{ ansible_eth1.ipv4.address }} -client 0.0.0.0
+exec /usr/local/bin/consul agent -server -bootstrap-expect {{ bootstrap_expect }} -config-dir /etc/consul.d -data-dir /var/lib/consul -ui-dir /opt/consul/ui -bind {{ ansible_eth1.ipv4.address }} -client 0.0.0.0
 
 respawn
 respawn limit 10 10
