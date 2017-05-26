@@ -1,7 +1,14 @@
 language: go
+
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq python-pip python-apt
+  - sudo pip install ansible
+  # the playbook and the test require "192.168.10.10" ip address
+  - sudo ifconfig eth0:1 192.168.10.10 netmask 255.255.255.0 up
 install:
-    - go get github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus
-    - go get github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/docopt/docopt-go
-    - go get github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/imdario/mergo
-    - go get github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/mitchellh/hashstructure
-    - go get github.com/aws/aws-sdk-go/aws
+  - "ansible-playbook -i 'localhost,' -c local provision/site.yml -e \"{'ansible_eth1': {'ipv4': {'address': '192.168.10.10'}}}\" -e bootstrap_expect=1"
+  - go get -v -t ./...
+
+script:
+  - make test
