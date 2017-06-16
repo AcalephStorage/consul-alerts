@@ -511,6 +511,10 @@ func (c *ConsulAlertClient) OpsGenieNotifier() *notifier.OpsGenieNotifier {
 	return c.config.Notifiers.OpsGenie
 }
 
+func (c *ConsulAlertClient) TelegramNotifier() *notifier.TelegramNotifier {
+	return c.config.Notifiers.Telegram
+}
+
 func (c *ConsulAlertClient) AwsSnsNotifier() *notifier.AwsSnsNotifier {
 	return c.config.Notifiers.AwsSns
 }
