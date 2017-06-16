@@ -640,10 +640,10 @@ func (telegram *TelegramNotifier) Notify(messages Messages) bool {
 		return false
 	}
 
-	return telegram.notifyDetailed(messages)
+	return telegram.NotifyDetailed(messages)
 }
 
-func (telegram *TelegramNotifier) Notify(messages Messages) bool {
+func (telegram *TelegramNotifier) NotifyDetailed(messages Messages) bool {
 
 	overallStatus, pass, warn, fail := messages.Summary()
 
@@ -672,7 +672,7 @@ func (telegram *TelegramNotifier) Notify(messages Messages) bool {
 		detailedBody += fmt.Sprintf("\n`%s`", strings.TrimSpace(message.Output))
 	}
 
-	text = fmt.Sprintf("%s\n%s\n%s\n\n", title, pretext, detailedBody)
+	text := fmt.Sprintf("%s\n%s\n%s\n\n", title, pretext, detailedBody)
 
 	return telegram.SendMessage(telegram.ChatID, text, nil)
 }
