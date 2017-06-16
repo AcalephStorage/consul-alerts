@@ -77,6 +77,7 @@ type Consul interface {
 	PagerDutyNotifier() *notifier.PagerDutyNotifier
 	HipChatNotifier() *notifier.HipChatNotifier
 	OpsGenieNotifier() *notifier.OpsGenieNotifier
+	TelegramNotifier() *notifier.TelegramNotifier
 	AwsSnsNotifier() *notifier.AwsSnsNotifier
 	VictorOpsNotifier() *notifier.VictorOpsNotifier
 
@@ -153,6 +154,11 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 		ClusterName: "Consul-Alerts",
 	}
 
+	telegram := &notifier.TelegramNotifier{
+		Enabled:     false,
+		ClusterName: "Consul-Alerts",
+	}
+
 	awsSns := &notifier.AwsSnsNotifier{
 		Enabled: false,
 	}
@@ -170,10 +176,10 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 		PagerDuty:  pagerduty,
 		HipChat:    hipchat,
 		OpsGenie:   opsgenie,
+		Telegram:   telegram,
 		AwsSns:     awsSns,
 		VictorOps:  victorOps,
 		Custom:     []string{},
-
 	}
 
 	return &ConsulAlertConfig{

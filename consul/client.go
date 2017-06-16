@@ -202,6 +202,18 @@ func (c *ConsulAlertClient) LoadConfig() {
 			case "consul-alerts/config/notifiers/opsgenie/api-key":
 				valErr = loadCustomValue(&config.Notifiers.OpsGenie.ApiKey, val, ConfigTypeString)
 
+			// Telegram notifier config
+			case "consul-alerts/config/notifiers/telegram/enabled":
+				valErr = loadCustomValue(&config.Notifiers.Telegram.Enabled, val, ConfigTypeBool)
+			case "consul-alerts/config/notifiers/telegram/cluster-name":
+				valErr = loadCustomValue(&config.Notifiers.Telegram.ClusterName, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/telegram/url":
+				valErr = loadCustomValue(&config.Notifiers.Telegram.Url, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/telegram/token":
+				valErr = loadCustomValue(&config.Notifiers.Telegram.Token, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/telegram/chat-id":
+				valErr = loadCustomValue(&config.Notifiers.Telegram.ChatID, val, ConfigTypeString)
+
 			// AwsSns notifier config
 			case "consul-alerts/config/notifiers/awssns/enabled":
 				valErr = loadCustomValue(&config.Notifiers.AwsSns.Enabled, val, ConfigTypeBool)
@@ -744,7 +756,9 @@ func (c *ConsulAlertClient) IsBlacklisted(check *Check) bool {
 
 	node := check.Node
 	nodeCheckKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/nodes/%s", node)
-	nodeBlacklisted := func() bool { return c.CheckKeyExists(nodeCheckKey) || c.CheckKeyMatchesRegexp("consul-alerts/config/checks/blacklist/nodes", node) }
+	nodeBlacklisted := func() bool {
+		return c.CheckKeyExists(nodeCheckKey) || c.CheckKeyMatchesRegexp("consul-alerts/config/checks/blacklist/nodes", node)
+	}
 
 	service := "_"
 	serviceBlacklisted := func() bool { return false }
@@ -752,13 +766,17 @@ func (c *ConsulAlertClient) IsBlacklisted(check *Check) bool {
 		service = check.ServiceID
 		serviceCheckKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/services/%s", service)
 
-		serviceBlacklisted = func() bool { return c.CheckKeyExists(serviceCheckKey) || c.CheckKeyMatchesRegexp("consul-alerts/config/checks/blacklist/services", service) }
+		serviceBlacklisted = func() bool {
+			return c.CheckKeyExists(serviceCheckKey) || c.CheckKeyMatchesRegexp("consul-alerts/config/checks/blacklist/services", service)
+		}
 	}
 
 	checkID := check.CheckID
 	checkCheckKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/checks/%s", checkID)
 
-	checkBlacklisted := func() bool { return c.CheckKeyExists(checkCheckKey) || c.CheckKeyMatchesRegexp("consul-alerts/config/checks/blacklist/checks", checkID) }
+	checkBlacklisted := func() bool {
+		return c.CheckKeyExists(checkCheckKey) || c.CheckKeyMatchesRegexp("consul-alerts/config/checks/blacklist/checks", checkID)
+	}
 
 	singleKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/single/%s/%s/%s", node, service, checkID)
 	singleBlacklisted := func() bool { return c.CheckKeyExists(singleKey) }

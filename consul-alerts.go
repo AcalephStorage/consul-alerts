@@ -246,6 +246,7 @@ func builtinNotifiers() map[string]notifier.Notifier {
 	pagerdutyNotifier := consulClient.PagerDutyNotifier()
 	hipchatNotifier := consulClient.HipChatNotifier()
 	opsgenieNotifier := consulClient.OpsGenieNotifier()
+	telegramNotifier := consulClient.TelegramNotifier()
 	awssnsNotifier := consulClient.AwsSnsNotifier()
 	victoropsNotifier := consulClient.VictorOpsNotifier()
 
@@ -273,6 +274,9 @@ func builtinNotifiers() map[string]notifier.Notifier {
 	}
 	if opsgenieNotifier.Enabled {
 		notifiers[opsgenieNotifier.NotifierName()] = opsgenieNotifier
+	}
+	if telegramNotifier.Enabled {
+		notifiers[telegramNotifier.NotifierName()] = telegramNotifier
 	}
 	if awssnsNotifier.Enabled {
 		notifiers[awssnsNotifier.NotifierName()] = awssnsNotifier
