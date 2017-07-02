@@ -1,10 +1,8 @@
 package notifier
 
 import (
-	"bytes"
 	"fmt"
 
-	"html/template"
 	"net/smtp"
 
 	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
@@ -28,27 +26,6 @@ type EmailNotifier struct {
 	OnePerNode  bool     `json:"one-per-node"`
 }
 
-type EmailData struct {
-	ClusterName  string
-	SystemStatus string
-	FailCount    int
-	WarnCount    int
-	PassCount    int
-	Nodes        map[string]Messages
-}
-
-func (e EmailData) IsCritical() bool {
-	return e.SystemStatus == SYSTEM_CRITICAL
-}
-
-func (e EmailData) IsWarning() bool {
-	return e.SystemStatus == SYSTEM_UNSTABLE
-}
-
-func (e EmailData) IsPassing() bool {
-	return e.SystemStatus == SYSTEM_HEALTHY
-}
-
 // NotifierName provides name for notifier selection
 func (emailNotifier *EmailNotifier) NotifierName() string {
 	return "email"
@@ -65,11 +42,11 @@ func (emailNotifier *EmailNotifier) Notify(alerts Messages) bool {
 	overAllStatus, pass, warn, fail := alerts.Summary()
 	nodeMap := mapByNodes(alerts)
 
-	var emailDataList []EmailData
+	var emailDataList []TemplateData
 
 	if emailNotifier.OnePerAlert {
 		log.Println("Going to send one email per alert")
-		emailDataList = []EmailData{}
+		emailDataList = []TemplateData{}
 		for _, check := range alerts {
 
 			singleAlertChecks := make(Messages, 0)
@@ -80,7 +57,7 @@ func (emailNotifier *EmailNotifier) Notify(alerts Messages) bool {
 
 			alertClusterName := emailNotifier.ClusterName + " " + check.Node + " - " + check.CheckId
 
-			e := EmailData{
+			e := TemplateData{
 				ClusterName:  alertClusterName,
 				SystemStatus: alertStatus,
 				FailCount:    alertFailures,
@@ -92,14 +69,14 @@ func (emailNotifier *EmailNotifier) Notify(alerts Messages) bool {
 		}
 	} else if emailNotifier.OnePerNode {
 		log.Println("Going to send one email per node")
-		emailDataList = []EmailData{}
+		emailDataList = []TemplateData{}
 		for nodeName, checks := range nodeMap {
 			singleNodeMap := mapByNodes(checks)
 			nodeStatus, nodePassing, nodeWarnings, nodeFailures := checks.Summary()
 
 			nodeClusterName := emailNotifier.ClusterName + " " + nodeName
 
-			e := EmailData{
+			e := TemplateData{
 				ClusterName:  nodeClusterName,
 				SystemStatus: nodeStatus,
 				FailCount:    nodeFailures,
@@ -111,7 +88,7 @@ func (emailNotifier *EmailNotifier) Notify(alerts Messages) bool {
 		}
 	} else {
 		log.Println("Going to send one email for many alerts")
-		e := EmailData{
+		e := TemplateData{
 			ClusterName:  emailNotifier.ClusterName,
 			SystemStatus: overAllStatus,
 			FailCount:    fail,
@@ -120,29 +97,18 @@ func (emailNotifier *EmailNotifier) Notify(alerts Messages) bool {
 			Nodes:        nodeMap,
 		}
 
-		emailDataList = []EmailData{e}
+		emailDataList = []TemplateData{e}
 	}
 
 	success := true
 
 	for _, e := range emailDataList {
 
-		var tmpl *template.Template
+		var renderedTemplate string
 		var err error
-		if emailNotifier.Template == "" {
-			tmpl, err = template.New("base").Parse(defaultTemplate)
-		} else {
-			tmpl, err = template.ParseFiles(emailNotifier.Template)
-		}
+		renderedTemplate, err = renderTemplate(e, emailNotifier.Template, defaultTemplate)
 
 		if err != nil {
-			log.Println("Template error, unable to send email notification: ", err)
-			success = false
-			continue
-		}
-
-		var body bytes.Buffer
-		if err := tmpl.Execute(&body, e); err != nil {
 			log.Println("Template error, unable to send email notification: ", err)
 			success = false
 			continue
@@ -161,7 +127,7 @@ Content-Type: text/html; charset="UTF-8";
 			strings.Join(emailNotifier.Receivers, ", "),
 			e.ClusterName,
 			e.SystemStatus,
-			body.String())
+			renderedTemplate)
 
 		addr := fmt.Sprintf("%s:%d", emailNotifier.Url, emailNotifier.Port)
 		auth := smtp.PlainAuth("", emailNotifier.Username, emailNotifier.Password, emailNotifier.Url)
