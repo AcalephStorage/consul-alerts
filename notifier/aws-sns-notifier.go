@@ -28,7 +28,7 @@ func (awssns *AwsSnsNotifier) Notify(messages Messages) bool {
 	subject := MakeSubject(messages)
 	body := MakeBody(messages)
 
-	return awssns.Send(subject, body)
+	return sendSNS(awssns, subject, body)
 }
 
 func MakeSubject(messages Messages) string {
@@ -44,7 +44,7 @@ func MakeBody(messages Messages) string {
 	return body
 }
 
-func (awssns *AwsSnsNotifier) Send(subject string, message string) bool {
+var sendSNS = func(awssns *AwsSnsNotifier, subject string, message string) bool {
 	svc := sns.New(session.New(&aws.Config{
 		Region: aws.String(awssns.Region),
 	}))
