@@ -50,7 +50,7 @@ func TestNotifySNSWithCustomTemplate(t *testing.T) {
 	}()
 
 	expectedSubject := "CRITICAL--Fail: 1, Warn: 0, Pass: 0"
-	expectedMessage := "custom template: Failed: 1"
+	expectedMessage := "custom template: Failed: 1, cluster: some-cluster"
 
 	sendSNS = func(awssns *AwsSnsNotifier, subject string, message string) bool {
 		if subject != expectedSubject {
@@ -62,17 +62,18 @@ func TestNotifySNSWithCustomTemplate(t *testing.T) {
 		return true
 	}
 
-	tmpfile, err := templateFile("custom template: Failed: {{ .FailCount }}")
+	tmpfile, err := templateFile("custom template: Failed: {{ .FailCount }}, cluster: {{ .ClusterName }}")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer os.Remove(tmpfile.Name())
 
 	notifier := AwsSnsNotifier{
-		Template: tmpfile.Name(),
-		Enabled:  true,
-		Region:   "some region",
-		TopicArn: "some-arn",
+		Template:    tmpfile.Name(),
+		Enabled:     true,
+		Region:      "some region",
+		TopicArn:    "some-arn",
+		ClusterName: "some-cluster",
 	}
 
 	messages := Messages{Message{

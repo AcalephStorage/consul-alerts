@@ -9,10 +9,11 @@ import (
 )
 
 type AwsSnsNotifier struct {
-	Enabled  bool
-	Template string `json:"template"`
-	Region   string `json:"region"`
-	TopicArn string `json:"topic-arn"`
+	ClusterName string `json:"cluster-name"`
+	Enabled     bool
+	Region      string `json:"region"`
+	TopicArn    string `json:"topic-arn"`
+	Template    string `json:"template"`
 }
 
 // NotifierName provides name for notifier selection
@@ -40,7 +41,7 @@ func (awssns *AwsSnsNotifier) makeSubject(messages Messages) string {
 func (awssns *AwsSnsNotifier) makeBody(messages Messages) string {
 	overallStatus, pass, warn, fail := messages.Summary()
 	t := TemplateData{
-		ClusterName:  "no-cluster-name",
+		ClusterName:  awssns.ClusterName,
 		SystemStatus: overallStatus,
 		FailCount:    fail,
 		WarnCount:    warn,

@@ -203,6 +203,8 @@ func (c *ConsulAlertClient) LoadConfig() {
 				valErr = loadCustomValue(&config.Notifiers.OpsGenie.ApiKey, val, ConfigTypeString)
 
 			// AwsSns notifier config
+			case "consul-alerts/config/notifiers/awssns/cluster-name":
+				valErr = loadCustomValue(&config.Notifiers.AwsSns.ClusterName, val, ConfigTypeString)
 			case "consul-alerts/config/notifiers/awssns/enabled":
 				valErr = loadCustomValue(&config.Notifiers.AwsSns.Enabled, val, ConfigTypeBool)
 			case "consul-alerts/config/notifiers/awssns/region":

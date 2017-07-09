@@ -154,7 +154,8 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 	}
 
 	awsSns := &notifier.AwsSnsNotifier{
-		Enabled: false,
+		Enabled:     false,
+		ClusterName: "Consul-Alerts",
 	}
 
 	victorOps := &notifier.VictorOpsNotifier{

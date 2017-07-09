@@ -492,10 +492,10 @@ prefix: `consul-alerts/config/notifiers/awssns/`
 | key          | description                                                  |
 |--------------|--------------------------------------------------------------|
 | enabled      | Enable the AWS SNS notifier.   [Default: false]              |
+| cluster-name | The name of the cluster.       [Default: "Consul Alerts"]    |
 | region       | AWS Region                     (mandatory)                   |
 | topic-arn    | Topic ARN to publish to.       (mandatory)                   |
-| template     | Path to custom email template. [Default: internal template]  |
-
+| template     | Path to custom template.       [Default: internal template]  |
 #### VictorOps
 
 To enable the VictorOps built-in notifier, set
