@@ -372,7 +372,7 @@ prefix: `consul-alerts/config/notifiers/email/`
 | one-per-alert| Whether to send one email per alert [Default: false]                             |
 | one-per-node | Whether to send one email per node [Default: false] (overriden by one-per-alert) |
 
-The template can be any go html template. An `EmailData` instance will be passed to the template.
+The template can be any go html template. An `TemplateData` instance will be passed to the template.
 
 #### InfluxDB
 
@@ -489,12 +489,13 @@ needs to be configured.
 
 prefix: `consul-alerts/config/notifiers/awssns/`
 
-| key          | description                                         |
-|--------------|-----------------------------------------------------|
-| enabled      | Enable the AWS SNS notifier. [Default: false]       |
-| region       | AWS Region                           (mandatory)    |
-| topic-arn    | Topic ARN to publish to.             (mandatory)    |
-
+| key          | description                                                  |
+|--------------|--------------------------------------------------------------|
+| enabled      | Enable the AWS SNS notifier.   [Default: false]              |
+| cluster-name | The name of the cluster.       [Default: "Consul Alerts"]    |
+| region       | AWS Region                     (mandatory)                   |
+| topic-arn    | Topic ARN to publish to.       (mandatory)                   |
+| template     | Path to custom template.       [Default: internal template]  |
 #### VictorOps
 
 To enable the VictorOps built-in notifier, set

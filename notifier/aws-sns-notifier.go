@@ -9,9 +9,11 @@ import (
 )
 
 type AwsSnsNotifier struct {
-	Enabled  bool
-	Region   string `json:"region"`
-	TopicArn string `json:"topic-arn"`
+	ClusterName string `json:"cluster-name"`
+	Enabled     bool
+	Region      string `json:"region"`
+	TopicArn    string `json:"topic-arn"`
+	Template    string `json:"template"`
 }
 
 // NotifierName provides name for notifier selection
@@ -25,26 +27,38 @@ func (awssns *AwsSnsNotifier) Copy() Notifier {
 }
 
 func (awssns *AwsSnsNotifier) Notify(messages Messages) bool {
-	subject := MakeSubject(messages)
-	body := MakeBody(messages)
+	subject := awssns.makeSubject(messages)
+	body := awssns.makeBody(messages)
 
-	return awssns.Send(subject, body)
+	return sendSNS(awssns, subject, body)
 }
 
-func MakeSubject(messages Messages) string {
+func (awssns *AwsSnsNotifier) makeSubject(messages Messages) string {
 	overallStatus, pass, warn, fail := messages.Summary()
 	return fmt.Sprintf("%s--Fail: %d, Warn: %d, Pass: %d", overallStatus, fail, warn, pass)
 }
 
-func MakeBody(messages Messages) string {
-	body := ""
-	for _, message := range messages {
-		body += fmt.Sprintf("\n%s:%s:%s is %s.", message.Node, message.Service, message.Check, message.Status)
+func (awssns *AwsSnsNotifier) makeBody(messages Messages) string {
+	overallStatus, pass, warn, fail := messages.Summary()
+	t := TemplateData{
+		ClusterName:  awssns.ClusterName,
+		SystemStatus: overallStatus,
+		FailCount:    fail,
+		WarnCount:    warn,
+		PassCount:    pass,
+		Nodes:        mapByNodes(messages),
 	}
-	return body
+
+	body, err := renderTemplate(t, awssns.Template, snsDefaultTemplate)
+	if err != nil {
+		log.Println("Template error, unable to send email notification: ", err)
+		return fmt.Sprintf("error rendering template %v", err)
+	} else {
+		return body
+	}
 }
 
-func (awssns *AwsSnsNotifier) Send(subject string, message string) bool {
+var sendSNS = func(awssns *AwsSnsNotifier, subject string, message string) bool {
 	svc := sns.New(session.New(&aws.Config{
 		Region: aws.String(awssns.Region),
 	}))
@@ -71,3 +85,6 @@ func (awssns *AwsSnsNotifier) Send(subject string, message string) bool {
 
 	return true
 }
+
+var snsDefaultTemplate string = `
+{{ range $name, $checks := .Nodes }}{{ range $check := $checks }}{{ $name }}:{{$check.Service}}:{{$check.Check}} is {{$check.Status}}.{{ end }}{{ end }}`
