@@ -147,6 +147,22 @@ To assure consistency between instances, configuration is stored in Consul's KV 
 
 A few suggestions on operating and bootstrapping your consul-alerts configuration via the KV store are located in the [Operations](#operations) section below.
 
+If **ACL**s are enabled the folowing policy should be configured for consul-alerts token:
+
+```
+key "consul-alerts" {
+  policy = "write"
+}
+
+service "" {
+  policy = "read"
+}
+
+event "" {
+  policy = "read"
+}
+```
+
 ### Health Checks
 
 Health checking is enabled by default and is at the core what consul-alerts provides. The Health Check functionality is responsible for triggering a notification when the given consul check has changed status. To prevent flapping, notifications are only sent when a check status has been consistent for a specific time in seconds (60 by default). The threshold can be set globally or for a particular node, check, service and/or all of them.
