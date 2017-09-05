@@ -14,7 +14,7 @@ import (
 )
 
 type SlackNotifier struct {
-	ClusterName string       `json:"-"`
+	ClusterName string       `json:"cluster_name"`
 	Url         string       `json:"-"`
 	Channel     string       `json:"channel"`
 	Username    string       `json:"username"`
