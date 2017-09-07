@@ -161,6 +161,10 @@ service "" {
 event "" {
   policy = "read"
 }
+
+session "" {
+  policy = "write"
+}
 ```
 
 ### Health Checks
