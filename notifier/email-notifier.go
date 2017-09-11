@@ -1,10 +1,8 @@
 package notifier
 
 import (
-	"bytes"
 	"fmt"
 
-	"html/template"
 	"net/smtp"
 
 	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
@@ -26,27 +24,6 @@ type EmailNotifier struct {
 	Receivers   map[string][]string `json:"receivers"`
 	OnePerAlert bool                `json:"one-per-alert"`
 	OnePerNode  bool                `json:"one-per-node"`
-}
-
-type EmailData struct {
-	ClusterName  string
-	SystemStatus string
-	FailCount    int
-	WarnCount    int
-	PassCount    int
-	Nodes        map[string]Messages
-}
-
-func (e EmailData) IsCritical() bool {
-	return e.SystemStatus == SYSTEM_CRITICAL
-}
-
-func (e EmailData) IsWarning() bool {
-	return e.SystemStatus == SYSTEM_UNSTABLE
-}
-
-func (e EmailData) IsPassing() bool {
-	return e.SystemStatus == SYSTEM_HEALTHY
 }
 
 // NotifierName provides name for notifier selection
@@ -106,22 +83,11 @@ func (emailNotifier *EmailNotifier) notifyByType(alerts Messages, emailType stri
 
 	for _, e := range emailDataList {
 
-		var tmpl *template.Template
+		var renderedTemplate string
 		var err error
-		if emailNotifier.Template == "" {
-			tmpl, err = template.New("base").Parse(defaultTemplate)
-		} else {
-			tmpl, err = template.ParseFiles(emailNotifier.Template)
-		}
+		renderedTemplate, err = renderTemplate(e, emailNotifier.Template, defaultTemplate)
 
 		if err != nil {
-			log.Println("Template error, unable to send email notification: ", err)
-			success = false
-			continue
-		}
-
-		var body bytes.Buffer
-		if err := tmpl.Execute(&body, e); err != nil {
 			log.Println("Template error, unable to send email notification: ", err)
 			success = false
 			continue
@@ -140,7 +106,7 @@ Content-Type: text/html; charset="UTF-8";
 			strings.Join(emailTo, ", "),
 			e.ClusterName,
 			e.SystemStatus,
-			body.String())
+			renderedTemplate)
 
 		addr := fmt.Sprintf("%s:%d", emailNotifier.Url, emailNotifier.Port)
 		auth := smtp.PlainAuth("", emailNotifier.Username, emailNotifier.Password, emailNotifier.Url)

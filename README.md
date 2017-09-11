@@ -147,9 +147,29 @@ To assure consistency between instances, configuration is stored in Consul's KV 
 
 A few suggestions on operating and bootstrapping your consul-alerts configuration via the KV store are located in the [Operations](#operations) section below.
 
+If **ACL**s are enabled the folowing policy should be configured for consul-alerts token:
+
+```
+key "consul-alerts" {
+  policy = "write"
+}
+
+service "" {
+  policy = "read"
+}
+
+event "" {
+  policy = "read"
+}
+
+session "" {
+  policy = "write"
+}
+```
+
 ### Health Checks
 
-Health checking is enabled by default and is at the core what consul-alerts provides. The Health Check functionality is responsible for triggering a notification when the given consul check has changed status.  To prevent flapping, notifications are only sent when a check status has been consistent for a specific time in seconds (60 by default).
+Health checking is enabled by default and is at the core what consul-alerts provides. The Health Check functionality is responsible for triggering a notification when the given consul check has changed status. To prevent flapping, notifications are only sent when a check status has been consistent for a specific time in seconds (60 by default). The threshold can be set globally or for a particular node, check, service and/or all of them.
 
 **Configuration Options:**
 The default Health Check configuration can be customized by setting kv with the prefix: `consul-alerts/config/checks/`
@@ -158,6 +178,12 @@ The default Health Check configuration can be customized by setting kv with the 
 |------------------|----------------------------------------------------------------------------------------------------|
 | enabled          | Globally enable the Health Check functionality. [Default: true]                                    |
 | change-threshold | The time, in seconds, that a check must be in a given status before an alert is sent [Default: 60] |
+| single/{{ node }}/{{ serviceID }}/{{ checkID }}/change-threshold | Overrides `change-threshold` for a specific check associated with a particular service running on a particular node |
+| check/{{ checkID }}/change-threshold | Overrides `change-threshold` for a specific check |
+| service/{{ serviceID }}/change-threshold | Overrides `change-threshold` for a specific service |
+| node/{{ node }}/change-threshold | Overrides `change-threshold` for a specific node |
+
+When `change-threshold` is overridden multiple times, the most specific condition will be used based on the following order: (most specific) `single` > `check` > `service` > `node` > `global settings` > `default settings` (least specific).
 
 ### Notification Profiles
 
@@ -410,7 +436,7 @@ prefix: `consul-alerts/config/notifiers/email/receivers/`
 }
 ```
 
-The template can be any go html template. An `EmailData` instance will be passed to the template.
+The template can be any go html template. An `TemplateData` instance will be passed to the template.
 
 #### InfluxDB
 
@@ -449,6 +475,24 @@ prefix: `consul-alerts/config/notifiers/slack/`
 In order to enable slack integration, you have to create a new
 [_Incoming WebHooks_](https://my.slack.com/services/new/incoming-webhook). Then use the
 token created by the previous action.
+
+#### Mattermost
+
+Mattermost integration is also supported. To enable, set
+`consul-alerts/config/notifiers/mattermost/enabled` to `true`. Mattermost details needs to
+be configured.
+
+prefix: `consul-alerts/config/notifiers/mattermost/`
+
+| key          | description                                         |
+|--------------|-----------------------------------------------------|
+| enabled      | Enable the Mattermost notifier. [Default: false]    |
+| cluster-name | The name of the cluster. [Default: "Consul Alerts"] |
+| url          | The mattermost url (mandatory)                      |
+| username     | The mattermost username (mandatory)                 |
+| password     | The mattermost password (mandatory)                 |
+| team         | The mattermost team (mandatory)                     |
+| channel      | The channel to post the notification (mandatory)    |
 
 #### PagerDuty
 
@@ -509,12 +553,13 @@ needs to be configured.
 
 prefix: `consul-alerts/config/notifiers/awssns/`
 
-| key          | description                                         |
-|--------------|-----------------------------------------------------|
-| enabled      | Enable the AWS SNS notifier. [Default: false]       |
-| region       | AWS Region                           (mandatory)    |
-| topic-arn    | Topic ARN to publish to.             (mandatory)    |
-
+| key          | description                                                  |
+|--------------|--------------------------------------------------------------|
+| enabled      | Enable the AWS SNS notifier.   [Default: false]              |
+| cluster-name | The name of the cluster.       [Default: "Consul Alerts"]    |
+| region       | AWS Region                     (mandatory)                   |
+| topic-arn    | Topic ARN to publish to.       (mandatory)                   |
+| template     | Path to custom template.       [Default: internal template]  |
 #### VictorOps
 
 To enable the VictorOps built-in notifier, set

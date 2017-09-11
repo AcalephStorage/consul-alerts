@@ -220,3 +220,49 @@ func TestIsBlacklisted(t *testing.T) {
 		}
 	}
 }
+
+func TestIndividualChangeThreshold(t *testing.T) {
+	client, err := testClient()
+	if err != nil {
+		t.Error(err.Error())
+	}
+	clearKVPath(t, client, "consul-alerts/config/checks/")
+
+	check := &Check{
+		Node:        "test-node",
+		CheckID:     "check-id",
+		Name:        "check-name",
+		Status:      "pending",
+		ServiceID:   "service-id",
+		ServiceName: "service-name",
+	}
+
+	baseThreshold := 120
+
+	keys := []string{
+		fmt.Sprintf("consul-alerts/config/checks/single/%s/%s/%s/change-threshold", check.Node, check.ServiceID, check.CheckID),
+		fmt.Sprintf("consul-alerts/config/checks/check/%s/change-threshold", check.CheckID),
+		fmt.Sprintf("consul-alerts/config/checks/service/%s/change-threshold", check.ServiceID),
+		fmt.Sprintf("consul-alerts/config/checks/node/%s/change-threshold", check.Node),
+	}
+
+	var putThreshold, getThreshold int
+	var data []byte
+
+	for i, key := range keys {
+		putThreshold = baseThreshold + i
+		data, err = json.Marshal(putThreshold)
+		if err != nil {
+			t.Error(err.Error())
+		}
+
+		client.api.KV().Put(&consulapi.KVPair{
+			Key:   key,
+			Value: data}, nil)
+
+		getThreshold = client.GetChangeThreshold(check)
+		if getThreshold != getThreshold {
+			t.Errorf("changeThreshold for the %s should be %s, got %s", key, putThreshold, getThreshold)
+		}
+	}
+}

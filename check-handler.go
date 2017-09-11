@@ -121,7 +121,7 @@ func (c *CheckProcessor) notify(alerts []consul.Check) {
 			Interval:      profileInfo.Interval,
 			RmdCheck:      time.Now(),
 			NotifList:     profileInfo.NotifList,
-			NotifTypeList: profileInfo.NotifTypeList,
+			//NotifTypeList: profileInfo.NotifTypeList,
 			VarOverrides:  profileInfo.VarOverrides,
 			Timestamp:     time.Now(),
 		}
