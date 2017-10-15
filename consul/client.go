@@ -238,16 +238,16 @@ func loadCustomValue(configVariable interface{}, data []byte, cType configType) 
 	switch cType {
 	case ConfigTypeBool:
 		var val bool
-		if val, err = strconv.ParseBool(string(data)); err == nil {
+		if val, err = strconv.ParseBool(strings.Trim(string(data), " \t\n")); err == nil {
 			boolConfig := configVariable.(*bool)
 			*boolConfig = val
 		}
 	case ConfigTypeString:
 		strConfig := configVariable.(*string)
-		*strConfig = string(data)
+		*strConfig = strings.Trim(string(data), " \t\n")
 	case ConfigTypeInt:
 		var val int
-		if val, err = strconv.Atoi(string(data)); err == nil {
+		if val, err = strconv.Atoi(strings.Trim(string(data), " \t\n")); err == nil {
 			intConfig := configVariable.(*int)
 			*intConfig = int(val)
 		}
