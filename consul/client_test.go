@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
-	"strconv"
 	"testing"
 
 	consulapi "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/hashicorp/consul/api"
@@ -23,42 +22,63 @@ func clearKVPath(t *testing.T, c *ConsulAlertClient, path string) {
 
 func TestLoadCustomValueForString(t *testing.T) {
 	var strVar string
-	input := "test-data"
-	data := []byte(input)
-	loadCustomValue(&strVar, data, ConfigTypeString)
-	if strVar != "test-data" {
-		t.Errorf("unable to parse %s to string", input)
+	expectedVal := "test-data"
+	inputs := []string{
+		"test-data",
+		" test-data  ",
+		`test-data
+
+		`,
+	}
+
+	for _, input := range inputs {
+		loadCustomValue(&strVar, []byte(input), ConfigTypeString)
+		if strVar != expectedVal {
+			t.Errorf("unable to parse %s to string", input)
+		}
 	}
 }
 
 func TestLoadCustomValueForBool(t *testing.T) {
 	var boolVar bool
-	input := []string{
+	inputs := []string{
 		"true",
 		"false",
 		"True",
 		"False",
 		"TRUE",
 		"FALSE",
+		" true  ",
+		`false
+
+		`,
 	}
 
-	for i, in := range input {
-		data := []byte(in)
-		loadCustomValue(&boolVar, data, ConfigTypeBool)
-		if i%2 == 0 && !boolVar {
-			t.Errorf("unable to parse %s to boolean", in)
+	for i, input := range inputs {
+		loadCustomValue(&boolVar, []byte(input), ConfigTypeBool)
+		if i%2 == 1 == boolVar {
+			t.Errorf("unable to parse %s to boolean", input)
 		}
 	}
 
 }
 
 func TestLoadCustomValueForInt(t *testing.T) {
+	expectedVal := 235
 	var intVar int
-	input := "235"
-	data := []byte(input)
-	loadCustomValue(&intVar, data, ConfigTypeInt)
-	if in, _ := strconv.Atoi(input); in != intVar {
-		t.Errorf("unable to parse %s to int", input)
+	inputs := []string{
+		"235",
+		" 235  ",
+		`235
+
+		`,
+	}
+
+	for _, input := range inputs {
+		loadCustomValue(&intVar, []byte(input), ConfigTypeInt)
+		if intVar != expectedVal {
+			t.Errorf("unable to parse %s to int", input)
+		}
 	}
 }
 
