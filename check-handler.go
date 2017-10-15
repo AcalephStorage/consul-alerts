@@ -58,6 +58,21 @@ func (c *CheckProcessor) reminderRun() {
 	messages := consulClient.GetReminders()
 	filteredMessages := make(notifier.Messages, 0)
 	for _, message := range messages {
+		check := &consul.Check{
+			Node:        message.Node,
+			CheckID:     message.CheckId,
+			Name:        message.Check,
+			Status:      message.Status,
+			Notes:       message.Notes,
+			Output:      message.Output,
+			ServiceID:   message.ServiceId,
+			ServiceName: message.Service,
+		}
+		if consulClient.IsBlacklisted(check) {
+			log.Printf("%s:%s:%s is blacklisted, deleting reminder", check.Node, check.ServiceID, check.CheckID)
+			consulClient.DeleteReminder(check.Node, check.CheckID)
+			continue
+		}
 		duration := time.Since(message.RmdCheck)
 		durMins := int(math.Ceil(duration.Minutes()))
 		log.Println("Reminder message duration minutes: ", durMins)
