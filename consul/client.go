@@ -346,8 +346,9 @@ func (c *ConsulAlertClient) UpdateCheckData() {
 
 				remindermap["Output"] = health.Output
 				newreminder, _ := json.Marshal(remindermap)
+				reminderstatus.Value = newreminder
 
-				_, err := kvApi.Put(&consulapi.KVPair{Key: reminderkey, Value: newreminder}, nil)
+				_, _, err := kvApi.CAS(reminderstatus, nil)
 				if err != nil {
 					log.Println("Unable to set kv value: ", err)
 				}
