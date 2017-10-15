@@ -501,6 +501,22 @@ prefix: `consul-alerts/config/notifiers/opsgenie/`
 | cluster-name | The name of the cluster. [Default: "Consul Alerts"] |
 | api-key      | API Key                              (mandatory)    |
 
+#### Telegram
+
+Telegram integration is also supported. To enable, set
+`consul-alerts/config/notifiers/telegram/enabled` to `true`. Telegram details need to
+be configured.
+
+prefix: `consul-alerts/config/notifiers/telegram/`
+
+| key          | description                                         |
+|--------------|-----------------------------------------------------|
+| enabled      | Enable the Telegram notifier. [Default: false]      |
+| cluster-name | The name of the cluster. [Default: "Consul Alerts"] |
+| url          | The telegram api url (mandatory)                    |
+| token        | The telegram bot token (mandatory)                  |
+| chat-id      | The telegram chat id (mandatory)                    |
+
 #### Amazon Web Services Simple Notification Service ("SNS")
 
 To enable AWS SNS built-in notifier, set
