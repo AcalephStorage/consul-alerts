@@ -1,6 +1,6 @@
 ---
 - hosts: all
-  sudo: yes
+  become: yes
   tasks:
     - name: Install Unzip
       apt:
@@ -8,11 +8,11 @@
         update_cache: yes
     - name: Download Consul
       get_url:
-        url: https://releases.hashicorp.com/consul/0.6.4/consul_0.6.4_linux_amd64.zip
-        dest: /tmp/consul-0.6.4_linux_amd64.zip
+        url: "https://releases.hashicorp.com/consul/{{ consul_version }}/consul_{{ consul_version }}_linux_amd64.zip"
+        dest: "/tmp/consul-{{ consul_version }}_linux_amd64.zip"
     - name: Unzip Consul
       unarchive:
-        src: /tmp/consul-0.6.4_linux_amd64.zip
+        src: "/tmp/consul-{{ consul_version }}_linux_amd64.zip"
         dest: /usr/local/bin
         copy: no
         group: root
@@ -39,19 +39,6 @@
         owner: root
         group: root
         mode: 0644
-    - name: Download Consul UI
-      get_url:
-        url: https://releases.hashicorp.com/consul/0.6.4/consul_0.6.4_web_ui.zip
-        dest: /tmp/consul-0.6.4_web_ui.zip
-    - name: Create consul-ui dir
-      file:
-        name: /opt/consul/ui
-        state: directory
-    - name: Unzip Consul-UI
-      unarchive:
-        src: /tmp/consul-0.6.4_web_ui.zip
-        dest: /opt/consul/ui
-        copy: no
     - name: Copy the consul server init
       template:
         src: consul-server.conf.j2

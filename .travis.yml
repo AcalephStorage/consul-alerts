@@ -1,5 +1,12 @@
 language: go
 
+env:
+  matrix:
+    - CONSUL_VERSION: 0.6.4
+    - CONSUL_VERSION: 0.7.5
+    - CONSUL_VERSION: 0.8.5
+    - CONSUL_VERSION: 0.9.3
+
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq python-pip python-apt
@@ -7,7 +14,7 @@ before_install:
   # the playbook and the test require "192.168.10.10" ip address
   - sudo ifconfig eth0:1 192.168.10.10 netmask 255.255.255.0 up
 install:
-  - "ansible-playbook -i 'localhost,' -c local provision/site.yml -e \"{'ansible_eth1': {'ipv4': {'address': '192.168.10.10'}}}\" -e bootstrap_expect=1"
+  - "ansible-playbook -i 'localhost,' -c local provision/site.yml -e \"{'ansible_eth1': {'ipv4': {'address': '192.168.10.10'}}}\" -e bootstrap_expect=1 -e consul_version=$CONSUL_VERSION"
   - go get -v -t ./...
 
 script:
