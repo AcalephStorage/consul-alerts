@@ -116,23 +116,24 @@ type MattermostPostInfo struct {
 }
 
 type MattermostNotifier struct {
-	ClusterName string
-	Url         string
-	UserName    string
-	Password    string
-	Team        string
-	Channel     string
-	Detailed    bool
-	NotifName   string
-	Enabled     bool
+	ClusterName string  `json:"cluster_name"`
+	Url         string  `json:"-"`
+	UserName    string  `json:"username"`
+	Password    string  `json:"-"`
+	Team        string  `json:"team,omitempty"`
+	Channel     string  `json:"channel"`
+	Detailed    bool    `json:"-"`
+	WebHooked   bool    `json:"-"`
+	NotifName   string  `json:"-"`
+	Enabled     bool    `json:"-"`
 
 	/* Filled in after authentication */
-	Initialized bool
-	Token       string
-	TeamID      string
-	UserID      string
-	ChannelID   string
-	Text        string
+	Initialized bool    `json:"-"`
+	Token       string  `json:"-"`
+	TeamID      string  `json:"-"`
+	UserID      string  `json:"-"`
+	ChannelID   string  `json:"-"`
+	Text        string  `json:"text"`
 }
 
 func (mattermost *MattermostNotifier) GetURL() string {
@@ -531,7 +532,7 @@ func (mattermost *MattermostNotifier) Copy() Notifier {
 
 //Notify sends messages to the endpoint notifier
 func (mattermost *MattermostNotifier) Notify(messages Messages) bool {
-	if !mattermost.Init() {
+	if !mattermost.WebHooked && !mattermost.Init() {
 		return false
 	}
 
@@ -594,9 +595,39 @@ func (mattermost *MattermostNotifier) notifyDetailed(messages Messages) bool {
 }
 
 func (mattermost *MattermostNotifier) postToMattermost() bool {
+	if mattermost.WebHooked {
+                return mattermost.postToMattermostWebHook()
+        }
+
 	var postInfo = MattermostPostInfo{
 		ChannelID: mattermost.ChannelID,
 		Message:   mattermost.Text}
 
 	return mattermost.PostMessage(mattermost.TeamID, mattermost.ChannelID, &postInfo)
+}
+
+func (mattermost *MattermostNotifier) postToMattermostWebHook() bool {
+	data, err := json.Marshal(mattermost)
+        if err != nil {
+                log.Println("Unable to marshal mattermost payload:", err)
+                return false
+        }
+        log.Debugf("struct = %+v, json = %s", mattermost, string(data))
+
+        b := bytes.NewBuffer(data)
+        if res, err := http.Post(mattermost.Url, "application/json", b); err != nil {
+                log.Println("Unable to send data to mattermost:", err)
+                return false
+        } else {
+                defer res.Body.Close()
+                statusCode := res.StatusCode
+                if statusCode != 200 {
+                        body, _ := ioutil.ReadAll(res.Body)
+                        log.Println("Unable to notify mattermost:", string(body))
+                        return false
+                } else {
+                        log.Println("Mattermost notification sent.")
+                        return true
+                }
+        }
 }
