@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"io/ioutil"
 )
 
 type StringMap map[string]string
