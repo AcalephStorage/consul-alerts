@@ -442,20 +442,20 @@ Mattermost notifier comes in two modes:
 * Authorized POST (default)
 * Incoming WebHooks POST
 
-If you want to use the [Incoming WebHooks](https://docs.mattermost.com/developer/webhooks-incoming.html), you must enabled `consul-alerts/config/notifiers/mattermost/webhooked` to `true`, and specify the Mattermost URL generated for your applicationin `url`.
+If you want to use the [Incoming WebHooks](https://docs.mattermost.com/developer/webhooks-incoming.html), you must set `consul-alerts/config/notifiers/mattermost/webhooked` to `webhook`, and specify the Mattermost URL generated for your applicationin `url`.
 
 prefix: `consul-alerts/config/notifiers/mattermost/`
 
-| key          | description                                                    |
-|--------------|----------------------------------------------------------------|
-| enabled      | Enable the Mattermost notifier. [Default: false]               |
-| cluster-name | The name of the cluster. [Default: "Consul Alerts"]            |
-| url          | The mattermost url (mandatory)                                 |
-| username     | The mattermost username (mandatory)                            |
-| password     | The mattermost password (mandatory)                            |
-| team         | The mattermost team (mandatory)                                |
-| channel      | The channel to post the notification (mandatory)               |
-| webhooked    | Enable the Incomming WebHooks for Mattermost. [Default: false] |
+| key          | description                                                 |
+|--------------|-------------------------------------------------------------|
+| enabled      | Enable the Mattermost notifier. [Default: false]            |
+| cluster-name | The name of the cluster. [Default: "Consul Alerts"]         |
+| url          | The mattermost url (mandatory)                              |
+| username     | The mattermost username (mandatory)                         |
+| password     | The mattermost password (mandatory)                         |
+| team         | The mattermost team (mandatory)                             |
+| channel      | The channel to post the notification (mandatory)            |
+| mode         | The nofitication mode, `webhook` or `user`. [Default: user] |
 
 #### PagerDuty
 

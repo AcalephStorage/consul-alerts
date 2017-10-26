@@ -123,7 +123,7 @@ type MattermostNotifier struct {
 	Team        string  `json:"team,omitempty"`
 	Channel     string  `json:"channel"`
 	Detailed    bool    `json:"-"`
-	WebHooked   bool    `json:"-"`
+	Mode        string  `json:"-"`
 	NotifName   string  `json:"-"`
 	Enabled     bool    `json:"-"`
 
@@ -532,7 +532,7 @@ func (mattermost *MattermostNotifier) Copy() Notifier {
 
 //Notify sends messages to the endpoint notifier
 func (mattermost *MattermostNotifier) Notify(messages Messages) bool {
-	if !mattermost.WebHooked && !mattermost.Init() {
+	if mattermost.Mode != "webhook" && !mattermost.Init() {
 		return false
 	}
 
@@ -595,7 +595,7 @@ func (mattermost *MattermostNotifier) notifyDetailed(messages Messages) bool {
 }
 
 func (mattermost *MattermostNotifier) postToMattermost() bool {
-	if mattermost.WebHooked {
+	if mattermost.Mode == "webhook" {
                 return mattermost.postToMattermostWebHook()
         }
 
