@@ -41,17 +41,18 @@ type Notifier interface {
 }
 
 type Notifiers struct {
-	Email      *EmailNotifier      `json:"email"`
-	Log        *LogNotifier        `json:"log"`
-	Influxdb   *InfluxdbNotifier   `json:"influxdb"`
-	Slack      *SlackNotifier      `json:"slack"`
-	Mattermost *MattermostNotifier `json:"mattermost"`
-	PagerDuty  *PagerDutyNotifier  `json:"pagerduty"`
-	HipChat    *HipChatNotifier    `json:"hipchat"`
-	OpsGenie   *OpsGenieNotifier   `json:"opsgenie"`
-	AwsSns     *AwsSnsNotifier     `json:"awssns"`
-	VictorOps  *VictorOpsNotifier  `json:"victorops"`
-	Custom     []string            `json:"custom"`
+	Email             *EmailNotifier             `json:"email"`
+	Log               *LogNotifier               `json:"log"`
+	Influxdb          *InfluxdbNotifier          `json:"influxdb"`
+	Slack             *SlackNotifier             `json:"slack"`
+	Mattermost        *MattermostNotifier        `json:"mattermost"`
+	MattermostWebhook *MattermostWebhookNotifier `json:"mattermost-webhook"`
+	PagerDuty         *PagerDutyNotifier         `json:"pagerduty"`
+	HipChat           *HipChatNotifier           `json:"hipchat"`
+	OpsGenie          *OpsGenieNotifier          `json:"opsgenie"`
+	AwsSns            *AwsSnsNotifier            `json:"awssns"`
+	VictorOps         *VictorOpsNotifier         `json:"victorops"`
+	Custom            []string                   `json:"custom"`
 }
 
 func (n Notifiers) GetNotifier(name string) (Notifier, bool) {
@@ -66,6 +67,8 @@ func (n Notifiers) GetNotifier(name string) (Notifier, bool) {
 		return n.Slack, true
 	case n.Mattermost != nil && n.Mattermost.NotifierName() == name:
 		return n.Mattermost, true
+	case n.MattermostWebhook != nil && n.MattermostWebhook.NotifierName() == name:
+		return n.MattermostWebhook, true
 	case n.HipChat != nil && n.HipChat.NotifierName() == name:
 		return n.HipChat, true
 	case n.PagerDuty != nil && n.PagerDuty.NotifierName() == name:

@@ -170,6 +170,20 @@ func (c *ConsulAlertClient) LoadConfig() {
 			case "consul-alerts/config/notifiers/mattermost/detailed":
 				valErr = loadCustomValue(&config.Notifiers.Mattermost.Detailed, val, ConfigTypeBool)
 
+			// mattermost webhook notifier config
+			case "consul-alerts/config/notifiers/mattermost-webhook/enabled":
+				valErr = loadCustomValue(&config.Notifiers.MattermostWebhook.Enabled, val, ConfigTypeBool)
+			case "consul-alerts/config/notifiers/mattermost-webhook/cluster-name":
+				valErr = loadCustomValue(&config.Notifiers.MattermostWebhook.ClusterName, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/mattermost-webhook/url":
+				valErr = loadCustomValue(&config.Notifiers.MattermostWebhook.Url, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/mattermost-webhook/channel":
+				valErr = loadCustomValue(&config.Notifiers.MattermostWebhook.Channel, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/mattermost-webhook/username":
+				valErr = loadCustomValue(&config.Notifiers.MattermostWebhook.Username, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/mattermost-webhook/icon-url":
+				valErr = loadCustomValue(&config.Notifiers.MattermostWebhook.IconUrl, val, ConfigTypeString)
+
 			// pager-duty notfier config
 			case "consul-alerts/config/notifiers/pagerduty/enabled":
 				valErr = loadCustomValue(&config.Notifiers.PagerDuty.Enabled, val, ConfigTypeBool)
@@ -492,6 +506,10 @@ func (c *ConsulAlertClient) MattermostNotifier() *notifier.MattermostNotifier {
 	return c.config.Notifiers.Mattermost
 }
 
+func (c *ConsulAlertClient) MattermostWebhookNotifier() *notifier.MattermostWebhookNotifier {
+	return c.config.Notifiers.MattermostWebhook
+}
+
 func (c *ConsulAlertClient) PagerDutyNotifier() *notifier.PagerDutyNotifier {
 	return c.config.Notifiers.PagerDuty
 }
@@ -749,7 +767,9 @@ func (c *ConsulAlertClient) IsBlacklisted(check *Check) bool {
 
 	node := check.Node
 	nodeCheckKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/nodes/%s", node)
-	nodeBlacklisted := func() bool { return c.CheckKeyExists(nodeCheckKey) || c.CheckKeyMatchesRegexp("consul-alerts/config/checks/blacklist/nodes", node) }
+	nodeBlacklisted := func() bool {
+		return c.CheckKeyExists(nodeCheckKey) || c.CheckKeyMatchesRegexp("consul-alerts/config/checks/blacklist/nodes", node)
+	}
 
 	service := "_"
 	serviceBlacklisted := func() bool { return false }
@@ -757,13 +777,17 @@ func (c *ConsulAlertClient) IsBlacklisted(check *Check) bool {
 		service = check.ServiceID
 		serviceCheckKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/services/%s", service)
 
-		serviceBlacklisted = func() bool { return c.CheckKeyExists(serviceCheckKey) || c.CheckKeyMatchesRegexp("consul-alerts/config/checks/blacklist/services", service) }
+		serviceBlacklisted = func() bool {
+			return c.CheckKeyExists(serviceCheckKey) || c.CheckKeyMatchesRegexp("consul-alerts/config/checks/blacklist/services", service)
+		}
 	}
 
 	checkID := check.CheckID
 	checkCheckKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/checks/%s", checkID)
 
-	checkBlacklisted := func() bool { return c.CheckKeyExists(checkCheckKey) || c.CheckKeyMatchesRegexp("consul-alerts/config/checks/blacklist/checks", checkID) }
+	checkBlacklisted := func() bool {
+		return c.CheckKeyExists(checkCheckKey) || c.CheckKeyMatchesRegexp("consul-alerts/config/checks/blacklist/checks", checkID)
+	}
 
 	singleKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/single/%s/%s/%s", node, service, checkID)
 	singleBlacklisted := func() bool { return c.CheckKeyExists(singleKey) }
