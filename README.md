@@ -460,7 +460,7 @@ prefix: `consul-alerts/config/notifiers/mattermost-webhook/`
 
 | key          | description                                                                                |
 |--------------|-----------------------------------------------------                                       |
-| enabled      | Enable the Slack notifier. [Default: false]                                                |
+| enabled      | Enable the Mattermost Webhook notifier. [Default: false]                                   |
 | cluster-name | The name of the cluster. [Default: `Consul Alerts`]                                        |
 | url          | The incoming-webhook url (mandatory) [eg: `https://mattermost.com/hooks/...`]              |
 | channel      | The channel to post the notification (mandatory) [eg: `consul-alerts`]                     |
