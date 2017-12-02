@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestJsonUnmarshalling(t *testing.T) {
+func TestSlackJsonUnmarshalling(t *testing.T) {
 	cluster_name := "my_cluster"
 	channel := "test_channel"
 	username := "test_username"

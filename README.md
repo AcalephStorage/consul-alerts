@@ -450,6 +450,23 @@ prefix: `consul-alerts/config/notifiers/mattermost/`
 | team         | The mattermost team (mandatory)                     |
 | channel      | The channel to post the notification (mandatory)    |
 
+Notifications can also be sent to [Incoming
+Webhooks](https://docs.mattermost.com/developer/webhooks-incoming.html). To enable, set
+`consul-alerts/config/notifiers/mattermost-webhook/enabled` to `true` and set
+`consul-alerts/config/notifiers/mattermost-webhook/url` to URL of the webhook created on
+the previous step.
+
+prefix: `consul-alerts/config/notifiers/mattermost-webhook/`
+
+| key          | description                                                                                |
+|--------------|-----------------------------------------------------                                       |
+| enabled      | Enable the Slack notifier. [Default: false]                                                |
+| cluster-name | The name of the cluster. [Default: `Consul Alerts`]                                        |
+| url          | The incoming-webhook url (mandatory) [eg: `https://mattermost.com/hooks/...`]              |
+| channel      | The channel to post the notification (mandatory) [eg: `consul-alerts`]                     |
+| username     | The username to appear on the post [eg: `Consul Alerts`]                                   |
+| icon-url     | URL of a custom image for the notification [eg: `http://someimage.com/someimage.png`]      |
+
 #### PagerDuty
 
 To enable PagerDuty built-in notifier, set `consul-alerts/config/notifiers/pagerduty/enabled` to `true`. This is disabled by default. Service key and client details also needs to be configured.
