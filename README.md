@@ -547,6 +547,29 @@ prefix: `consul-alerts/config/notifiers/victorops/`
 | api-key      | API Key                              (mandatory)    |
 | routing-key  | Routing Key                          (mandatory)    |
 
+#### HTTP Endpoint
+
+To enable the HTTP endpoint built-in notifier, set
+`consul-alerts/config/notifiers/http-endpoint/enabled` to `true`. HTTP endpoint details
+needs to be configured.
+
+prefix: `consul-alerts/config/notifiers/http-endpoint/`
+
+| key          | description                                                           |
+|--------------|-----------------------------------------------------------------------|
+| enabled      | Enable the http-endpoint notifier.         [Default: false]           |
+| cluster-name | The name of the cluster.                   [Default: "Consul Alerts"] |
+| base-url     | Base URL of the HTTP endpoint              (mandatory)                |
+| endpoint     | The endpoint to append to the end of base-url                         |
+| payload      | The payload to send to the HTTP endpoint   (mandatory)                |
+
+The value of 'payload' must be a json map of type string. Value will be rendered as a template.
+```
+{
+  "message": "{{ range $name, $checks := .Nodes }}{{ range $check := $checks }}{{ $name }}:{{$check.Service}}:{{$check.Check}} is {{$check.Status}}.{{ end }}{{ end }}"
+}
+```
+
 
 Health Check via API
 --------------------

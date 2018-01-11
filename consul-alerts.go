@@ -249,6 +249,7 @@ func builtinNotifiers() map[string]notifier.Notifier {
 	opsgenieNotifier := consulClient.OpsGenieNotifier()
 	awssnsNotifier := consulClient.AwsSnsNotifier()
 	victoropsNotifier := consulClient.VictorOpsNotifier()
+	httpEndpointNotifier := consulClient.HttpEndpointNotifier()
 
 	notifiers := map[string]notifier.Notifier{}
 	if emailNotifier.Enabled {
@@ -281,9 +282,11 @@ func builtinNotifiers() map[string]notifier.Notifier {
 	if awssnsNotifier.Enabled {
 		notifiers[awssnsNotifier.NotifierName()] = awssnsNotifier
 	}
-
 	if victoropsNotifier.Enabled {
 		notifiers[victoropsNotifier.NotifierName()] = victoropsNotifier
+	}
+	if httpEndpointNotifier.Enabled {
+		notifiers[httpEndpointNotifier.NotifierName()] = httpEndpointNotifier
 	}
 
 	return notifiers
