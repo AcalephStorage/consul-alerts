@@ -44,27 +44,27 @@
 		},
 		{
 			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/alerts",
-			"Rev": "89e68948bffac4a7d62d1b8fc1ab5ee99d8a3cd8"
+			"Rev": "4a44084cc732751724af2969f3a6178acc74288a"
 		},
 		{
 			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/client",
-			"Rev": "89e68948bffac4a7d62d1b8fc1ab5ee99d8a3cd8"
+			"Rev": "4a44084cc732751724af2969f3a6178acc74288a"
 		},
 		{
 			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/heartbeat",
-			"Rev": "89e68948bffac4a7d62d1b8fc1ab5ee99d8a3cd8"
+			"Rev": "4a44084cc732751724af2969f3a6178acc74288a"
 		},
 		{
 			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/integration",
-			"Rev": "89e68948bffac4a7d62d1b8fc1ab5ee99d8a3cd8"
+			"Rev": "4a44084cc732751724af2969f3a6178acc74288a"
 		},
 		{
 			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/logging",
-			"Rev": "89e68948bffac4a7d62d1b8fc1ab5ee99d8a3cd8"
+			"Rev": "4a44084cc732751724af2969f3a6178acc74288a"
 		},
 		{
 			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/policy",
-			"Rev": "89e68948bffac4a7d62d1b8fc1ab5ee99d8a3cd8"
+			"Rev": "4a44084cc732751724af2969f3a6178acc74288a"
 		},
 		{
 			"ImportPath": "github.com/tbruyelle/hipchat-go/hipchat",
@@ -78,6 +78,10 @@
 		{
 			"ImportPath": "github.com/mitchellh/hashstructure",
 			"Rev": "b098c52ef6beab8cd82bc4a32422cf54b890e8fa"
+		},
+		{
+			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/alertsv2",
+			"Rev": "4a44084cc732751724af2969f3a6178acc74288a"
 		}
 	]
 }

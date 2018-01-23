@@ -1,859 +1,686 @@
-// Copyright 2015 OpsGenie. All rights reserved.
-// Use of this source code is governed by an Apache Software
-// license that can be found in the LICENSE file.
 package client
 
 import (
 	"bytes"
+	"crypto/tls"
 	"errors"
 	"fmt"
-	goreq "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/franela/goreq"
-	goquery "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/google/go-querystring/query"
-	alerts "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/opsgenie/opsgenie-go-sdk/alerts"
 	"io"
+	"io/ioutil"
 	"mime/multipart"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"time"
+
+	"github.com/opsgenie/opsgenie-go-sdk/alerts"
+	"github.com/opsgenie/opsgenie-go-sdk/logging"
 )
 
 const (
-	CREATE_ALERT_URL           = ENDPOINT_URL + "/v1/json/alert"
-	CLOSE_ALERT_URL            = ENDPOINT_URL + "/v1/json/alert/close"
-	DELETE_ALERT_URL           = ENDPOINT_URL + "/v1/json/alert"
-	GET_ALERT_URL              = ENDPOINT_URL + "/v1/json/alert"
-	LIST_ALERTS_URL            = ENDPOINT_URL + "/v1/json/alert"
-	LIST_ALERT_NOTES_URL       = ENDPOINT_URL + "/v1/json/alert/note"
-	LIST_ALERT_LOGS_URL        = ENDPOINT_URL + "/v1/json/alert/log"
-	LIST_ALERT_RECIPIENTS_URL  = ENDPOINT_URL + "/v1/json/alert/recipient"
-	ACKNOWLEDGE_ALERT_URL      = ENDPOINT_URL + "/v1/json/alert/acknowledge"
-	RENOTIFY_ALERT_URL         = ENDPOINT_URL + "/v1/json/alert/renotify"
-	TAKE_OWNERSHIP_ALERT_URL   = ENDPOINT_URL + "/v1/json/alert/takeOwnership"
-	ASSIGN_OWNERSHIP_ALERT_URL = ENDPOINT_URL + "/v1/json/alert/assign"
-	ADD_TEAM_ALERT_URL         = ENDPOINT_URL + "/v1/json/alert/team"
-	ADD_RECIPIENT_ALERT_URL    = ENDPOINT_URL + "/v1/json/alert/recipient"
-	ADD_NOTE_ALERT_URL         = ENDPOINT_URL + "/v1/json/alert/note"
-	EXECUTE_ACTION_ALERT_URL   = ENDPOINT_URL + "/v1/json/alert/executeAction"
-	ATTACH_FILE_ALERT_URL      = ENDPOINT_URL + "/v1/json/alert/attach"
+	createAlertURL          = "/v1/json/alert"
+	closeAlertURL           = "/v1/json/alert/close"
+	deleteAlertURL          = "/v1/json/alert"
+	getAlertURL             = "/v1/json/alert"
+	listAlertsURL           = "/v1/json/alert"
+	listAlertNotesURL       = "/v1/json/alert/note"
+	listAlertLogsURL        = "/v1/json/alert/log"
+	listAlertRecipientsURL  = "/v1/json/alert/recipient"
+	acknowledgeAlertURL     = "/v1/json/alert/acknowledge"
+	renotifyAlertURL        = "/v1/json/alert/renotify"
+	takeOwnershipAlertURL   = "/v1/json/alert/takeOwnership"
+	assignOwnershipAlertURL = "/v1/json/alert/assign"
+	addTeamAlertURL         = "/v1/json/alert/team"
+	addRecipientAlertURL    = "/v1/json/alert/recipient"
+	addNoteAlertURL         = "/v1/json/alert/note"
+	addTagsAlertURL         = "/v1/json/alert/tags"
+	executeActionAlertURL   = "/v1/json/alert/executeAction"
+	attachFileAlertURL      = "/v1/json/alert/attach"
+	countAlertURL           = "/v1/json/alert/count"
+	unacknowledgeAlertURL    = "/v1/json/alert/unacknowledge"
+	snoozeAlertURL 		= "/v1/json/alert/snooze"
+	removeTagsAlertURL	= "/v1/json/alert/tags"
+	addDetailsAlertURL	= "/v1/json/alert/details"
+	removeDetailsAlertURL	= "/v1/json/alert/details"
+	escalateToNextAlertURL	= "/v1/json/alert/escalateToNext"
 )
 
+// Deprecated: Please use OpsGenieAlertV2Client
 type OpsGenieAlertClient struct {
-	apiKey  string
-	proxy   string
-	retries int
+	OpsGenieClient
 }
 
-func (cli *OpsGenieAlertClient) buildRequest(method string, uri string, body interface{}) goreq.Request {
-	req := goreq.Request{}
-	req.Method = method
-	req.Uri = uri
-	if body != nil {
-		req.Body = body
-	}
-	if cli.proxy != "" {
-		req.Proxy = cli.proxy
-	}
-	req.UserAgent = userAgentParam.ToString()
-	return req
+// Deprecated: SetOpsGenieClient sets the embedded OpsGenieClient type of the OpsGenieAlertClient.
+func (cli *OpsGenieAlertClient) SetOpsGenieClient(ogCli OpsGenieClient) {
+	cli.OpsGenieClient = ogCli
 }
 
-func (cli *OpsGenieAlertClient) SetConnectionTimeout(timeoutInSeconds time.Duration) {
-	goreq.SetConnectTimeout(timeoutInSeconds * time.Second)
-}
-
-func (cli *OpsGenieAlertClient) SetMaxRetryAttempts(retries int) {
-	cli.retries = retries
-}
-
+// Deprecated: Create method creates an alert at OpsGenie.
 func (cli *OpsGenieAlertClient) Create(req alerts.CreateAlertRequest) (*alerts.CreateAlertResponse, error) {
-	req.ApiKey = cli.apiKey
-	// validate the mandatory parameters: apiKey, message
-	if req.ApiKey == "" {
-		return nil, errors.New("ApiKey is a mandatory field and can not be empty.")
+	req.APIKey = cli.apiKey
+	resp, err := cli.sendRequest(cli.buildPostRequest(createAlertURL, req))
+
+	if resp == nil {
+		return nil, err
 	}
-	if req.Message == "" {
-		return nil, errors.New("Message is a mandatory field and can not be empty.")
-	}
-	// send the request
-	var resp *goreq.Response
-	var err error
-	for i := 0; i < cli.retries; i++ {
-		resp, err = cli.buildRequest("POST", CREATE_ALERT_URL, req).Do()
-		if err == nil {
-			break
-		}
-		// sleep for a second
-		time.Sleep(TIME_SLEEP_BETWEEN_REQUESTS)
-	}
-	if err != nil {
-		return nil, errors.New("Could not create the alert: a problem occured while sending the request.")
-	}
-	// check the returning HTTP status code
-	httpStatusCode := resp.StatusCode
-	if httpStatusCode >= 400 && httpStatusCode < 500 {
-		return nil, errors.New(fmt.Sprintf("Client error %d returned.", httpStatusCode))
-	}
-	if httpStatusCode >= 500 {
-		return nil, errors.New(fmt.Sprintf("Server error %d returned.", httpStatusCode))
-	}
+	defer resp.Body.Close()
+
 	var createAlertResp alerts.CreateAlertResponse
-	// check if the response can be unmarshalled
+
 	if err = resp.Body.FromJsonTo(&createAlertResp); err != nil {
-		return nil, errors.New("Server response can not be parsed")
+		message := "Server response can not be parsed, " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
 	}
 	return &createAlertResp, nil
 }
 
+// Deprecated: Count method counts alerts at OpsGenie.
+func (cli *OpsGenieAlertClient) Count(req alerts.CountAlertRequest) (*alerts.CountAlertResponse, error) {
+	req.APIKey = cli.apiKey
+	resp, err := cli.sendRequest(cli.buildGetRequest(countAlertURL, req))
+
+	if resp == nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var countAlertResp alerts.CountAlertResponse
+
+	if err = resp.Body.FromJsonTo(&countAlertResp); err != nil {
+		message := "Server response can not be parsed, " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
+	}
+	return &countAlertResp, nil
+}
+
+
+// Deprecated: Close method closes an alert at OpsGenie.
 func (cli *OpsGenieAlertClient) Close(req alerts.CloseAlertRequest) (*alerts.CloseAlertResponse, error) {
-	req.ApiKey = cli.apiKey
-	// validate the mandatory parameters: apiKey, alertId/alias
-	if req.ApiKey == "" {
-		return nil, errors.New("ApiKey is a mandatory field and can not be empty.")
+	req.APIKey = cli.apiKey
+	resp, err := cli.sendRequest(cli.buildPostRequest(closeAlertURL, req))
+
+	if resp == nil {
+		return nil, err
 	}
-	if req.AlertId == "" && req.Alias == "" {
-		return nil, errors.New("At least either Alert Id or Alias should be set in the request.")
-	}
-	if req.AlertId != "" && req.Alias != "" {
-		return nil, errors.New("Either Alert Id or Alias should be set in the request not both.")
-	}
-	var resp *goreq.Response
-	var err error
-	for i := 0; i < cli.retries; i++ {
-		resp, err = cli.buildRequest("POST", CLOSE_ALERT_URL, req).Do()
-		if err == nil {
-			break
-		}
-		time.Sleep(TIME_SLEEP_BETWEEN_REQUESTS)
-	}
-	// resp, err := goreq.Request{ Method: "POST", Uri: CLOSE_ALERT_URL, Body: req, }.Do()
-	if err != nil {
-		return nil, errors.New("Could not close the alert: a problem occured while sending the request.")
-	}
-	// check the returning HTTP status code
-	httpStatusCode := resp.StatusCode
-	if httpStatusCode >= 400 && httpStatusCode < 500 {
-		return nil, errors.New(fmt.Sprintf("Client error %d returned", httpStatusCode))
-	}
-	if httpStatusCode >= 500 {
-		return nil, errors.New(fmt.Sprintf("Server error %d returned", httpStatusCode))
-	}
+	defer resp.Body.Close()
+
 	var closeAlertResp alerts.CloseAlertResponse
-	// check if the response can be unmarshalled
+
 	if err = resp.Body.FromJsonTo(&closeAlertResp); err != nil {
-		return nil, errors.New("Server response can not be parsed")
+		message := "Server response can not be parsed, " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
 	}
 	return &closeAlertResp, nil
 }
 
+// Deprecated: Delete method deletes an alert at OpsGenie.
 func (cli *OpsGenieAlertClient) Delete(req alerts.DeleteAlertRequest) (*alerts.DeleteAlertResponse, error) {
-	req.ApiKey = cli.apiKey
-	// validate the mandatory parameters: apiKey, alertId/alias
-	if req.ApiKey == "" {
-		return nil, errors.New("ApiKey is a mandatory field and can not be empty.")
+	req.APIKey = cli.apiKey
+	resp, err := cli.sendRequest(cli.buildDeleteRequest(deleteAlertURL, req))
+
+	if resp == nil {
+		return nil, err
 	}
-	if req.AlertId == "" && req.Alias == "" {
-		return nil, errors.New("Either Alert Id or Alias at least should be set in the request.")
-	}
-	if req.AlertId != "" && req.Alias != "" {
-		return nil, errors.New("Either Alert Id or Alias should be set in the request not both.")
-	}
-	v, _ := goquery.Values(req)
-	var resp *goreq.Response
-	var err error
-	for i := 0; i < cli.retries; i++ {
-		resp, err = cli.buildRequest("DELETE", DELETE_ALERT_URL+"?"+v.Encode(), nil).Do()
-		if err == nil {
-			break
-		}
-		time.Sleep(TIME_SLEEP_BETWEEN_REQUESTS)
-	}
-	if err != nil {
-		return nil, errors.New("Could not delete the alert: a problem occured while sending the request.")
-	}
-	// check the returning HTTP status code
-	httpStatusCode := resp.StatusCode
-	if httpStatusCode >= 400 && httpStatusCode < 500 {
-		return nil, errors.New(fmt.Sprintf("Client error %d returned", httpStatusCode))
-	}
-	if httpStatusCode >= 500 {
-		return nil, errors.New(fmt.Sprintf("Server error %d returned", httpStatusCode))
-	}
+	defer resp.Body.Close()
+
 	var deleteAlertResp alerts.DeleteAlertResponse
-	// check if the response can be unmarshalled
+
 	if err = resp.Body.FromJsonTo(&deleteAlertResp); err != nil {
-		return nil, errors.New("Server response can not be parsed.")
+		message := "Server response can not be parsed, " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
 	}
 	return &deleteAlertResp, nil
 }
 
+// Deprecated: Get method retrieves specified alert details from OpsGenie.
 func (cli *OpsGenieAlertClient) Get(req alerts.GetAlertRequest) (*alerts.GetAlertResponse, error) {
-	req.ApiKey = cli.apiKey
-	// validate the mandatory parameters: apiKey, id/alias/tinyId
-	if req.ApiKey == "" {
-		return nil, errors.New("ApiKey is a mandatory field and can not be empty.")
+	req.APIKey = cli.apiKey
+	resp, err := cli.sendRequest(cli.buildGetRequest(getAlertURL, req))
+
+	if resp == nil {
+		return nil, err
 	}
-	if req.Id == "" && req.Alias == "" && req.TinyId == "" {
-		return nil, errors.New("At least one of the parameters of id, alias and tiny id should be set.")
-	}
-	if (req.Id != "" && req.Alias != "") || (req.Id != "" && req.TinyId != "") || (req.Alias != "" && req.TinyId != "") {
-		return nil, errors.New("Only one of the parameters of id, alias and tiny id should be set.")
-	}
-	v, _ := goquery.Values(req)
-	var resp *goreq.Response
-	var err error
-	for i := 0; i < cli.retries; i++ {
-		resp, err = cli.buildRequest("GET", GET_ALERT_URL+"?"+v.Encode(), nil).Do()
-		if err == nil {
-			break
-		}
-		time.Sleep(TIME_SLEEP_BETWEEN_REQUESTS)
-	}
-	if err != nil {
-		return nil, errors.New("Could not retrieve the alert: a problem occured while sending the request")
-	}
-	// check the returning HTTP status code
-	httpStatusCode := resp.StatusCode
-	if httpStatusCode >= 400 && httpStatusCode < 500 {
-		return nil, errors.New(fmt.Sprintf("Client error %d returned", httpStatusCode))
-	}
-	if httpStatusCode >= 500 {
-		return nil, errors.New(fmt.Sprintf("Server error %d returned", httpStatusCode))
-	}
+	defer resp.Body.Close()
+
 	var getAlertResp alerts.GetAlertResponse
-	// check if the response can be unmarshalled
+
 	if err = resp.Body.FromJsonTo(&getAlertResp); err != nil {
-		return nil, errors.New("Server response can not be parsed.")
+		message := "Server response can not be parsed, " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
 	}
+
 	return &getAlertResp, nil
 }
 
+// Deprecated: List method retrieves alerts from OpsGenie.
 func (cli *OpsGenieAlertClient) List(req alerts.ListAlertsRequest) (*alerts.ListAlertsResponse, error) {
-	req.ApiKey = cli.apiKey
-	// validate the mandatory parameter: apiKey
-	if req.ApiKey == "" {
-		return nil, errors.New("ApiKey is a mandatory field and can not be empty.")
+	req.APIKey = cli.apiKey
+	resp, err := cli.sendRequest(cli.buildGetRequest(listAlertsURL, req))
+
+	if resp == nil {
+		return nil, errors.New(err.Error())
 	}
-	v, _ := goquery.Values(req)
-	var resp *goreq.Response
-	var err error
-	for i := 0; i < cli.retries; i++ {
-		resp, err = cli.buildRequest("GET", LIST_ALERTS_URL+"?"+v.Encode(), nil).Do()
-		if err == nil {
-			break
-		}
-		time.Sleep(TIME_SLEEP_BETWEEN_REQUESTS)
-	}
-	if err != nil {
-		return nil, errors.New("Could not retrieve the alert: a problem occured while sending the request")
-	}
-	// check the returning HTTP status code
-	httpStatusCode := resp.StatusCode
-	if httpStatusCode >= 400 && httpStatusCode < 500 {
-		return nil, errors.New(fmt.Sprintf("Client error %d returned", httpStatusCode))
-	}
-	if httpStatusCode >= 500 {
-		return nil, errors.New(fmt.Sprintf("Server error %d returned", httpStatusCode))
-	}
+	defer resp.Body.Close()
+
 	var listAlertsResp alerts.ListAlertsResponse
-	// check if the response can be unmarshalled
+
 	if err = resp.Body.FromJsonTo(&listAlertsResp); err != nil {
-		return nil, errors.New("Server response can not be parsed.")
+		message := "Server response can not be parsed, " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
 	}
 	return &listAlertsResp, nil
 }
 
+// Deprecated: ListNotes method retrieves notes of an alert from OpsGenie.
 func (cli *OpsGenieAlertClient) ListNotes(req alerts.ListAlertNotesRequest) (*alerts.ListAlertNotesResponse, error) {
-	req.ApiKey = cli.apiKey
-	// validate the mandatory parameters: apiKey, id/alias
-	if req.ApiKey == "" {
-		return nil, errors.New("ApiKey is a mandatory field and can not be empty.")
+	req.APIKey = cli.apiKey
+	resp, err := cli.sendRequest(cli.buildGetRequest(listAlertNotesURL, req))
+
+	if resp == nil {
+		return nil, err
 	}
-	if req.Id == "" && req.Alias == "" {
-		return nil, errors.New("At least either Id or Alias should be set in the request.")
-	}
-	if req.Id != "" && req.Alias != "" {
-		return nil, errors.New("Either Id or Alias should be set in the request not both.")
-	}
-	v, _ := goquery.Values(req)
-	var resp *goreq.Response
-	var err error
-	for i := 0; i < cli.retries; i++ {
-		resp, err = cli.buildRequest("GET", LIST_ALERT_NOTES_URL+"?"+v.Encode(), nil).Do()
-		if err == nil {
-			break
-		}
-		time.Sleep(TIME_SLEEP_BETWEEN_REQUESTS)
-	}
-	if err != nil {
-		return nil, errors.New("Could not send the request: a problem occured while sending the request")
-	}
-	// check the returning HTTP status code
-	httpStatusCode := resp.StatusCode
-	if httpStatusCode >= 400 && httpStatusCode < 500 {
-		return nil, errors.New(fmt.Sprintf("Client error %d returned", httpStatusCode))
-	}
-	if httpStatusCode >= 500 {
-		return nil, errors.New(fmt.Sprintf("Server error %d returned", httpStatusCode))
-	}
+	defer resp.Body.Close()
+
 	var listAlertNotesResp alerts.ListAlertNotesResponse
-	// check if the response can be unmarshalled
+
 	if err = resp.Body.FromJsonTo(&listAlertNotesResp); err != nil {
-		return nil, errors.New("Server response can not be parsed.")
+		message := "Server response can not be parsed, " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
 	}
 	return &listAlertNotesResp, nil
 }
 
+// Deprecated: ListLogs method retrieves activity logs of an alert from OpsGenie.
 func (cli *OpsGenieAlertClient) ListLogs(req alerts.ListAlertLogsRequest) (*alerts.ListAlertLogsResponse, error) {
-	req.ApiKey = cli.apiKey
-	// validate the mandatory parameters: apiKey, id/alias
-	if req.ApiKey == "" {
-		return nil, errors.New("ApiKey is a mandatory field and can not be empty.")
+	req.APIKey = cli.apiKey
+	resp, err := cli.sendRequest(cli.buildGetRequest(listAlertLogsURL, req))
+
+	if resp == nil {
+		return nil, err
 	}
-	if req.Id == "" && req.Alias == "" {
-		return nil, errors.New("At least either Id or Alias should be set in the request.")
-	}
-	if req.Id != "" && req.Alias != "" {
-		return nil, errors.New("Either Id or Alias should be set in the request not both.")
-	}
-	v, _ := goquery.Values(req)
-	var resp *goreq.Response
-	var err error
-	for i := 0; i < cli.retries; i++ {
-		resp, err = cli.buildRequest("GET", LIST_ALERT_LOGS_URL+"?"+v.Encode(), nil).Do()
-		if err == nil {
-			break
-		}
-		time.Sleep(TIME_SLEEP_BETWEEN_REQUESTS)
-	}
-	if err != nil {
-		return nil, errors.New("Could not retrieve the logs: a problem occured while sending the request")
-	}
-	// check the returning HTTP status code
-	httpStatusCode := resp.StatusCode
-	if httpStatusCode >= 400 && httpStatusCode < 500 {
-		return nil, errors.New(fmt.Sprintf("Client error %d returned", httpStatusCode))
-	}
-	if httpStatusCode >= 500 {
-		return nil, errors.New(fmt.Sprintf("Server error %d returned", httpStatusCode))
-	}
+	defer resp.Body.Close()
+
 	var listAlertLogsResp alerts.ListAlertLogsResponse
-	// check if the response can be unmarshalled
+
 	if err = resp.Body.FromJsonTo(&listAlertLogsResp); err != nil {
-		return nil, errors.New("Server response can not be parsed.")
+		message := "Server response can not be parsed, " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
 	}
 	return &listAlertLogsResp, nil
 }
 
+// Deprecated: ListRecipients method retrieves recipients of an alert from OpsGenie.
 func (cli *OpsGenieAlertClient) ListRecipients(req alerts.ListAlertRecipientsRequest) (*alerts.ListAlertRecipientsResponse, error) {
-	req.ApiKey = cli.apiKey
-	// validate the mandatory parameters: apiKey, id/alias
-	if req.ApiKey == "" {
-		return nil, errors.New("ApiKey is a mandatory field and can not be empty.")
+	req.APIKey = cli.apiKey
+	resp, err := cli.sendRequest(cli.buildGetRequest(listAlertRecipientsURL, req))
+
+	if resp == nil {
+		return nil, err
 	}
-	if req.Id == "" && req.Alias == "" {
-		return nil, errors.New("At least either Id or Alias should be set in the request.")
-	}
-	if req.Id != "" && req.Alias != "" {
-		return nil, errors.New("Either Id or Alias should be set in the request not both.")
-	}
-	v, _ := goquery.Values(req)
-	var resp *goreq.Response
-	var err error
-	for i := 0; i < cli.retries; i++ {
-		resp, err = cli.buildRequest("GET", LIST_ALERT_RECIPIENTS_URL+"?"+v.Encode(), nil).Do()
-		if err == nil {
-			break
-		}
-		time.Sleep(TIME_SLEEP_BETWEEN_REQUESTS)
-	}
-	if err != nil {
-		return nil, errors.New("Can not list the recipient list, unable to send the request")
-	}
-	// check the returning HTTP status code
-	httpStatusCode := resp.StatusCode
-	if httpStatusCode >= 400 && httpStatusCode < 500 {
-		return nil, errors.New(fmt.Sprintf("Client error %d returned", httpStatusCode))
-	}
-	if httpStatusCode >= 500 {
-		return nil, errors.New(fmt.Sprintf("Server error %d returned", httpStatusCode))
-	}
+	defer resp.Body.Close()
+
 	var listAlertRecipientsResp alerts.ListAlertRecipientsResponse
-	// check if the response can be unmarshalled
+
 	if err = resp.Body.FromJsonTo(&listAlertRecipientsResp); err != nil {
-		return nil, errors.New("Server response can not be parsed.")
+		message := "Server response can not be parsed, " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
 	}
 	return &listAlertRecipientsResp, nil
 }
 
+// Deprecated: Acknowledge method acknowledges an alert at OpsGenie.
 func (cli *OpsGenieAlertClient) Acknowledge(req alerts.AcknowledgeAlertRequest) (*alerts.AcknowledgeAlertResponse, error) {
-	req.ApiKey = cli.apiKey
-	// validate the mandatory parameters: apiKey, alertId/alias
-	if req.ApiKey == "" {
-		return nil, errors.New("ApiKey is a mandatory field and can not be empty.")
+	req.APIKey = cli.apiKey
+	resp, err := cli.sendRequest(cli.buildPostRequest(acknowledgeAlertURL, req))
+
+	if resp == nil {
+		return nil, err
 	}
-	if req.AlertId == "" && req.Alias == "" {
-		return nil, errors.New("At least either Alert Id or Alias should be set in the request.")
-	}
-	if req.AlertId != "" && req.Alias != "" {
-		return nil, errors.New("Either Alert Id or Alias should be set in the request not both.")
-	}
-	var resp *goreq.Response
-	var err error
-	for i := 0; i < cli.retries; i++ {
-		resp, err = cli.buildRequest("POST", ACKNOWLEDGE_ALERT_URL, req).Do()
-		if err == nil {
-			break
-		}
-		time.Sleep(TIME_SLEEP_BETWEEN_REQUESTS)
-	}
-	if err != nil {
-		return nil, errors.New("Can not ack the alert, unable to send the request")
-	}
-	// check the returning HTTP status code
-	httpStatusCode := resp.StatusCode
-	if httpStatusCode >= 400 && httpStatusCode < 500 {
-		return nil, errors.New(fmt.Sprintf("Client error %d returned", httpStatusCode))
-	}
-	if httpStatusCode >= 500 {
-		return nil, errors.New(fmt.Sprintf("Server error %d returned", httpStatusCode))
-	}
+	defer resp.Body.Close()
+
 	var acknowledgeAlertResp alerts.AcknowledgeAlertResponse
-	// check if the response can be unmarshalled
+
 	if err = resp.Body.FromJsonTo(&acknowledgeAlertResp); err != nil {
-		return nil, errors.New("Server response can not be parsed.")
+		message := "Server response can not be parsed, " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
 	}
 	return &acknowledgeAlertResp, nil
 }
 
+// Deprecated: Renotify re-notifies recipients at OpsGenie.
 func (cli *OpsGenieAlertClient) Renotify(req alerts.RenotifyAlertRequest) (*alerts.RenotifyAlertResponse, error) {
-	req.ApiKey = cli.apiKey
-	// validate the mandatory parameters: apiKey, alertId/alias
-	if req.ApiKey == "" {
-		return nil, errors.New("ApiKey is a mandatory field and can not be empty.")
+	req.APIKey = cli.apiKey
+	resp, err := cli.sendRequest(cli.buildPostRequest(renotifyAlertURL, req))
+
+	if resp == nil {
+		return nil, err
 	}
-	if req.AlertId == "" && req.Alias == "" {
-		return nil, errors.New("At least either Alert Id or Alias should be set in the request.")
-	}
-	if req.AlertId != "" && req.Alias != "" {
-		return nil, errors.New("Either Alert Id or Alias should be set in the request not both.")
-	}
-	var resp *goreq.Response
-	var err error
-	for i := 0; i < cli.retries; i++ {
-		resp, err = cli.buildRequest("POST", RENOTIFY_ALERT_URL, req).Do()
-		if err == nil {
-			break
-		}
-		time.Sleep(TIME_SLEEP_BETWEEN_REQUESTS)
-	}
-	if err != nil {
-		return nil, errors.New("Can not renotify, unable to send the request")
-	}
-	// check the returning HTTP status code
-	httpStatusCode := resp.StatusCode
-	if httpStatusCode >= 400 && httpStatusCode < 500 {
-		return nil, errors.New(fmt.Sprintf("Client error %d returned", httpStatusCode))
-	}
-	if httpStatusCode >= 500 {
-		return nil, errors.New(fmt.Sprintf("Server error %d returned", httpStatusCode))
-	}
+	defer resp.Body.Close()
+
 	var renotifyAlertResp alerts.RenotifyAlertResponse
-	// check if the response can be unmarshalled
+
 	if err = resp.Body.FromJsonTo(&renotifyAlertResp); err != nil {
-		return nil, errors.New("Server response can not be parsed.")
+		message := "Server response can not be parsed, " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
 	}
 	return &renotifyAlertResp, nil
 }
 
+// Deprecated: TakeOwnership method takes the ownership of an alert at OpsGenie.
 func (cli *OpsGenieAlertClient) TakeOwnership(req alerts.TakeOwnershipAlertRequest) (*alerts.TakeOwnershipAlertResponse, error) {
-	req.ApiKey = cli.apiKey
-	// validate the mandatory parameters: apiKey, alertId/alias
-	if req.ApiKey == "" {
-		return nil, errors.New("ApiKey is a mandatory field and can not be empty.")
+	req.APIKey = cli.apiKey
+	resp, err := cli.sendRequest(cli.buildPostRequest(takeOwnershipAlertURL, req))
+
+	if resp == nil {
+		return nil, err
 	}
-	if req.AlertId == "" && req.Alias == "" {
-		return nil, errors.New("At least either Alert Id or Alias should be set in the request.")
-	}
-	if req.AlertId != "" && req.Alias != "" {
-		return nil, errors.New("Either Alert Id or Alias should be set in the request not both.")
-	}
-	var resp *goreq.Response
-	var err error
-	for i := 0; i < cli.retries; i++ {
-		resp, err = cli.buildRequest("POST", TAKE_OWNERSHIP_ALERT_URL, req).Do()
-		if err == nil {
-			break
-		}
-		time.Sleep(TIME_SLEEP_BETWEEN_REQUESTS)
-	}
-	if err != nil {
-		return nil, errors.New("Can not change the ownership, unable to send the request")
-	}
-	// check the returning HTTP status code
-	httpStatusCode := resp.StatusCode
-	if httpStatusCode >= 400 && httpStatusCode < 500 {
-		return nil, errors.New(fmt.Sprintf("Client error %d returned", httpStatusCode))
-	}
-	if httpStatusCode >= 500 {
-		return nil, errors.New(fmt.Sprintf("Server error %d returned", httpStatusCode))
-	}
+	defer resp.Body.Close()
+
 	var takeOwnershipResp alerts.TakeOwnershipAlertResponse
-	// check if the response can be unmarshalled
+
 	if err = resp.Body.FromJsonTo(&takeOwnershipResp); err != nil {
-		return nil, errors.New("Server response can not be parsed.")
+		message := "Server response can not be parsed, " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
 	}
 	return &takeOwnershipResp, nil
 }
 
+// Deprecated: AssignOwner method assigns the specified user as the owner of the alert at OpsGenie.
 func (cli *OpsGenieAlertClient) AssignOwner(req alerts.AssignOwnerAlertRequest) (*alerts.AssignOwnerAlertResponse, error) {
-	req.ApiKey = cli.apiKey
-	// validate the mandatory parameters: apiKey, alertId/alias, owner
-	if req.ApiKey == "" {
-		return nil, errors.New("ApiKey is a mandatory field and can not be empty.")
+	req.APIKey = cli.apiKey
+	resp, err := cli.sendRequest(cli.buildPostRequest(assignOwnershipAlertURL, req))
+
+	if resp == nil {
+		return nil, err
 	}
-	if req.Owner == "" {
-		return nil, errors.New("Owner is a mandatory field and can not be empty")
-	}
-	if req.AlertId == "" && req.Alias == "" {
-		return nil, errors.New("At least either Alert Id or Alias should be set in the request.")
-	}
-	if req.AlertId != "" && req.Alias != "" {
-		return nil, errors.New("Either Alert Id or Alias should be set in the request not both.")
-	}
-	var resp *goreq.Response
-	var err error
-	for i := 0; i < cli.retries; i++ {
-		resp, err = cli.buildRequest("POST", ASSIGN_OWNERSHIP_ALERT_URL, req).Do()
-		if err == nil {
-			break
-		}
-		time.Sleep(TIME_SLEEP_BETWEEN_REQUESTS)
-	}
-	if err != nil {
-		return nil, errors.New("Can not assign the owner, unable to send the request")
-	}
-	// check the returning HTTP status code
-	httpStatusCode := resp.StatusCode
-	if httpStatusCode >= 400 && httpStatusCode < 500 {
-		return nil, errors.New(fmt.Sprintf("Client error %d returned", httpStatusCode))
-	}
-	if httpStatusCode >= 500 {
-		return nil, errors.New(fmt.Sprintf("Server error %d returned", httpStatusCode))
-	}
+	defer resp.Body.Close()
+
 	var assignOwnerAlertResp alerts.AssignOwnerAlertResponse
-	// check if the response can be unmarshalled
+
 	if err = resp.Body.FromJsonTo(&assignOwnerAlertResp); err != nil {
-		return nil, errors.New("Server response can not be parsed.")
+		message := "Server response can not be parsed, " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
 	}
 	return &assignOwnerAlertResp, nil
 }
 
+// Deprecated: AddTeam method adds a team to an alert at OpsGenie.
 func (cli *OpsGenieAlertClient) AddTeam(req alerts.AddTeamAlertRequest) (*alerts.AddTeamAlertResponse, error) {
-	req.ApiKey = cli.apiKey
-	// validate the mandatory parameters: apiKey, alertId/alias, team
-	if req.ApiKey == "" {
-		return nil, errors.New("ApiKey is a mandatory field and can not be empty.")
+	req.APIKey = cli.apiKey
+	resp, err := cli.sendRequest(cli.buildPostRequest(addTeamAlertURL, req))
+
+	if resp == nil {
+		return nil, err
 	}
-	if req.Team == "" {
-		return nil, errors.New("Team is a mandatory field and can not be empty")
-	}
-	if req.AlertId == "" && req.Alias == "" {
-		return nil, errors.New("At least either Alert Id or Alias should be set in the request.")
-	}
-	if req.AlertId != "" && req.Alias != "" {
-		return nil, errors.New("Either Alert Id or Alias should be set in the request not both.")
-	}
-	var resp *goreq.Response
-	var err error
-	for i := 0; i < cli.retries; i++ {
-		resp, err = cli.buildRequest("POST", ADD_TEAM_ALERT_URL, req).Do()
-		if err == nil {
-			break
-		}
-		time.Sleep(TIME_SLEEP_BETWEEN_REQUESTS)
-	}
-	if err != nil {
-		return nil, errors.New("Team can not be added, unable to send the request")
-	}
-	// check the returning HTTP status code
-	httpStatusCode := resp.StatusCode
-	if httpStatusCode >= 400 && httpStatusCode < 500 {
-		return nil, errors.New(fmt.Sprintf("Client error %d returned", httpStatusCode))
-	}
-	if httpStatusCode >= 500 {
-		return nil, errors.New(fmt.Sprintf("Server error %d returned", httpStatusCode))
-	}
+	defer resp.Body.Close()
+
 	var addTeamAlertResp alerts.AddTeamAlertResponse
-	// check if the response can be unmarshalled
+
 	if err = resp.Body.FromJsonTo(&addTeamAlertResp); err != nil {
-		return nil, errors.New("Server response can not be parsed.")
+		message := "Server response can not be parsed, " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
 	}
 	return &addTeamAlertResp, nil
 }
 
+// Deprecated: AddRecipient method adds recipient to an alert at OpsGenie.
 func (cli *OpsGenieAlertClient) AddRecipient(req alerts.AddRecipientAlertRequest) (*alerts.AddRecipientAlertResponse, error) {
-	req.ApiKey = cli.apiKey
-	// validate the mandatory parameters: apiKey, alertId/alias, recipient
-	if req.ApiKey == "" {
-		return nil, errors.New("ApiKey is a mandatory field and can not be empty.")
+	req.APIKey = cli.apiKey
+	resp, err := cli.sendRequest(cli.buildPostRequest(addRecipientAlertURL, req))
+
+	if resp == nil {
+		return nil, err
 	}
-	if req.Recipient == "" {
-		return nil, errors.New("Recipient is a mandatory field and can not be empty")
-	}
-	if req.AlertId == "" && req.Alias == "" {
-		return nil, errors.New("At least either Alert Id or Alias should be set in the request.")
-	}
-	if req.AlertId != "" && req.Alias != "" {
-		return nil, errors.New("Either Alert Id or Alias should be set in the request not both.")
-	}
-	var resp *goreq.Response
-	var err error
-	for i := 0; i < cli.retries; i++ {
-		resp, err = cli.buildRequest("POST", ADD_RECIPIENT_ALERT_URL, req).Do()
-		if err == nil {
-			break
-		}
-		time.Sleep(TIME_SLEEP_BETWEEN_REQUESTS)
-	}
-	if err != nil {
-		return nil, errors.New("Can not add recipient, unable to send the request")
-	}
-	// check the returning HTTP status code
-	httpStatusCode := resp.StatusCode
-	if httpStatusCode >= 400 && httpStatusCode < 500 {
-		return nil, errors.New(fmt.Sprintf("Client error %d returned", httpStatusCode))
-	}
-	if httpStatusCode >= 500 {
-		return nil, errors.New(fmt.Sprintf("Server error %d returned", httpStatusCode))
-	}
+	defer resp.Body.Close()
+
 	var addRecipientAlertResp alerts.AddRecipientAlertResponse
-	// check if the response can be unmarshalled
+
 	if err = resp.Body.FromJsonTo(&addRecipientAlertResp); err != nil {
-		return nil, errors.New("Server response can not be parsed.")
+		message := "Server response can not be parsed, " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
 	}
 	return &addRecipientAlertResp, nil
 }
 
+// Deprecated: AddNote method adds a note to an alert at OpsGenie.
 func (cli *OpsGenieAlertClient) AddNote(req alerts.AddNoteAlertRequest) (*alerts.AddNoteAlertResponse, error) {
-	req.ApiKey = cli.apiKey
-	// validate the mandatory parameters: apiKey, alertId/alias, note
-	if req.ApiKey == "" {
-		return nil, errors.New("ApiKey is a mandatory field and can not be empty.")
+	req.APIKey = cli.apiKey
+	resp, err := cli.sendRequest(cli.buildPostRequest(addNoteAlertURL, req))
+
+	if resp == nil {
+		return nil, err
 	}
-	if req.Note == "" {
-		return nil, errors.New("Note is a mandatory field and can not be empty")
-	}
-	if req.AlertId == "" && req.Alias == "" {
-		return nil, errors.New("At least either Alert Id or Alias should be set in the request.")
-	}
-	if req.AlertId != "" && req.Alias != "" {
-		return nil, errors.New("Either Alert Id or Alias should be set in the request not both.")
-	}
-	var resp *goreq.Response
-	var err error
-	for i := 0; i < cli.retries; i++ {
-		resp, err = cli.buildRequest("POST", ADD_NOTE_ALERT_URL, req).Do()
-		if err == nil {
-			break
-		}
-		time.Sleep(TIME_SLEEP_BETWEEN_REQUESTS)
-	}
-	if err != nil {
-		return nil, errors.New("Can not add note, unable to send the request.")
-	}
-	// check the returning HTTP status code
-	httpStatusCode := resp.StatusCode
-	if httpStatusCode >= 400 && httpStatusCode < 500 {
-		return nil, errors.New(fmt.Sprintf("Client error %d returned", httpStatusCode))
-	}
-	if httpStatusCode >= 500 {
-		return nil, errors.New(fmt.Sprintf("Server error %d returned", httpStatusCode))
-	}
+	defer resp.Body.Close()
+
 	var addNoteAlertResp alerts.AddNoteAlertResponse
-	// check if the response can be unmarshalled
+
 	if err = resp.Body.FromJsonTo(&addNoteAlertResp); err != nil {
-		return nil, errors.New("Server response can not be parsed.")
+		message := "Server response can not be parsed, " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
 	}
 	return &addNoteAlertResp, nil
 }
 
+// Deprecated: AddTags method adds tags to an alert at OpsGenie.
+func (cli *OpsGenieAlertClient) AddTags(req alerts.AddTagsAlertRequest) (*alerts.AddTagsAlertResponse, error) {
+	req.APIKey = cli.apiKey
+	resp, err := cli.sendRequest(cli.buildPostRequest(addTagsAlertURL, req))
+
+	if resp == nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var addTagsAlertResp alerts.AddTagsAlertResponse
+
+	if err = resp.Body.FromJsonTo(&addTagsAlertResp); err != nil {
+		message := "Server response can not be parsed, " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
+	}
+	return &addTagsAlertResp, nil
+}
+
+// Deprecated: ExecuteAction method executes a custom action on an alert at OpsGenie.
 func (cli *OpsGenieAlertClient) ExecuteAction(req alerts.ExecuteActionAlertRequest) (*alerts.ExecuteActionAlertResponse, error) {
-	req.ApiKey = cli.apiKey
-	// validate the mandatory parameters: apiKey, alertId/alias, action
-	if req.ApiKey == "" {
-		return nil, errors.New("ApiKey is a mandatory field and can not be empty.")
+	req.APIKey = cli.apiKey
+	resp, err := cli.sendRequest(cli.buildPostRequest(executeActionAlertURL, req))
+
+	if resp == nil {
+		return nil, err
 	}
-	if req.Action == "" {
-		return nil, errors.New("Action is a mandatory field and can not be empty.")
-	}
-	if req.AlertId == "" && req.Alias == "" {
-		return nil, errors.New("At least either Alert Id or Alias should be set in the request.")
-	}
-	if req.AlertId != "" && req.Alias != "" {
-		return nil, errors.New("Either Alert Id or Alias should be set in the request not both.")
-	}
-	var resp *goreq.Response
-	var err error
-	for i := 0; i < cli.retries; i++ {
-		resp, err = cli.buildRequest("POST", EXECUTE_ACTION_ALERT_URL, req).Do()
-		if err == nil {
-			break
-		}
-		time.Sleep(TIME_SLEEP_BETWEEN_REQUESTS)
-	}
-	if err != nil {
-		return nil, errors.New("Can not execute the action, unable to send the request.")
-	}
-	// check the returning HTTP status code
-	httpStatusCode := resp.StatusCode
-	if httpStatusCode >= 400 && httpStatusCode < 500 {
-		return nil, errors.New(fmt.Sprintf("Client error %d returned", httpStatusCode))
-	}
-	if httpStatusCode >= 500 {
-		return nil, errors.New(fmt.Sprintf("Server error %d returned", httpStatusCode))
-	}
+	defer resp.Body.Close()
+
 	var executeActionAlertResp alerts.ExecuteActionAlertResponse
-	// check if the response can be unmarshalled
+
 	if err = resp.Body.FromJsonTo(&executeActionAlertResp); err != nil {
-		return nil, errors.New("Server response can not be parsed.")
+		message := "Server response can not be parsed, " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
 	}
 	return &executeActionAlertResp, nil
 }
 
-func (cli *OpsGenieAlertClient) AttachFile(req alerts.AttachFileAlertRequest) (*alerts.AttachFileAlertResponse, error) {
-	req.ApiKey = cli.apiKey
-	// validate the mandatory parameters: apiKey, alertId/alias, attachment
-	if req.ApiKey == "" {
-		return nil, errors.New("ApiKey is a mandatory field and can not be empty.")
-	}
-	if req.Attachment == "" {
-		return nil, errors.New("Attachment is a mandatory field and can not be empty.")
-	}
-	if req.AlertId == "" && req.Alias == "" {
-		return nil, errors.New("At least either Alert Id or Alias should be set in the request.")
-	}
-	if req.AlertId != "" && req.Alias != "" {
-		return nil, errors.New("Either Alert Id or Alias should be set in the request not both.")
-	}
+// Deprecated: UnAcknowledge method unacknowledges an alert at OpsGenie.
+func (cli *OpsGenieAlertClient) UnAcknowledge(req alerts.UnAcknowledgeAlertRequest) (*alerts.UnAcknowledgeAlertResponse, error) {
+	req.APIKey = cli.apiKey
+	resp, err := cli.sendRequest(cli.buildPostRequest(unacknowledgeAlertURL, req))
 
+	if resp == nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var unacknowledgeAlertResp alerts.UnAcknowledgeAlertResponse
+
+	if err = resp.Body.FromJsonTo(&unacknowledgeAlertResp); err != nil {
+		message := "Server response can not be parsed, " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
+	}
+	return &unacknowledgeAlertResp, nil
+}
+
+// Deprecated: Snooze method snoozes an alert at OpsGenie.
+func (cli *OpsGenieAlertClient) Snooze(req alerts.SnoozeAlertRequest) (*alerts.SnoozeAlertResponse, error) {
+	req.APIKey = cli.apiKey
+	resp, err := cli.sendRequest(cli.buildPostRequest(snoozeAlertURL, req))
+
+	if resp == nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var snoozeAlertResp alerts.SnoozeAlertResponse
+
+	if err = resp.Body.FromJsonTo(&snoozeAlertResp); err != nil {
+		message := "Server response can not be parsed, " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
+	}
+	return &snoozeAlertResp, nil
+}
+
+// Deprecated: RemoveTags method removes tags from an alert at OpsGenie.
+func (cli *OpsGenieAlertClient) RemoveTags(req alerts.RemoveTagsAlertRequest) (*alerts.RemoveTagsAlertResponse, error) {
+	req.APIKey = cli.apiKey
+	resp, err := cli.sendRequest(cli.buildDeleteRequest(removeTagsAlertURL, req))
+
+	if resp == nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var removeTagsAlertResp alerts.RemoveTagsAlertResponse
+
+	if err = resp.Body.FromJsonTo(&removeTagsAlertResp); err != nil {
+		message := "Server response can not be parsed, " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
+	}
+	return &removeTagsAlertResp, nil
+}
+
+// Deprecated: AddDetails method adds details to an alert at OpsGenie.
+func (cli *OpsGenieAlertClient) AddDetails(req alerts.AddDetailsAlertRequest) (*alerts.AddDetailsAlertResponse, error) {
+	req.APIKey = cli.apiKey
+	resp, err := cli.sendRequest(cli.buildPostRequest(addDetailsAlertURL, req))
+
+	if resp == nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var addDetailsAlertResp alerts.AddDetailsAlertResponse
+
+	if err = resp.Body.FromJsonTo(&addDetailsAlertResp); err != nil {
+		message := "Server response can not be parsed, " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
+	}
+	return &addDetailsAlertResp, nil
+}
+
+// Deprecated: RemoveDetails method removes details from an alert at OpsGenie.
+func (cli *OpsGenieAlertClient) RemoveDetails(req alerts.RemoveDetailsAlertRequest) (*alerts.RemoveDetailsAlertResponse, error) {
+	req.APIKey = cli.apiKey
+	resp, err := cli.sendRequest(cli.buildDeleteRequest(removeDetailsAlertURL, req))
+
+	if resp == nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var removeDetailsAlertResp alerts.RemoveDetailsAlertResponse
+
+	if err = resp.Body.FromJsonTo(&removeDetailsAlertResp); err != nil {
+		message := "Server response can not be parsed, " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
+	}
+	return &removeDetailsAlertResp, nil
+}
+
+// Deprecated: UnAcknowledge method unacknowledges an alert at OpsGenie.
+func (cli *OpsGenieAlertClient) EscalateToNext(req alerts.EscalateToNextAlertRequest) (*alerts.EscalateToNextAlertResponse, error) {
+	req.APIKey = cli.apiKey
+	resp, err := cli.sendRequest(cli.buildPostRequest(escalateToNextAlertURL, req))
+
+	if resp == nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var escalateToNextAlertResp alerts.EscalateToNextAlertResponse
+
+	if err = resp.Body.FromJsonTo(&escalateToNextAlertResp); err != nil {
+		message := "Server response can not be parsed, " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
+	}
+	return &escalateToNextAlertResp, nil
+}
+
+// Deprecated: AttachFile method attaches a file to an alert at OpsGenie.
+func (cli *OpsGenieAlertClient) AttachFile(req alerts.AttachFileAlertRequest) (*alerts.AttachFileAlertResponse, error) {
+	req.APIKey = cli.apiKey
 	var b bytes.Buffer
 	w := multipart.NewWriter(&b)
 
-	fileName := req.Attachment
-	file, err := os.Open(fileName)
+	path := req.Attachment.Name()
+	file, err := os.Open(path)
+	defer file.Close()
 	if err != nil {
-		return nil, errors.New("Attachment can not be opened for reading.")
+		message := "Attachment can not be opened for reading. " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
 	}
 	// add the attachment
-	fw, err := w.CreateFormFile("attachment", fileName)
+	fw, err := w.CreateFormFile("attachment", filepath.Base(path))
 	if err != nil {
-		return nil, errors.New("Can not build the request with the field attachment.")
+		message := "Can not build the request with the field attachment. " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
 	}
 	if _, err := io.Copy(fw, file); err != nil {
-		return nil, errors.New("Can not copy the attachment into the request.")
+		message := "Can not copy the attachment into the request. " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
 	}
-
-	defer file.Close()
 
 	// Add the other fields
 	// empty fields should not be placed into the request
 	// otherwise it yields an incomplete boundary exception
-	if req.ApiKey != "" {
-		if fw, err = w.CreateFormField("apiKey"); err != nil {
-			return nil, errors.New("Can not build the request with the field apiKey.")
-		}
-		if _, err = fw.Write([]byte(req.ApiKey)); err != nil {
-			return nil, errors.New("Can not write the ApiKey value into the request.")
+	if req.APIKey != "" {
+		if err = writeField(*w, "apiKey", req.APIKey); err != nil {
+			return nil, err
 		}
 	}
-	if req.AlertId != "" {
-		if fw, err = w.CreateFormField("alertId"); err != nil {
-			return nil, errors.New("Can not build the request with the field alertId.")
-		}
-		if _, err = fw.Write([]byte(req.AlertId)); err != nil {
-			return nil, errors.New("Can not write the AlertId value into the request.")
+	if req.ID != "" {
+		if err = writeField(*w, "id", req.ID); err != nil {
+			return nil, err
 		}
 	}
 	if req.Alias != "" {
-		if fw, err = w.CreateFormField("alias"); err != nil {
-			return nil, errors.New("Can not build the request with the field alias.")
-		}
-		if _, err = fw.Write([]byte(req.Alias)); err != nil {
-			return nil, errors.New("Can not write the Alias value into the request.")
+		if err = writeField(*w, "alias", req.Alias); err != nil {
+			return nil, err
 		}
 	}
 	if req.User != "" {
-		if fw, err = w.CreateFormField("user"); err != nil {
-			return nil, errors.New("Can not build the request with the field user.")
-		}
-		if _, err = fw.Write([]byte(req.User)); err != nil {
-			return nil, errors.New("Can not write the User value into the request.")
+		if err = writeField(*w, "user", req.User); err != nil {
+			return nil, err
 		}
 	}
 	if req.Source != "" {
-		if fw, err = w.CreateFormField("source"); err != nil {
-			return nil, errors.New("Can not build the request with the field source.")
-		}
-		if _, err = fw.Write([]byte(req.Source)); err != nil {
-			return nil, errors.New("Can not write the Source value into the request.")
+		if err = writeField(*w, "source", req.Source); err != nil {
+			return nil, err
 		}
 	}
 	if req.IndexFile != "" {
-		if fw, err = w.CreateFormField("indexFile"); err != nil {
-			return nil, errors.New("Can not build the request with the field indexFile.")
-		}
-		if _, err = fw.Write([]byte(req.IndexFile)); err != nil {
-			return nil, errors.New("Can not write the IndexFile value into the request.")
+		if err = writeField(*w, "indexFile", req.IndexFile); err != nil {
+			return nil, err
 		}
 	}
 	if req.Note != "" {
-		if fw, err = w.CreateFormField("note"); err != nil {
-			return nil, errors.New("Can not build the request with the field note.")
-		}
-		if _, err = fw.Write([]byte(req.Note)); err != nil {
-			return nil, errors.New("Can not write the Note value into the request.")
+		if err = writeField(*w, "note", req.Note); err != nil {
+			return nil, err
 		}
 	}
 
 	w.Close()
-
-	httpReq, err := http.NewRequest("POST", ATTACH_FILE_ALERT_URL, &b)
+	httpReq, err := http.NewRequest("POST", cli.opsGenieAPIURL+attachFileAlertURL, &b)
 	if err != nil {
-		return nil, errors.New("Can not create the multipart/form-data request.")
+		message := "Can not create the multipart/form-data request. " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
 	}
 	httpReq.Header.Set("Content-Type", w.FormDataContentType())
-	client := &http.Client{}
-	// proxy settings
-	if cli.proxy != "" {
-		proxyUrl, proxyErr := url.Parse(cli.proxy)
-		if proxyErr != nil {
-			return nil, errors.New("Can not set the proxy configuration")
-		}
-		client.Transport = &http.Transport{Proxy: http.ProxyURL(proxyUrl)}
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		Proxy:           http.ProxyFromEnvironment,
+		Dial: func(netw, addr string) (net.Conn, error) {
+			conn, err := net.DialTimeout(netw, addr, cli.httpTransportSettings.ConnectionTimeout)
+			if err != nil {
+				message := "Error occurred while connecting: " + err.Error()
+				logging.Logger().Warn(message)
+				return nil, errors.New(message)
+			}
+			conn.SetDeadline(time.Now().Add(cli.httpTransportSettings.RequestTimeout))
+			return conn, nil
+		},
 	}
+	client := &http.Client{Transport: transport}
+	// proxy settings
+	if cli.proxy != nil {
+		proxyURL, proxyErr := url.Parse(cli.proxy.toString())
+		if proxyErr != nil {
+			message := "Can not set the proxy configuration " + proxyErr.Error()
+			logging.Logger().Warn(message)
+			return nil, errors.New(message)
+		}
+		transport.Proxy = http.ProxyURL(proxyURL)
+	}
+	url := httpReq.URL.String()
+	logging.Logger().Info("Executing OpsGenie request to [" + url + "] with multipart data.")
 	var res *http.Response
-	for i := 0; i < cli.retries; i++ {
+	for i := 0; i < cli.httpTransportSettings.MaxRetryAttempts; i++ {
 		res, err = client.Do(httpReq)
 		if err == nil {
+			defer res.Body.Close()
 			break
 		}
-		time.Sleep(TIME_SLEEP_BETWEEN_REQUESTS)
+		if res != nil {
+			logging.Logger().Info(fmt.Sprintf("Retrying request [%s] ResponseCode:[%d]. RetryCount: %d", url, res.StatusCode, (i + 1)))
+		} else {
+			logging.Logger().Info(fmt.Sprintf("Retrying request [%s] Reason:[%s]. RetryCount: %d", url, err.Error(), (i + 1)))
+		}
+		time.Sleep(timeSleepBetweenRequests)
 	}
 
 	if err != nil {
-		return nil, errors.New("Can not attach the file, unable to send the request.")
+		message := "Can not attach the file, unable to send the request. " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
 	}
 
-	// check the returning HTTP status code
 	httpStatusCode := res.StatusCode
-	if httpStatusCode >= 400 && httpStatusCode < 500 {
-		return nil, errors.New(fmt.Sprintf("Client error %d returned", httpStatusCode))
-	}
-	if httpStatusCode >= 500 {
-		return nil, errors.New(fmt.Sprintf("Server error %d returned", httpStatusCode))
+	if httpStatusCode >= 400 {
+		body, err := ioutil.ReadAll(res.Body)
+		if err == nil {
+			return nil, errorMessage(httpStatusCode, string(body[:]))
+		}
+		message := fmt.Sprint("Couldn't read the response, %s", err.Error())
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
 	}
 
 	attachFileAlertResp := alerts.AttachFileAlertResponse{Status: res.Status, Code: res.StatusCode}
 	return &attachFileAlertResp, nil
+}
+
+func writeField(w multipart.Writer, fieldName string, fieldVal string) error {
+	if err := w.WriteField(fieldName, fieldVal); err != nil {
+		message := "Can not write field " + fieldName + " into the request. Reason: " + err.Error()
+		logging.Logger().Warn(message)
+		return errors.New(message)
+	}
+	return nil
 }
