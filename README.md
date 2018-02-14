@@ -546,6 +546,22 @@ prefix: `consul-alerts/config/notifiers/victorops/`
 | enabled      | Enable the VictorOps notifier. [Default: false]     |
 | api-key      | API Key                              (mandatory)    |
 | routing-key  | Routing Key                          (mandatory)    |
+#### Alerta
+
+To enable the Alerta built-in notifier, set
+`consul-alerts/config/notifiers/alerta/enabled` to `true`. Alerta details
+needs to be configured.
+
+prefix: `consul-alerts/config/notifiers/alerta/`
+
+| key          | description                                                                                                                                                   |
+|--------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| enabled      | Enable the Alerta notifier. [Default: false]                                                                                                                  |
+| token        | API Token                            (mandatory)                                                                                                              |
+| url          | Alerta API url                       (mandatory)                                                                                                              |
+| cluster-name | The name of the cluster.                                                                                                                                      |
+| domain       | You domain. Available to use in link template                                                                                                                 |
+| link         | Templateable link. Example: https://hashiui.{{ .Notifier.ClusterName }}.{{ .Notifier.Domain }}/consul/{{ .Notifier.ClusterName }}/services/{{ .Msg.Service }} |
 
 
 Health Check via API

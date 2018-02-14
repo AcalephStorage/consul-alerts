@@ -21,6 +21,7 @@ const (
 	ConfigTypeString
 	ConfigTypeInt
 	ConfigTypeStrArray
+	// ConfigTypeMapStrInterface
 )
 
 type configType int
@@ -235,12 +236,33 @@ func (c *ConsulAlertClient) LoadConfig() {
 				valErr = loadCustomValue(&config.Notifiers.VictorOps.APIKey, val, ConfigTypeString)
 			case "consul-alerts/config/notifiers/victorops/routing-key":
 				valErr = loadCustomValue(&config.Notifiers.VictorOps.RoutingKey, val, ConfigTypeString)
+
+			// Alerta notifier config
+			case "consul-alerts/config/notifiers/alerta/enabled":
+				valErr = loadCustomValue(&config.Notifiers.Alerta.Enabled, val, ConfigTypeBool)
+			case "consul-alerts/config/notifiers/alerta/url":
+				valErr = loadCustomValue(&config.Notifiers.Alerta.Url, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/alerta/cluster-name":
+				valErr = loadCustomValue(&config.Notifiers.Alerta.ClusterName, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/alerta/token":
+				valErr = loadCustomValue(&config.Notifiers.Alerta.Token, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/alerta/domain":
+				valErr = loadCustomValue(&config.Notifiers.Alerta.Domain, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/alerta/type":
+				valErr = loadCustomValue(&config.Notifiers.Alerta.Type, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/alerta/origin":
+				valErr = loadCustomValue(&config.Notifiers.Alerta.Origin, val, ConfigTypeString)
+
+			// AlertaAttributes
+			case "consul-alerts/config/notifiers/alerta/attributes/link":
+				valErr = loadCustomValue(&config.Notifiers.Alerta.Attributes.Link, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/alerta/attributes/ack":
+				valErr = loadCustomValue(&config.Notifiers.Alerta.Attributes.Ack, val, ConfigTypeString)
 			}
 
 			if valErr != nil {
 				log.Printf(`unable to load custom value for "%s". Using default instead. Error: %s`, key, valErr.Error())
 			}
-
 		}
 	} else {
 		log.Println("Unable to load custom config, using default instead:", err)
@@ -528,6 +550,10 @@ func (c *ConsulAlertClient) AwsSnsNotifier() *notifier.AwsSnsNotifier {
 
 func (c *ConsulAlertClient) VictorOpsNotifier() *notifier.VictorOpsNotifier {
 	return c.config.Notifiers.VictorOps
+}
+
+func (c *ConsulAlertClient) AlertaNotifier() *notifier.AlertaNotifier {
+	return c.config.Notifiers.Alerta
 }
 
 func (c *ConsulAlertClient) registerHealthCheck(key string, health *Check) {
