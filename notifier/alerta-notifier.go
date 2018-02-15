@@ -41,6 +41,21 @@ type TmplMsg struct {
 	Msg      Message
 }
 
+func tpl(t string, msg TmplMsg) (string, error) {
+	tmpl, err := template.New("template").Parse(t)
+	if err != nil {
+		log.Error(err.Error())
+		return "", err
+	}
+
+	var s bytes.Buffer
+	err = tmpl.Execute(&s, msg)
+	if err != nil {
+		return "", err
+	}
+	return s.String(), nil
+}
+
 // populateDefaults set default values
 func (n *AlertaNotifier) populate(message Messages) {
 	if n.Type == "" {
@@ -56,27 +71,28 @@ func (n *AlertaNotifier) populate(message Messages) {
 	}
 
 	msg := message[0]
-	n.Resource = msg.Node
-	n.Event = msg.Check
-	n.Service = append(n.Service, msg.Service)
+	msg.Check = strings.ToLower(strings.Replace(msg.Check, " ", "_", 1))
+	t := TmplMsg{
+		Notifier: n,
+		Msg:      msg,
+	}
 
+	event, err := tpl(n.Event, t)
+	if err != nil {
+		log.Error(err.Error())
+		return
+	}
+	n.Event = event
+	n.Resource = msg.Node
+
+	n.Service = append(n.Service, msg.Service)
 	if n.Attributes.Link != "" {
-		t := TmplMsg{
-			Notifier: n,
-			Msg:      msg,
-		}
-		tmpl, err := template.New("link").Parse(n.Attributes.Link)
+		link, err := tpl(n.Attributes.Link, t)
 		if err != nil {
 			log.Error(err.Error())
 			return
 		}
-
-		var link bytes.Buffer
-		err = tmpl.Execute(&link, t)
-		if err != nil {
-			return
-		}
-		n.Attributes.Link = link.String()
+		n.Attributes.Link = link
 	}
 
 	if msg.IsCritical() {

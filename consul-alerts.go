@@ -94,6 +94,8 @@ func daemonMode(arguments map[string]interface{}) {
 	}
 	if confData["consul-acl-token"] != nil {
 		consulAclToken = confData["consul-acl-token"].(string)
+	} else if os.Getenv("CONSUL_HTTP_TOKEN") != "" {
+		consulAclToken = os.Getenv("CONSUL_HTTP_TOKEN")
 	} else {
 		consulAclToken = arguments["--consul-acl-token"].(string)
 	}

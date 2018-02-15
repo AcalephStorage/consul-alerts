@@ -252,6 +252,8 @@ func (c *ConsulAlertClient) LoadConfig() {
 				valErr = loadCustomValue(&config.Notifiers.Alerta.Type, val, ConfigTypeString)
 			case "consul-alerts/config/notifiers/alerta/origin":
 				valErr = loadCustomValue(&config.Notifiers.Alerta.Origin, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/alerta/event":
+				valErr = loadCustomValue(&config.Notifiers.Alerta.Event, val, ConfigTypeString)
 
 			// AlertaAttributes
 			case "consul-alerts/config/notifiers/alerta/attributes/link":
