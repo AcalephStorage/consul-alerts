@@ -17,6 +17,7 @@ import (
 	"github.com/Difrex/consul-alerts/notifier"
 
 	log "github.com/Difrex/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
+	docopt "github.com/Difrex/consul-alerts/Godeps/_workspace/src/github.com/docopt/docopt-go"
 )
 
 const version = "Consul Alerts 0.5.0"
