@@ -1,9 +1,10 @@
 package main
 
 import (
-	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
-	consulapi "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/hashicorp/consul/api"
 	"time"
+
+	log "github.com/Difrex/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
+	consulapi "github.com/Difrex/consul-alerts/Godeps/_workspace/src/github.com/hashicorp/consul/api"
 )
 
 const LockKey = "consul-alerts/leader"
@@ -54,7 +55,10 @@ func startLeaderElection(addr, dc, acl string) *LeaderElection {
 	config.Address = addr
 	config.Datacenter = dc
 	config.Token = acl
-	client, _ := consulapi.NewClient(config)
+	client, err := consulapi.NewClient(config)
+	if err != nil {
+		log.Error(err.Error())
+	}
 	lock, _ := client.LockKey(LockKey)
 
 	leader := &LeaderElection{
