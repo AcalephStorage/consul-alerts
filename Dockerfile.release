@@ -24,4 +24,4 @@ EXPOSE 9000
 
 CMD []
 
-ENTRYPOINT [ "/bin/consul-alerts" ]
+ENTRYPOINT [ "/usr/bin/consul-alerts" ]

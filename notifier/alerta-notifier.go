@@ -29,6 +29,7 @@ type AlertaNotifier struct {
 	Service     []string         `json:"service"`
 	Attributes  AlertaAttributes `json:"attributes"`
 	Severity    string           `json:"severity"`
+	Events      []AlertaNotifier `json:"-"`
 }
 
 type AlertaAttributes struct {
@@ -58,54 +59,67 @@ func tpl(t string, msg TmplMsg) (string, error) {
 
 // populateDefaults set default values
 func (n *AlertaNotifier) populate(message Messages) {
-	if n.Type == "" {
-		n.Type = "consul-alerts"
-	}
+	for _, msg := range message {
+		myEvent := *n
+		if myEvent.Type == "" {
+			myEvent.Type = "consul-alerts"
+		}
 
-	if n.Origin == "" {
-		n.Origin = strings.Join([]string{n.ClusterName, n.Domain}, ".")
-	}
+		if myEvent.Origin == "" {
+			myEvent.Origin = strings.Join([]string{myEvent.ClusterName, myEvent.Domain}, ".")
+		}
 
-	if n.Environment == "" {
-		n.Environment = "Production"
-	}
+		if myEvent.Environment == "" {
+			myEvent.Environment = "Production"
+		}
 
-	msg := message[0]
-	msg.Check = strings.ToLower(strings.Replace(msg.Check, " ", "_", 1))
-	t := TmplMsg{
-		Notifier: n,
-		Msg:      msg,
-	}
+		msg.Check = strings.ToLower(strings.Replace(msg.Check, " ", "_", 1))
+		t := TmplMsg{
+			Notifier: n,
+			Msg:      msg,
+		}
 
-	event, err := tpl(n.Event, t)
-	if err != nil {
-		log.Error(err.Error())
-		return
-	}
-	n.Event = event
-	n.Resource = msg.Node
-
-	n.Service = append(n.Service, msg.Service)
-	if n.Attributes.Link != "" {
-		link, err := tpl(n.Attributes.Link, t)
+		event, err := tpl(myEvent.Event, t)
 		if err != nil {
 			log.Error(err.Error())
 			return
 		}
-		n.Attributes.Link = link
-	}
+		myEvent.Event = event
 
-	if msg.IsCritical() {
-		n.Severity = "major"
-		n.Status = "open"
-	}
-	if msg.IsWarning() {
-		n.Severity = "warning"
-		n.Status = "open"
-	}
-	if msg.IsPassing() {
-		n.Severity = "ok"
-		n.Status = "closed"
+		if myEvent.Resource == "" {
+			myEvent.Resource = msg.Node
+		} else {
+			myEvent.Resource, err = tpl(myEvent.Resource, t)
+			if err != nil {
+				log.Error(err.Error())
+				return
+			}
+		}
+
+		// Populate services
+		myEvent.Service = append(myEvent.Service, msg.Service)
+		if myEvent.Attributes.Link != "" {
+			link, err := tpl(myEvent.Attributes.Link, t)
+			if err != nil {
+				log.Error(err.Error())
+				return
+			}
+			myEvent.Attributes.Link = link
+		}
+
+		if msg.IsCritical() {
+			myEvent.Severity = "major"
+			myEvent.Status = "open"
+		}
+		if msg.IsWarning() {
+			myEvent.Severity = "warning"
+			myEvent.Status = "open"
+		}
+		if msg.IsPassing() {
+			myEvent.Severity = "ok"
+			myEvent.Status = "closed"
+		}
+		n.Events = append(n.Events, myEvent)
 	}
 }
 
@@ -138,37 +152,39 @@ func (n *AlertaNotifier) notifySimple(messages Messages) bool {
 }
 
 func (n *AlertaNotifier) postToAlerta() bool {
-	jsonData, err := json.Marshal(n)
-	if err != nil {
-		log.Println("Unable to marshal Alerta payload:", err)
-		return false
-	}
+	for _, event := range n.Events {
+		jsonData, err := json.Marshal(event)
+		if err != nil {
+			log.Println("Unable to marshal Alerta payload:", err)
+			return false
+		}
 
-	log.Debugf("struct = %+v, payload = %s", n, string(jsonData))
+		log.Debugf("struct = %+v, payload = %s", n, string(jsonData))
 
-	client := http.Client{}
-	b := bytes.NewBufferString(string(jsonData))
-	req, err := http.NewRequest("POST", n.Url, b)
-	if err != nil {
-		log.Println("Unable to send data to Alerta: ", err.Error())
-		return false
-	}
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Authorization", n.Token)
+		client := http.Client{}
+		b := bytes.NewBufferString(string(jsonData))
+		req, err := http.NewRequest("POST", n.Url, b)
+		if err != nil {
+			log.Println("Unable to send data to Alerta: ", err.Error())
+			return false
+		}
+		req.Header.Add("Content-Type", "application/json")
+		req.Header.Add("Authorization", n.Token)
 
-	res, err := client.Do(req)
-	if err != nil {
-		log.Println("Unable to send data to Alerta:", err)
-		return false
-	}
-	defer res.Body.Close()
+		res, err := client.Do(req)
+		if err != nil {
+			log.Println("Unable to send data to Alerta:", err)
+			return false
+		}
+		defer res.Body.Close()
 
-	statusCode := res.StatusCode
-	if statusCode > 202 {
-		body, _ := ioutil.ReadAll(res.Body)
-		log.Println("Unable to notify Alerta: ", string(body))
-		return false
+		statusCode := res.StatusCode
+		if statusCode > 202 {
+			body, _ := ioutil.ReadAll(res.Body)
+			log.Println("Unable to notify Alerta: ", string(body))
+			return false
+		}
+		log.Println("Alerta notification sent.")
 	}
-	log.Println("Alerta notification sent.")
 	return true
 }
