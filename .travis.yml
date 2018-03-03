@@ -19,9 +19,39 @@ before_install:
   - sudo pip install ansible
   # the playbook and the test require "192.168.10.10" ip address
   - sudo ifconfig eth0:1 192.168.10.10 netmask 255.255.255.0 up
+
 install:
   - "ansible-playbook -i 'localhost,' -c local provision/site.yml -e \"{'ansible_eth1': {'ipv4': {'address': '192.168.10.10'}}}\" -e bootstrap_expect=1 -e consul_version=$CONSUL_VERSION"
   - go get -v -t ./...
 
-script:
-  - make test
+jobs:
+  include:
+    - stage: test
+      script:
+        - make test
+
+    - stage: integration
+      script:
+        # build, configure, start consul-alerts
+        - make build
+        - curl -XPUT -d @provision/fixtures/notif-profile.json 192.168.10.10:8500/v1/kv/consul-alerts/config/notif-profiles/log
+        - curl -XPUT -d @provision/fixtures/notif-selection.json 192.168.10.10:8500/v1/kv/consul-alerts/config/notif-selection/hosts
+        - curl -XPUT -d 1 192.168.10.10:8500/v1/kv/consul-alerts/config/checks/change-threshold
+        - build/bin/Linux-x86_64/latest/consul-alerts start --watch-events --watch-checks --consul-addr=192.168.10.10:8500 &
+        # install and start nomad
+        - wget https://releases.hashicorp.com/nomad/0.7.1/nomad_0.7.1_linux_amd64.zip
+        - unzip nomad_0.7.1_linux_amd64.zip
+        - chmod +x nomad
+        - sudo mv nomad /usr/local/bin/nomad
+        - nomad agent -dev -consul-address=192.168.10.10:8500 &
+        - sleep 15 # give nomad some time to start
+        # drop packets between nomad and consul to make the nomad service unhealthy
+        - sudo iptables -A INPUT -s 127.0.0.1 -p tcp --dport 4646 -j DROP
+        - sleep 45 # give consul-alerts some time to report
+        # make sure that consul-alerts reported that the service is failing
+        - cat /tmp/consul-notifications.log | grep "Service=nomad-client, Check=Nomad Client HTTP Check, Status=critical"
+        # restore the connection between nomad and consul
+        - sudo iptables -D INPUT -s 127.0.0.1 -p tcp --dport 4646 -j DROP
+        - sleep 45
+        # make sure that consul-alerts reported that the service is healthy
+        - cat /tmp/consul-notifications.log | grep "Service=nomad-client, Check=Nomad Client HTTP Check, Status=passing"
