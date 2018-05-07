@@ -10,7 +10,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
+	log "github.com/Difrex/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
 )
 
 type SlackNotifier struct {

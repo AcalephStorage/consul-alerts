@@ -13,11 +13,11 @@ import (
 	"encoding/json"
 	"io/ioutil"
 
-	"github.com/AcalephStorage/consul-alerts/consul"
-	"github.com/AcalephStorage/consul-alerts/notifier"
+	"github.com/Difrex/consul-alerts/consul"
+	"github.com/Difrex/consul-alerts/notifier"
 
-	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
-	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/docopt/docopt-go"
+	log "github.com/Difrex/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
+	docopt "github.com/Difrex/consul-alerts/Godeps/_workspace/src/github.com/docopt/docopt-go"
 )
 
 const version = "Consul Alerts 0.5.0"
@@ -94,6 +94,9 @@ func daemonMode(arguments map[string]interface{}) {
 	}
 	if confData["consul-acl-token"] != nil {
 		consulAclToken = confData["consul-acl-token"].(string)
+	} else if os.Getenv("CONSUL_HTTP_TOKEN") != "" {
+		log.Warn("Get Consul token from environment")
+		consulAclToken = os.Getenv("CONSUL_HTTP_TOKEN")
 	} else {
 		consulAclToken = arguments["--consul-acl-token"].(string)
 	}
@@ -249,6 +252,7 @@ func builtinNotifiers() map[string]notifier.Notifier {
 	opsgenieNotifier := consulClient.OpsGenieNotifier()
 	awssnsNotifier := consulClient.AwsSnsNotifier()
 	victoropsNotifier := consulClient.VictorOpsNotifier()
+	alertaNotifier := consulClient.AlertaNotifier()
 
 	notifiers := map[string]notifier.Notifier{}
 	if emailNotifier.Enabled {
@@ -284,6 +288,10 @@ func builtinNotifiers() map[string]notifier.Notifier {
 
 	if victoropsNotifier.Enabled {
 		notifiers[victoropsNotifier.NotifierName()] = victoropsNotifier
+	}
+
+	if alertaNotifier.Enabled {
+		notifiers[alertaNotifier.NotifierName()] = alertaNotifier
 	}
 
 	return notifiers

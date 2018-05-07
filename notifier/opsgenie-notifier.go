@@ -3,10 +3,10 @@ package notifier
 import (
 	"fmt"
 
-	alerts "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/opsgenie/opsgenie-go-sdk/alerts"
-	ogcli "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/opsgenie/opsgenie-go-sdk/client"
+	alerts "github.com/Difrex/consul-alerts/Godeps/_workspace/src/github.com/opsgenie/opsgenie-go-sdk/alerts"
+	ogcli "github.com/Difrex/consul-alerts/Godeps/_workspace/src/github.com/opsgenie/opsgenie-go-sdk/client"
 
-	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
+	log "github.com/Difrex/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
 )
 
 type OpsGenieNotifier struct {

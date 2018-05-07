@@ -52,6 +52,7 @@ type Notifiers struct {
 	OpsGenie          *OpsGenieNotifier          `json:"opsgenie"`
 	AwsSns            *AwsSnsNotifier            `json:"awssns"`
 	VictorOps         *VictorOpsNotifier         `json:"victorops"`
+	Alerta            *AlertaNotifier            `json:"alerta"`
 	Custom            []string                   `json:"custom"`
 }
 
@@ -79,6 +80,8 @@ func (n Notifiers) GetNotifier(name string) (Notifier, bool) {
 		return n.AwsSns, true
 	case n.VictorOps != nil && n.VictorOps.NotifierName() == name:
 		return n.VictorOps, true
+	case n.Alerta != nil && n.Alerta.NotifierName() == name:
+		return n.Alerta, true
 	default:
 		return nil, false
 	}

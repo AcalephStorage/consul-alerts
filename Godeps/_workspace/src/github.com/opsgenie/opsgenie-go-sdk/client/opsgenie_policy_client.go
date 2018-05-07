@@ -3,8 +3,8 @@ package client
 import (
 	"errors"
 	"fmt"
-	goreq "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/franela/goreq"
-	policy "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/opsgenie/opsgenie-go-sdk/policy"
+	goreq "github.com/Difrex/consul-alerts/Godeps/_workspace/src/github.com/franela/goreq"
+	policy "github.com/Difrex/consul-alerts/Godeps/_workspace/src/github.com/opsgenie/opsgenie-go-sdk/policy"
 	"time"
 )
 

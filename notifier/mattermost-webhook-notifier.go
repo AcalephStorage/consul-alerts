@@ -8,18 +8,19 @@ import (
 	"net/http"
 	"net/url"
 
-	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
+	log "github.com/Difrex/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
 )
 
 type MattermostWebhookNotifier struct {
-	ClusterName string `json:"cluster_name"`
-	Url         string `json:"-"`
-	Channel     string `json:"channel"`
-	Username    string `json:"username"`
-	IconUrl     string `json:"icon_url"`
-	Text        string `json:"text,omitempty"`
-	Detailed    bool   `json:"-"`
-	Enabled     bool   `json:"enabled"`
+	ClusterName   string `json:"cluster_name"`
+	Url           string `json:"-"`
+	Channel       string `json:"channel"`
+	Username      string `json:"username"`
+	IconUrl       string `json:"icon_url"`
+	Text          string `json:"text,omitempty"`
+	Detailed      bool   `json:"-"`
+	Enabled       bool   `json:"enabled"`
+	ServiceOutput bool   `json:"-"`
 }
 
 // NotifierName provides name for notifier selection
@@ -42,7 +43,9 @@ func (n *MattermostWebhookNotifier) notifySimple(messages Messages) bool {
 	text := fmt.Sprintf(header, n.ClusterName, overallStatus, fail, warn, pass)
 	for _, message := range messages {
 		text += fmt.Sprintf("\n%s:%s:%s is %s.", message.Node, message.Service, message.Check, message.Status)
-		text += fmt.Sprintf("\n%s", message.Output)
+		if n.ServiceOutput {
+			text += fmt.Sprintf("\n%s", message.Output)
+		}
 	}
 	n.Text = text
 	return n.postToMattermostWebhook()
