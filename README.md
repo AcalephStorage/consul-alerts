@@ -417,16 +417,16 @@ be configured.
 
 prefix: `consul-alerts/config/notifiers/slack/`
 
-| key          | description                                                                                |
-|--------------|-----------------------------------------------------                                       |
-| enabled      | Enable the Slack notifier. [Default: false]                                                |
-| cluster-name | The name of the cluster. [Default: `Consul Alerts`]                                        |
-| url          | The incoming-webhook url (mandatory) [eg: `https://hooks.slack.com...`]                    |
-| channel      | The channel to post the notification (mandatory) [eg: `#consul-alerts` or `@consul-alerts`]|
-| username     | The username to appear on the post [eg: `Consul Alerts`]                                   |
-| icon-url     | URL of a custom image for the notification [eg: `http://someimage.com/someimage.png`]      |
-| icon-emoji   | Emoji (if not using icon-url) for the notification [eg: `:ghost:`]                         |
-| detailed     | Enable "pretty" Slack notifications [Default: false]                                       |
+| key            | description                                                                                 |
+|----------------|---------------------------------------------------------------------------------------------|
+| enabled        | Enable the Slack notifier. [Default: false]                                                 |
+| cluster-name   | The name of the cluster. [Default: `Consul Alerts`]                                         |
+| url            | The incoming-webhook url (mandatory) [eg: `https://hooks.slack.com...`]                     |
+| channel        | The channel to post the notification (mandatory) [eg: `#consul-alerts` or `@consul-alerts`] |
+| username       | The username to appear on the post [eg: `Consul Alerts`]                                    |
+| icon-url       | URL of a custom image for the notification [eg: `http://someimage.com/someimage.png`]       |
+| icon-emoji     | Emoji (if not using icon-url) for the notification [eg: `:ghost:`]                          |
+| detailed       | Enable "pretty" Slack notifications [Default: false]                                        |
 
 In order to enable slack integration, you have to create a new
 [_Incoming WebHooks_](https://my.slack.com/services/new/incoming-webhook). Then use the
@@ -458,14 +458,15 @@ the previous step.
 
 prefix: `consul-alerts/config/notifiers/mattermost-webhook/`
 
-| key          | description                                                                                |
-|--------------|-----------------------------------------------------                                       |
-| enabled      | Enable the Mattermost Webhook notifier. [Default: false]                                   |
-| cluster-name | The name of the cluster. [Default: `Consul Alerts`]                                        |
-| url          | The incoming-webhook url (mandatory) [eg: `https://mattermost.com/hooks/...`]              |
-| channel      | The channel to post the notification (mandatory) [eg: `consul-alerts`]                     |
-| username     | The username to appear on the post [eg: `Consul Alerts`]                                   |
-| icon-url     | URL of a custom image for the notification [eg: `http://someimage.com/someimage.png`]      |
+| key            | description                                                                           |
+|----------------|---------------------------------------------------------------------------------------|
+| enabled        | Enable the Mattermost Webhook notifier. [Default: false]                              |
+| cluster-name   | The name of the cluster. [Default: `Consul Alerts`]                                   |
+| url            | The incoming-webhook url (mandatory) [eg: `https://mattermost.com/hooks/...`]         |
+| channel        | The channel to post the notification (mandatory) [eg: `consul-alerts`]                |
+| username       | The username to appear on the post [eg: `Consul Alerts`]                              |
+| icon-url       | URL of a custom image for the notification [eg: `http://someimage.com/someimage.png`] |
+| service-output | Send service check output to channel [Default: false]                                 |
 
 #### PagerDuty
 

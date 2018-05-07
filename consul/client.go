@@ -174,6 +174,10 @@ func (c *ConsulAlertClient) LoadConfig() {
 			// mattermost webhook notifier config
 			case "consul-alerts/config/notifiers/mattermost-webhook/enabled":
 				valErr = loadCustomValue(&config.Notifiers.MattermostWebhook.Enabled, val, ConfigTypeBool)
+			case "consul-alerts/config/notifiers/mattermost-webhook/detailed":
+				valErr = loadCustomValue(&config.Notifiers.MattermostWebhook.Detailed, val, ConfigTypeBool)
+			case "consul-alerts/config/notifiers/mattermost-webhook/service-output":
+				valErr = loadCustomValue(&config.Notifiers.MattermostWebhook.ServiceOutput, val, ConfigTypeBool)
 			case "consul-alerts/config/notifiers/mattermost-webhook/cluster-name":
 				valErr = loadCustomValue(&config.Notifiers.MattermostWebhook.ClusterName, val, ConfigTypeString)
 			case "consul-alerts/config/notifiers/mattermost-webhook/url":
