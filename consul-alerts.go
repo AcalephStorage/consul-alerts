@@ -74,7 +74,6 @@ func daemonMode(arguments map[string]interface{}) {
 	watchChecks := false
 	watchEvents := false
 	addr := ""
-	scheme := "http"
 	ignoreCert := false
 	var confData map[string]interface{}
 
@@ -142,6 +141,7 @@ func daemonMode(arguments map[string]interface{}) {
 		}
 	}
 	
+	scheme := "http"
 	if strings.Contains(addr, "https") {
 		scheme := "https"
 	}
@@ -228,6 +228,7 @@ func watchMode(arguments map[string]interface{}) {
 	checkMode := arguments["checks"].(bool)
 	eventMode := arguments["event"].(bool)
 	addr := arguments["--alert-addr"].(string)
+	ignoreCert := arguments["--consul-ignore-cert"].(bool)
 
 	var watchType string
 	switch {
@@ -235,6 +236,20 @@ func watchMode(arguments map[string]interface{}) {
 		watchType = "checks"
 	case eventMode:
 		watchType = "events"
+	}
+
+	scheme := "http"
+	if strings.Contains(addr, "https") {
+		scheme := "https"
+	}
+
+	client := &http.Client{}
+	trIgnore := &http.Transport {
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+
+	if (scheme == "https" && ignoreCert) {
+		client := &http.Client{Transport: trIgnore}
 	}
   
 	url := fmt.Sprintf("%s://%s/v1/process/%s", scheme, addr, watchType)
