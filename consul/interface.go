@@ -80,6 +80,7 @@ type Consul interface {
 	OpsGenieNotifier() *notifier.OpsGenieNotifier
 	AwsSnsNotifier() *notifier.AwsSnsNotifier
 	VictorOpsNotifier() *notifier.VictorOpsNotifier
+	ILertNotifier() *notifier.ILertNotifier
 
 	CheckChangeThreshold() int
 	UpdateCheckData()
@@ -168,6 +169,10 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 		Enabled: false,
 	}
 
+	ilert := &notifier.ILertNotifier{
+		Enabled: false,
+	}
+
 	notifiers := &notifier.Notifiers{
 		Email:             email,
 		Log:               log,
@@ -180,6 +185,7 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 		OpsGenie:          opsgenie,
 		AwsSns:            awsSns,
 		VictorOps:         victorOps,
+		ILert:             ilert,
 		Custom:            []string{},
 	}
 
