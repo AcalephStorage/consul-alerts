@@ -4,10 +4,12 @@ package main
 
 import (
 	"fmt"
+	"strings"
 	"os"
 	"syscall"
 
 	"net/http"
+	"crypto/tls"
 	"os/signal"
 
 	"encoding/json"
@@ -24,7 +26,7 @@ const version = "Consul Alerts 0.5.0"
 const usage = `Consul Alerts.
 
 Usage:
-  consul-alerts start [--alert-addr=<addr>] [--consul-addr=<consuladdr>] [--consul-dc=<dc>] [--consul-acl-token=<token>] [--watch-checks] [--watch-events] [--log-level=<level>] [--config-file=<file>]
+  consul-alerts start [--alert-addr=<addr>] [--consul-addr=<consuladdr>] [--consul-dc=<dc>] [--consul-acl-token=<token>] [--consul-ignore-cert=<bool>] [--watch-checks] [--watch-events] [--log-level=<level>] [--config-file=<file>]
   consul-alerts watch (checks|event) [--alert-addr=<addr>] [--log-level=<level>]
   consul-alerts --help
   consul-alerts --version
@@ -32,7 +34,8 @@ Usage:
 Options:
   --consul-acl-token=<token>   The consul ACL token [default: ""].
   --alert-addr=<addr>          The address for the consul-alert api [default: localhost:9000].
-  --consul-addr=<consuladdr>   The consul api address [default: localhost:8500].
+	--consul-addr=<consuladdr>   The consul api address [default: localhost:8500].
+	--consul-ignore-cert=<bool>  Ignore the consul addr https certificate error
   --consul-dc=<dc>             The consul datacenter [default: dc1].
   --log-level=<level>          Set the logging level - valid values are "debug", "info", "warn", and "err" [default: warn].
   --watch-checks               Run check watcher.
@@ -71,6 +74,8 @@ func daemonMode(arguments map[string]interface{}) {
 	watchChecks := false
 	watchEvents := false
 	addr := ""
+	scheme := "http"
+	ignoreCert := false
 	var confData map[string]interface{}
 
 	// This exists check only works for arguments with no default. arguments with defaults will always exist.
@@ -102,6 +107,11 @@ func daemonMode(arguments map[string]interface{}) {
 	} else {
 		consulAddr = arguments["--consul-addr"].(string)
 	}
+	if confData["consul-ignore-cert"] != nil {
+		ignoreCert = confData["consul-ignore-cert"].(bool)
+	} else {
+		ignoreCert = arguments["--consul-ignore-cert"].(bool)
+	}
 	if confData["consul-dc"] != nil {
 		consulDc = confData["consul-dc"].(string)
 	} else {
@@ -131,9 +141,19 @@ func daemonMode(arguments map[string]interface{}) {
 			log.Println("Log level not set:", err)
 		}
 	}
+	
+	if strings.Contains(addr, "https") {
+		scheme := "https"
+	}
 
-	url := fmt.Sprintf("http://%s/v1/info", addr)
-	resp, err := http.Get(url)
+	tr := &http.Transport {
+		if (scheme == "https" && ignoreCert)
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client := &http.Client{Transport: tr}
+
+	url := fmt.Sprintf("%s://%s/v1/info", scheme, addr)
+	resp, err := client.Get(url)
 	if err == nil && resp.StatusCode == 201 {
 		version := resp.Header.Get("version")
 		resp.Body.Close()
@@ -213,9 +233,9 @@ func watchMode(arguments map[string]interface{}) {
 	case eventMode:
 		watchType = "events"
 	}
-
-	url := fmt.Sprintf("http://%s/v1/process/%s", addr, watchType)
-	resp, err := http.Post(url, "text/json", os.Stdin)
+  
+	url := fmt.Sprintf("%s://%s/v1/process/%s", scheme, addr, watchType)
+	resp, err := client.Post(url, "text/json", os.Stdin)
 	if err != nil {
 		log.Println("consul-alert daemon is not running.", err)
 		os.Exit(2)
