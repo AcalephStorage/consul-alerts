@@ -147,6 +147,8 @@ func daemonMode(arguments map[string]interface{}) {
 	}
 
 	client := &http.Client{}
+
+	_, _ = scheme, client
 	trIgnore := &http.Transport {
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
@@ -244,6 +246,7 @@ func watchMode(arguments map[string]interface{}) {
 	}
 
 	client := &http.Client{}
+	_, _ = scheme, client
 	trIgnore := &http.Transport {
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
