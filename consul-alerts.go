@@ -146,12 +146,14 @@ func daemonMode(arguments map[string]interface{}) {
 		scheme := "https"
 	}
 
-	tr := &http.Transport {
-		if (scheme == "https" && ignoreCert) {
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}
-		}
+	client := &http.Client{}
+	trIgnore := &http.Transport {
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
-	client := &http.Client{Transport: tr}
+
+	if (scheme == "https" && ignoreCert) {
+		client := &http.Client{Transport: trIgnore}
+	}
 
 	url := fmt.Sprintf("%s://%s/v1/info", scheme, addr)
 	resp, err := client.Get(url)
