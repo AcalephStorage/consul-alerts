@@ -144,17 +144,17 @@ func daemonMode(arguments map[string]interface{}) {
 	scheme := "http"
 	if strings.Contains(addr, "https") {
 		scheme := "https"
+		_ = scheme
 	}
 
 	client := &http.Client{}
-
-	_, _ = scheme, client
 	trIgnore := &http.Transport {
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 
 	if (scheme == "https" && ignoreCert) {
 		client := &http.Client{Transport: trIgnore}
+		_ = client
 	}
 
 	url := fmt.Sprintf("%s://%s/v1/info", scheme, addr)
@@ -243,16 +243,17 @@ func watchMode(arguments map[string]interface{}) {
 	scheme := "http"
 	if strings.Contains(addr, "https") {
 		scheme := "https"
+		_ = scheme
 	}
 
 	client := &http.Client{}
-	_, _ = scheme, client
 	trIgnore := &http.Transport {
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 
 	if (scheme == "https" && ignoreCert) {
 		client := &http.Client{Transport: trIgnore}
+		_ = client
 	}
   
 	url := fmt.Sprintf("%s://%s/v1/process/%s", scheme, addr, watchType)
