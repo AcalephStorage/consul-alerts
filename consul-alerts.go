@@ -147,8 +147,9 @@ func daemonMode(arguments map[string]interface{}) {
 	}
 
 	tr := &http.Transport {
-		if (scheme == "https" && ignoreCert)
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		if (scheme == "https" && ignoreCert) {
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}
+		}
 	}
 	client := &http.Client{Transport: tr}
 
