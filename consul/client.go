@@ -241,6 +241,8 @@ func (c *ConsulAlertClient) LoadConfig() {
 				valErr = loadCustomValue(&config.Notifiers.ILert.Enabled, val, ConfigTypeBool)
 			case "consul-alerts/config/notifiers/ilert/api-key":
 				valErr = loadCustomValue(&config.Notifiers.ILert.ApiKey, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/ilert/incident-key-include-host":
+				valErr = loadCustomValue(&config.Notifiers.ILert.IncidentKeyIncludeHost, val, ConfigTypeBool)
 			}
 
 			if valErr != nil {

@@ -14,8 +14,9 @@ import (
 const apiEndpoint string = "https://ilertnow.com/api/v1/events"
 
 type ILertNotifier struct {
-	Enabled bool
-	ApiKey  string `json:"api-key"`
+	Enabled                bool
+	ApiKey                 string `json:"api-key"`
+	IncidentKeyIncludeHost bool   `json:"incident-key-include-host"`
 }
 
 type iLertEvent struct {
@@ -44,21 +45,21 @@ func (il *ILertNotifier) Notify(messages Messages) bool {
 		var eventType string
 		var summary string
 
-		incidentKey := fmt.Sprintf("%s:%s:%s", message.Node, message.Service, message.Check)
+		ik := il.incidentKey(message)
 
 		switch {
 		case message.IsPassing():
-			summary = incidentKey + " is now HEALTHY"
+			summary = ik + " is now HEALTHY"
 			eventType = "RESOLVE"
 		case message.IsWarning():
 			// iLert does not support warning state
 			continue
 		case message.IsCritical():
-			summary = incidentKey + " is CRITICAL"
+			summary = ik + " is CRITICAL"
 			eventType = "ALERT"
 		}
 
-		if err := il.sendEvent(eventType, summary, message.Output, incidentKey); err != nil {
+		if err := il.sendEvent(eventType, summary, message.Output, ik); err != nil {
 			log.Error("Problem while sending iLert event:", err)
 			result = false
 		}
@@ -68,6 +69,7 @@ func (il *ILertNotifier) Notify(messages Messages) bool {
 	return result
 }
 
+//sendEvent builds the event JSON and sends it to the iLert API
 func (il *ILertNotifier) sendEvent(eventType, summary, details, incidentKey string) error {
 	event := iLertEvent{
 		ApiKey:      il.ApiKey,
@@ -96,4 +98,12 @@ func (il *ILertNotifier) sendEvent(eventType, summary, details, incidentKey stri
 	}
 
 	return nil
+}
+
+func (il *ILertNotifier) incidentKey(message Message) string {
+	if il.IncidentKeyIncludeHost {
+		return fmt.Sprintf("%s:%s:%s", message.Node, message.Service, message.Check)
+	} else {
+		return fmt.Sprintf("%s:%s", message.Service, message.Check)
+	}
 }
