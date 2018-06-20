@@ -99,8 +99,6 @@ func (il *ILertNotifier) sendEvent(event iLertEvent) error {
 		return err
 	}
 
-	log.Debugf("struct = %+v, json = %s", event, string(body))
-
 	res, err := http.Post(apiEndpoint, "application/json", bytes.NewBuffer(body))
 	if err != nil {
 		return err
