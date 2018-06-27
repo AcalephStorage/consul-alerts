@@ -58,8 +58,8 @@ func (il *ILertNotifier) toILertEvents(messages Messages) []iLertEvent {
 			summary = ik + " is now HEALTHY"
 			eventType = "RESOLVE"
 		case message.IsWarning():
-			// iLert does not support warning state
-			continue
+			summary = ik + " is WARNING"
+			eventType = "RESOLVE"
 		case message.IsCritical():
 			summary = ik + " is CRITICAL"
 			eventType = "ALERT"
