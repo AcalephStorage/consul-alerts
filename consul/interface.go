@@ -170,7 +170,8 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 	}
 
 	ilert := &notifier.ILertNotifier{
-		Enabled: false,
+		Enabled:             false,
+		IncidentKeyTemplate: "{{.Node}}:{{.Service}}:{{.Check}}",
 	}
 
 	notifiers := &notifier.Notifiers{
