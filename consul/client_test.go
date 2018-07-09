@@ -282,7 +282,7 @@ func TestIndividualChangeThreshold(t *testing.T) {
 
 		getThreshold = client.GetChangeThreshold(check)
 		if getThreshold != getThreshold {
-			t.Errorf("changeThreshold for the %s should be %s, got %s", key, putThreshold, getThreshold)
+			t.Errorf("changeThreshold for the %s should be %d, got %d", key, putThreshold, getThreshold)
 		}
 	}
 }

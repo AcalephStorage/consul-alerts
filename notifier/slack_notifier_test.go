@@ -40,6 +40,6 @@ func TestSlackJsonUnmarshalling(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(expectedNotifier, unmarshalledNotifier) {
-		t.Fatalf("Expected slackNotifier to be %s, got %s\n", expectedNotifier, unmarshalledNotifier)
+		t.Fatalf("Expected slackNotifier to be %v, got %v\n", expectedNotifier, unmarshalledNotifier)
 	}
 }
