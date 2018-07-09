@@ -3,7 +3,7 @@ package notifier
 import (
 	"fmt"
 
-	alerts "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/opsgenie/opsgenie-go-sdk/alerts"
+	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/opsgenie/opsgenie-go-sdk/alertsv2"
 	ogcli "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/opsgenie/opsgenie-go-sdk/client"
 
 	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
@@ -33,7 +33,7 @@ func (opsgenie *OpsGenieNotifier) Notify(messages Messages) bool {
 	client := new(ogcli.OpsGenieClient)
 	client.SetAPIKey(opsgenie.ApiKey)
 
-	alertCli, cliErr := client.Alert()
+	alertCli, cliErr := client.AlertV2()
 
 	if cliErr != nil {
 		log.Println("Opsgenie notification trouble with client")
@@ -73,10 +73,10 @@ func (opsgenie OpsGenieNotifier) createAlias(message Message) string {
 	return incidentKey
 }
 
-func (opsgenie *OpsGenieNotifier) createAlert(alertCli *ogcli.OpsGenieAlertClient, message string, content string, alias string) bool {
+func (opsgenie *OpsGenieNotifier) createAlert(alertCli *ogcli.OpsGenieAlertV2Client, message string, content string, alias string) bool {
 	log.Debug(fmt.Sprintf("OpsGenieAlertClient.CreateAlert alias: %s", alias))
 
-	req := alerts.CreateAlertRequest{
+	req := alertsv2.CreateAlertRequest{
 		Message:     message,
 		Description: content,
 		Alias:       alias,
@@ -89,7 +89,7 @@ func (opsgenie *OpsGenieNotifier) createAlert(alertCli *ogcli.OpsGenieAlertClien
 		if response == nil {
 			log.Warn("Opsgenie notification trouble. ", alertErr)
 		} else {
-			log.Warn("Opsgenie notification trouble. ", response.Status)
+			log.Warn("Opsgenie notification trouble. ", response.RequestID)
 		}
 		return false
 	}
@@ -98,11 +98,16 @@ func (opsgenie *OpsGenieNotifier) createAlert(alertCli *ogcli.OpsGenieAlertClien
 	return true
 }
 
-func (opsgenie *OpsGenieNotifier) closeAlert(alertCli *ogcli.OpsGenieAlertClient, alias string) bool {
+func (opsgenie *OpsGenieNotifier) closeAlert(alertCli *ogcli.OpsGenieAlertV2Client, alias string) bool {
 	log.Debug(fmt.Sprintf("OpsGenieAlertClient.CloseAlert alias: %s", alias))
-	req := alerts.CloseAlertRequest{
-		Alias:  alias,
-		Source: "consul",
+
+	identifier := alertsv2.Identifier{
+		Alias: alias,
+	}
+
+	req := alertsv2.CloseRequest{
+		Identifier: &identifier,
+		Source:     "consul",
 	}
 	response, alertErr := alertCli.Close(req)
 
@@ -110,7 +115,7 @@ func (opsgenie *OpsGenieNotifier) closeAlert(alertCli *ogcli.OpsGenieAlertClient
 		if response == nil {
 			log.Warn("Opsgenie notification trouble. ", alertErr)
 		} else {
-			log.Warn("Opsgenie notification trouble. ", response.Status)
+			log.Warn("Opsgenie notification trouble. ", response.RequestID)
 		}
 		return false
 	}
