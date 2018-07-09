@@ -144,6 +144,11 @@
 			"Rev": "23e3775971f2213a1969886eb9931ffd834f438c"
 		},
 		{
+			"ImportPath": "github.com/cihub/seelog",
+			"Comment": "v2.6-1-g3549fbb",
+			"Rev": "3549fbb0ea07f15a54dba3d16ccb22785a813d30"
+		},
+		{
 			"ImportPath": "github.com/darkcrux/gopherduty",
 			"Rev": "4109bd05b098e838121a112b122f9a4102bcfc43"
 		},
@@ -190,23 +195,71 @@
 		},
 		{
 			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/alerts",
-			"Rev": "89e68948bffac4a7d62d1b8fc1ab5ee99d8a3cd8"
+			"Rev": "6d5c78d9f21e30c3150c12901331c11ffea23d62"
+		},
+		{
+			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/alertsv2",
+			"Rev": "6d5c78d9f21e30c3150c12901331c11ffea23d62"
+		},
+		{
+			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/alertsv2/savedsearches",
+			"Rev": "6d5c78d9f21e30c3150c12901331c11ffea23d62"
 		},
 		{
 			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/client",
-			"Rev": "89e68948bffac4a7d62d1b8fc1ab5ee99d8a3cd8"
+			"Rev": "6d5c78d9f21e30c3150c12901331c11ffea23d62"
+		},
+		{
+			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/contact",
+			"Rev": "6d5c78d9f21e30c3150c12901331c11ffea23d62"
+		},
+		{
+			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/escalation",
+			"Rev": "6d5c78d9f21e30c3150c12901331c11ffea23d62"
 		},
 		{
 			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/heartbeat",
-			"Rev": "89e68948bffac4a7d62d1b8fc1ab5ee99d8a3cd8"
+			"Rev": "6d5c78d9f21e30c3150c12901331c11ffea23d62"
 		},
 		{
 			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/integration",
-			"Rev": "89e68948bffac4a7d62d1b8fc1ab5ee99d8a3cd8"
+			"Rev": "6d5c78d9f21e30c3150c12901331c11ffea23d62"
+		},
+		{
+			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/logging",
+			"Rev": "6d5c78d9f21e30c3150c12901331c11ffea23d62"
+		},
+		{
+			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/notificationv2",
+			"Rev": "6d5c78d9f21e30c3150c12901331c11ffea23d62"
 		},
 		{
 			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/policy",
-			"Rev": "89e68948bffac4a7d62d1b8fc1ab5ee99d8a3cd8"
+			"Rev": "6d5c78d9f21e30c3150c12901331c11ffea23d62"
+		},
+		{
+			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/schedule",
+			"Rev": "6d5c78d9f21e30c3150c12901331c11ffea23d62"
+		},
+		{
+			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/scheduleoverride",
+			"Rev": "6d5c78d9f21e30c3150c12901331c11ffea23d62"
+		},
+		{
+			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/schedulev2",
+			"Rev": "6d5c78d9f21e30c3150c12901331c11ffea23d62"
+		},
+		{
+			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/team",
+			"Rev": "6d5c78d9f21e30c3150c12901331c11ffea23d62"
+		},
+		{
+			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/user",
+			"Rev": "6d5c78d9f21e30c3150c12901331c11ffea23d62"
+		},
+		{
+			"ImportPath": "github.com/opsgenie/opsgenie-go-sdk/userv2",
+			"Rev": "6d5c78d9f21e30c3150c12901331c11ffea23d62"
 		},
 		{
 			"ImportPath": "github.com/tbruyelle/hipchat-go/hipchat",

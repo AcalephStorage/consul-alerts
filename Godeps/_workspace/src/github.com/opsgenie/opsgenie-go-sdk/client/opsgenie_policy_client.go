@@ -2,119 +2,60 @@ package client
 
 import (
 	"errors"
-	"fmt"
-	goreq "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/franela/goreq"
+
+	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/opsgenie/opsgenie-go-sdk/logging"
 	policy "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/opsgenie/opsgenie-go-sdk/policy"
-	"time"
 )
 
 const (
-	ENABLE_POLICY_URL  = ENDPOINT_URL + "/v1/json/policy/enable"
-	DISABLE_POLICY_URL = ENDPOINT_URL + "/v1/json/policy/disable"
+	enablePolicyURL  = "/v1/json/alert/policy/enable"
+	disablePolicyURL = "/v1/json/alert/policy/disable"
 )
 
+// OpsGeniePolicyClient is the data type to make Policy API requests.
 type OpsGeniePolicyClient struct {
-	apiKey  string
-	proxy   string
-	retries int
+	OpsGenieClient
 }
 
-func (cli *OpsGeniePolicyClient) buildRequest(method string, uri string, body interface{}) goreq.Request {
-	req := goreq.Request{}
-	req.Method = method
-	req.Uri = uri
-	if body != nil {
-		req.Body = body
-	}
-	if cli.proxy != "" {
-		req.Proxy = cli.proxy
-	}
-	req.UserAgent = userAgentParam.ToString()
-	return req
+// SetOpsGenieClient sets the embedded OpsGenieClient type of the OpsGeniePolicyClient.
+func (cli *OpsGeniePolicyClient) SetOpsGenieClient(ogCli OpsGenieClient) {
+	cli.OpsGenieClient = ogCli
 }
 
-func (cli *OpsGeniePolicyClient) SetConnectionTimeout(timeoutInSeconds time.Duration) {
-	goreq.SetConnectTimeout(timeoutInSeconds * time.Second)
-}
-
-func (cli *OpsGeniePolicyClient) SetMaxRetryAttempts(retries int) {
-	cli.retries = retries
-}
-
+// Enable method enables an Policy at OpsGenie.
 func (cli *OpsGeniePolicyClient) Enable(req policy.EnablePolicyRequest) (*policy.EnablePolicyResponse, error) {
-	req.ApiKey = cli.apiKey
-	// validate mandatory fields: id/name, apiKey
-	if req.ApiKey == "" && req.Id == "" {
-		return nil, errors.New("Api Key or Id should be provided")
+	req.APIKey = cli.apiKey
+	resp, err := cli.sendRequest(cli.buildPostRequest(enablePolicyURL, req))
+
+	if resp == nil {
+		return nil, err
 	}
-	if req.ApiKey != "" && req.Id != "" {
-		return nil, errors.New("Either Api Key or Id should be provided, not both")
-	}
-	// send the request
-	var resp *goreq.Response
-	var err error
-	for i := 0; i < cli.retries; i++ {
-		resp, err = cli.buildRequest("POST", ENABLE_POLICY_URL, req).Do()
-		if err == nil {
-			break
-		}
-		time.Sleep(TIME_SLEEP_BETWEEN_REQUESTS)
-	}
-	if err != nil {
-		return nil, errors.New("Can not enable the policy, unable to send the request")
-	}
-	// check for the returning http status, 4xx: client errors, 5xx: server errors
-	statusCode := resp.StatusCode
-	if statusCode >= 400 && statusCode < 500 {
-		return nil, errors.New(fmt.Sprintf("Client error %d occured", statusCode))
-	}
-	if statusCode >= 500 {
-		return nil, errors.New(fmt.Sprintf("Server error %d occured", statusCode))
-	}
-	// try to parse the returning JSON into the response
+	defer resp.Body.Close()
+
 	var enablePolicyResp policy.EnablePolicyResponse
 	if err = resp.Body.FromJsonTo(&enablePolicyResp); err != nil {
-		return nil, errors.New("Server response can not be parsed")
+		message := "Server response can not be parsed, " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
 	}
-	// parsed successfuly with no errors
 	return &enablePolicyResp, nil
 }
 
+// Disable method disables an Policy at OpsGenie.
 func (cli *OpsGeniePolicyClient) Disable(req policy.DisablePolicyRequest) (*policy.DisablePolicyResponse, error) {
-	req.ApiKey = cli.apiKey
-	// validate mandatory fields: id/name, apiKey
-	if req.ApiKey == "" && req.Id == "" {
-		return nil, errors.New("Api Key or Id should be provided")
+	req.APIKey = cli.apiKey
+	resp, err := cli.sendRequest(cli.buildPostRequest(disablePolicyURL, req))
+
+	if resp == nil {
+		return nil, err
 	}
-	if req.ApiKey != "" && req.Id != "" {
-		return nil, errors.New("Either Api Key or Id should be provided, not both")
-	}
-	// send the request
-	var resp *goreq.Response
-	var err error
-	for i := 0; i < cli.retries; i++ {
-		resp, err = cli.buildRequest("POST", DISABLE_POLICY_URL, req).Do()
-		if err == nil {
-			break
-		}
-		time.Sleep(TIME_SLEEP_BETWEEN_REQUESTS)
-	}
-	if err != nil {
-		return nil, errors.New("Can not disable the policy, unable to send the request")
-	}
-	// check for the returning http status, 4xx: client errors, 5xx: server errors
-	statusCode := resp.StatusCode
-	if statusCode >= 400 && statusCode < 500 {
-		return nil, errors.New(fmt.Sprintf("Client error %d occured", statusCode))
-	}
-	if statusCode >= 500 {
-		return nil, errors.New(fmt.Sprintf("Server error %d occured", statusCode))
-	}
-	// try to parse the returning JSON into the response
+	defer resp.Body.Close()
+
 	var disablePolicyResp policy.DisablePolicyResponse
 	if err = resp.Body.FromJsonTo(&disablePolicyResp); err != nil {
-		return nil, errors.New("Server response can not be parsed")
+		message := "Server response can not be parsed, " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
 	}
-	// parsed successfuly with no errors
 	return &disablePolicyResp, nil
 }
