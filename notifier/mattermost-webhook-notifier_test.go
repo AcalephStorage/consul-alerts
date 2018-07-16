@@ -42,7 +42,7 @@ func TestMattermostWebhookJsonUnmarshalling(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(expectedNotifier, unmarshalledNotifier) {
-		t.Fatalf("Expected mattermostWebhookNotifier to be %s, got %s\n", expectedNotifier, unmarshalledNotifier)
+		t.Fatalf("Expected mattermostWebhookNotifier to be %v, got %v\n", expectedNotifier, unmarshalledNotifier)
 	}
 }
 
