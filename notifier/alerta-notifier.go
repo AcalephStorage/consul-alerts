@@ -60,6 +60,9 @@ func tpl(t string, msg TmplMsg) (string, error) {
 // populateDefaults set default values
 func (n *AlertaNotifier) populate(message Messages) {
 	for _, msg := range message {
+
+		log.Debug("Alerta notifier: received message: ", msg)
+
 		myEvent := *n
 		if myEvent.Type == "" {
 			myEvent.Type = "consul-alerts"
@@ -111,10 +114,12 @@ func (n *AlertaNotifier) populate(message Messages) {
 			myEvent.Severity = "major"
 			myEvent.Status = "open"
 		}
+
 		if msg.IsWarning() {
 			myEvent.Severity = "warning"
 			myEvent.Status = "open"
 		}
+
 		if msg.IsPassing() {
 			myEvent.Severity = "ok"
 			myEvent.Status = "closed"
