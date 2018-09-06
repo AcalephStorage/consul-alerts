@@ -723,6 +723,10 @@ func (c *ConsulAlertClient) getProfileForNode(node string) string {
 	return c.getProfileForEntity("host", node)
 }
 
+func (c *ConsulAlertClient) getProfileForStatus(status string) string {
+	return c.getProfileForEntity("status", status)
+}
+
 // GetProfileInfo returns profile info for check
 func (c *ConsulAlertClient) GetProfileInfo(node, serviceID, checkID, statusID string) ProfileInfo {
 	log.Println("Getting profile for node: ", node, " service: ", serviceID, " check: ", checkID)
