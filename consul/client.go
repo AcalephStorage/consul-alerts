@@ -797,10 +797,20 @@ func (c *ConsulAlertClient) IsBlacklisted(check *Check) bool {
 		return c.CheckKeyExists(checkCheckKey) || c.CheckKeyMatchesRegexp("consul-alerts/config/checks/blacklist/checks", checkID)
 	}
 
+	status := "_"
+	statusBlacklisted := func() bool { return false }
+	if check.Status != "" {
+		status = check.Status
+		statusCheckKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/status/%s", status)
+		statusBlacklisted = func() bool {
+			return c.CheckKeyExists(statusCheckKey) || c.CheckKeyMatchesRegexp("consul-alerts/config/checks/blacklist/status", status)
+		}
+	}
+
 	singleKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/single/%s/%s/%s", node, service, checkID)
 	singleBlacklisted := func() bool { return c.CheckKeyExists(singleKey) }
 
-	return blacklistExist() && (nodeBlacklisted() || serviceBlacklisted() || checkBlacklisted() || singleBlacklisted())
+	return blacklistExist() && (nodeBlacklisted() || serviceBlacklisted() || checkBlacklisted() || statusBlacklisted() || singleBlacklisted())
 }
 
 // GetChangeThreshold gets the node/service/check specific override for change threshold
