@@ -724,7 +724,8 @@ func (c *ConsulAlertClient) getProfileForNode(node string) string {
 }
 
 func (c *ConsulAlertClient) getProfileForStatus(status string) string {
-	return c.getProfileForEntity("status", status)
+	// Appends s to folder.
+	return c.getProfileForEntity("statu", status)
 }
 
 // GetProfileInfo returns profile info for check
