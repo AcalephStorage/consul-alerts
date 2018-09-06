@@ -728,7 +728,7 @@ func (c *ConsulAlertClient) getProfileForStatus(status string) string {
 }
 
 // GetProfileInfo returns profile info for check
-func (c *ConsulAlertClient) GetProfileInfo(node, serviceID, checkID, statusID string) ProfileInfo {
+func (c *ConsulAlertClient) GetProfileInfo(node, serviceID, checkID, status string) ProfileInfo {
 	log.Println("Getting profile for node: ", node, " service: ", serviceID, " check: ", checkID)
 
 	var profile string
@@ -739,6 +739,9 @@ func (c *ConsulAlertClient) GetProfileInfo(node, serviceID, checkID, statusID st
 	}
 	if profile == "" {
 		profile = c.getProfileForNode(node)
+	}
+	if profile == "" {
+		profile = c.getProfileForStatus(status)
 	}
 	if profile == "" {
 		profile = "default"
