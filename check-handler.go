@@ -123,7 +123,7 @@ func (c *CheckProcessor) handleChecks(checks []consul.Check) {
 func (c *CheckProcessor) notify(alerts []consul.Check) {
 	messages := make([]notifier.Message, len(alerts))
 	for i, alert := range alerts {
-		profileInfo := consulClient.GetProfileInfo(alert.Node, alert.ServiceID, alert.CheckID)
+		profileInfo := consulClient.GetProfileInfo(alert.Node, alert.ServiceID, alert.CheckID, "none")
 		messages[i] = notifier.Message{
 			Node:         alert.Node,
 			ServiceId:    alert.ServiceID,
