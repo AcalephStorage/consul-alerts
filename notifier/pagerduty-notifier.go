@@ -1,16 +1,19 @@
 package notifier
 
 import (
-	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/darkcrux/gopherduty"
-
 	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
+	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/darkcrux/gopherduty"
 )
 
+const defaultRetryBaseInterval = 30
+
 type PagerDutyNotifier struct {
-	Enabled    bool
-	ServiceKey string `json:"service-key"`
-	ClientName string `json:"client-name"`
-	ClientUrl  string `json:"client-url"`
+	Enabled           bool
+	ServiceKey        string `json:"service-key"`
+	ClientName        string `json:"client-name"`
+	ClientUrl         string `json:"client-url"`
+	MaxRetry          int    `json:"max-retry"`
+	RetryBaseInterval int    `json:"retry-base-interval"'`
 }
 
 // NotifierName provides name for notifier selection
@@ -27,6 +30,16 @@ func (pd *PagerDutyNotifier) Copy() Notifier {
 func (pd *PagerDutyNotifier) Notify(messages Messages) bool {
 
 	client := gopherduty.NewClient(pd.ServiceKey)
+
+	if pd.MaxRetry != 0 {
+		client.MaxRetry = pd.MaxRetry
+
+		if pd.RetryBaseInterval != 0 {
+			client.RetryBaseInterval = pd.RetryBaseInterval
+		} else {
+			client.RetryBaseInterval = defaultRetryBaseInterval
+		}
+	}
 
 	result := true
 

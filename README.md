@@ -473,12 +473,14 @@ To enable PagerDuty built-in notifier, set `consul-alerts/config/notifiers/pager
 
 prefix: `consul-alerts/config/notifiers/pagerduty/`
 
-| key         | description                                     |
-|-------------|-------------------------------------------------|
-| enabled     | Enable the PagerDuty notifier. [Default: false] |
-| service-key | Service key to access PagerDuty                 |
-| client-name | The monitoring client name                      |
-| client-url  | The monitoring client url                       |
+| key                 | description                                                          |
+|---------------------|----------------------------------------------------------------------|
+| enabled             | Enable the PagerDuty notifier. [Default: false]                      |
+| service-key         | Service key to access PagerDuty                                      |
+| client-name         | The monitoring client name                                           |
+| client-url          | The monitoring client url                                            |
+| max-retry           | The upper limit of retries on failure. [Default: `0` for no retries] |
+| retry-base-interval | The base delay in seconds before a retry. [Default: `30` seconds ]   |
 
 #### HipChat
 

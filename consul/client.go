@@ -193,6 +193,10 @@ func (c *ConsulAlertClient) LoadConfig() {
 				valErr = loadCustomValue(&config.Notifiers.PagerDuty.ClientName, val, ConfigTypeString)
 			case "consul-alerts/config/notifiers/pagerduty/client-url":
 				valErr = loadCustomValue(&config.Notifiers.PagerDuty.ClientUrl, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/pagerduty/max-retry":
+				valErr = loadCustomValue(&config.Notifiers.PagerDuty.MaxRetry, val, ConfigTypeInt)
+			case "consul-alerts/config/notifiers/pagerduty/retry-base-interval":
+				valErr = loadCustomValue(&config.Notifiers.PagerDuty.RetryBaseInterval, val, ConfigTypeInt)
 
 			// hipchat notfier config
 			case "consul-alerts/config/notifiers/hipchat/enabled":
