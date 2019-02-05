@@ -727,8 +727,13 @@ func (c *ConsulAlertClient) getProfileForNode(node string) string {
 	return c.getProfileForEntity("host", node)
 }
 
+func (c *ConsulAlertClient) getProfileForStatus(status string) string {
+	// Appends s to folder.
+	return c.getProfileForEntity("statu", status)
+}
+
 // GetProfileInfo returns profile info for check
-func (c *ConsulAlertClient) GetProfileInfo(node, serviceID, checkID string) ProfileInfo {
+func (c *ConsulAlertClient) GetProfileInfo(node, serviceID, checkID, status string) ProfileInfo {
 	log.Println("Getting profile for node: ", node, " service: ", serviceID, " check: ", checkID)
 
 	var profile string
@@ -739,6 +744,9 @@ func (c *ConsulAlertClient) GetProfileInfo(node, serviceID, checkID string) Prof
 	}
 	if profile == "" {
 		profile = c.getProfileForNode(node)
+	}
+	if profile == "" {
+		profile = c.getProfileForStatus(status)
 	}
 	if profile == "" {
 		profile = "default"
@@ -793,10 +801,20 @@ func (c *ConsulAlertClient) IsBlacklisted(check *Check) bool {
 		return c.CheckKeyExists(checkCheckKey) || c.CheckKeyMatchesRegexp("consul-alerts/config/checks/blacklist/checks", checkID)
 	}
 
+	status := "_"
+	statusBlacklisted := func() bool { return false }
+	if check.Status != "" {
+		status = check.Status
+		statusCheckKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/status/%s", status)
+		statusBlacklisted = func() bool {
+			return c.CheckKeyExists(statusCheckKey) || c.CheckKeyMatchesRegexp("consul-alerts/config/checks/blacklist/status", status)
+		}
+	}
+
 	singleKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/single/%s/%s/%s", node, service, checkID)
 	singleBlacklisted := func() bool { return c.CheckKeyExists(singleKey) }
 
-	return blacklistExist() && (nodeBlacklisted() || serviceBlacklisted() || checkBlacklisted() || singleBlacklisted())
+	return blacklistExist() && (nodeBlacklisted() || serviceBlacklisted() || checkBlacklisted() || statusBlacklisted() || singleBlacklisted())
 }
 
 // GetChangeThreshold gets the node/service/check specific override for change threshold
