@@ -286,3 +286,16 @@ func TestIndividualChangeThreshold(t *testing.T) {
 		}
 	}
 }
+
+func TestUpdateCheckDataReminders(t *testing.T) {
+	client, err := testClient()
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	clearKVPath(t, client, "consul-alerts/reminders/")
+	client.api.KV().Put(&consulapi.KVPair{
+		Key: "consul-alerts/reminders/"}, nil)
+
+	client.UpdateCheckData()
+}
