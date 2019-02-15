@@ -14,6 +14,7 @@ func TestSlackJsonUnmarshalling(t *testing.T) {
 	icon_url := "test_icon_url"
 	icon_emoji := "test_icon_emoji"
 	text := "test_text"
+	url := "test_url"
 
 	expectedNotifier := SlackNotifier{
 		ClusterName: cluster_name,
@@ -22,17 +23,23 @@ func TestSlackJsonUnmarshalling(t *testing.T) {
 		IconUrl:     icon_url,
 		IconEmoji:   icon_emoji,
 		Text:        text,
+		Url:         url,
+		Enabled:     true,
+		Detailed:    true,
 	}
 	var unmarshalledNotifier SlackNotifier
 
 	data := []byte(fmt.Sprintf(`{
     "cluster_name": "%s",
+    "url": "%s",
     "channel": "%s",
     "username": "%s",
     "icon_url": "%s",
     "icon_emoji": "%s",
-    "text": "%s"
-  }`, cluster_name, channel, username, icon_url, icon_emoji, text))
+    "text": "%s",
+    "enabled": %v,
+    "detailed": %v
+  }`, cluster_name, url, channel, username, icon_url, icon_emoji, text, true, true))
 
 	fmt.Printf("%s\n", data)
 	if err := json.Unmarshal(data, &unmarshalledNotifier); err != nil {

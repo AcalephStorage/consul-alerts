@@ -15,15 +15,15 @@ import (
 
 type SlackNotifier struct {
 	ClusterName string       `json:"cluster_name"`
-	Url         string       `json:"-"`
+	Url         string       `json:"url"`
 	Channel     string       `json:"channel"`
 	Username    string       `json:"username"`
 	IconUrl     string       `json:"icon_url"`
 	IconEmoji   string       `json:"icon_emoji"`
 	Text        string       `json:"text,omitempty"`
 	Attachments []attachment `json:"attachments,omitempty"`
-	Detailed    bool         `json:"-"`
-	Enabled     bool
+	Detailed    bool         `json:"detailed"`
+	Enabled     bool         `json:"enabled"`
 }
 
 type attachment struct {
