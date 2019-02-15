@@ -27,6 +27,13 @@ func TestILertEvents(t *testing.T) {
 		},
 		{
 			ApiKey:      "aPiKeY",
+			EventType:   "RESOLVE",
+			Summary:     "check2:node1:service1 is WARNING",
+			Details:     "WARN",
+			IncidentKey: "check2:node1:service1",
+		},
+		{
+			ApiKey:      "aPiKeY",
 			EventType:   "ALERT",
 			Summary:     "check3:node2:service2 is CRITICAL",
 			Details:     "CRIT",
