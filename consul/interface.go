@@ -94,7 +94,7 @@ type Consul interface {
 	CheckStatus(node, statusId, checkId string) (status, output string)
 	CheckKeyExists(key string) bool
 
-	GetProfileInfo(node, serviceID, checkID string) ProfileInfo
+	GetProfileInfo(node, serviceID, checkID, status string) ProfileInfo
 
 	GetReminders() []notifier.Message
 	SetReminder(m notifier.Message)

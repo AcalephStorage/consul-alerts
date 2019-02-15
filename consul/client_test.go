@@ -130,7 +130,7 @@ func TestGetProfileInfo(t *testing.T) {
 	client.api.KV().Put(&consulapi.KVPair{
 		Key:   "consul-alerts/config/notif-profiles/default",
 		Value: data}, nil)
-	checkProfileInfo := client.GetProfileInfo("node", "serviceID", "checkID")
+	checkProfileInfo := client.GetProfileInfo("node", "serviceID", "checkID", "status")
 	if !reflect.DeepEqual(checkProfileInfo, defaultProfileInfo) {
 		t.Error("Default profile info is loaded incorrectly")
 	}
@@ -173,7 +173,7 @@ func TestGetProfileInfo(t *testing.T) {
 		client.api.KV().Put(&consulapi.KVPair{
 			Key:   fmt.Sprintf("consul-alerts/config/notif-selection/%s", s.NotifSelection),
 			Value: []byte(s.NotifProfile)}, nil)
-		checkProfileInfo := client.GetProfileInfo("node", "serviceID", "checkID")
+		checkProfileInfo := client.GetProfileInfo("node", "serviceID", "checkID", "status")
 		if !reflect.DeepEqual(checkProfileInfo, profileInfo) {
 			t.Error("Profile info is loaded incorrectly")
 		}
@@ -282,7 +282,7 @@ func TestIndividualChangeThreshold(t *testing.T) {
 
 		getThreshold = client.GetChangeThreshold(check)
 		if getThreshold != getThreshold {
-			t.Errorf("changeThreshold for the %s should be %s, got %s", key, putThreshold, getThreshold)
+			t.Errorf("changeThreshold for the %s should be %d, got %d", key, putThreshold, getThreshold)
 		}
 	}
 }
