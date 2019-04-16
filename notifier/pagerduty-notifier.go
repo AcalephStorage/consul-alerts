@@ -49,16 +49,23 @@ func (pd *PagerDutyNotifier) Notify(messages Messages) bool {
 			incidentKey += ":" + message.ServiceId
 		}
 		incidentKey += ":" + message.CheckId
+		subject := message.Node
+		if message.Service != "" {
+			subject += ":" + message.Service
+		}
+		if message.Check != "" {
+			subject += ":" + message.Check
+		}
 		var response *gopherduty.PagerDutyResponse
 		switch {
 		case message.IsPassing():
-			description := incidentKey + " is now HEALTHY"
+			description := subject + " is now HEALTHY"
 			response = client.Resolve(incidentKey, description, message)
 		case message.IsWarning():
-			description := incidentKey + " is UNSTABLE"
+			description := subject + " is UNSTABLE"
 			response = client.Trigger(incidentKey, description, pd.ClientName, pd.ClientUrl, message)
 		case message.IsCritical():
-			description := incidentKey + " is CRITICAL"
+			description := subject + " is CRITICAL"
 			response = client.Trigger(incidentKey, description, pd.ClientName, pd.ClientUrl, message)
 		}
 
