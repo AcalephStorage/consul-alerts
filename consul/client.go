@@ -239,6 +239,14 @@ func (c *ConsulAlertClient) LoadConfig() {
 				valErr = loadCustomValue(&config.Notifiers.VictorOps.APIKey, val, ConfigTypeString)
 			case "consul-alerts/config/notifiers/victorops/routing-key":
 				valErr = loadCustomValue(&config.Notifiers.VictorOps.RoutingKey, val, ConfigTypeString)
+
+			// iLert notfier config
+			case "consul-alerts/config/notifiers/ilert/enabled":
+				valErr = loadCustomValue(&config.Notifiers.ILert.Enabled, val, ConfigTypeBool)
+			case "consul-alerts/config/notifiers/ilert/api-key":
+				valErr = loadCustomValue(&config.Notifiers.ILert.ApiKey, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/ilert/incident-key-template":
+				valErr = loadCustomValue(&config.Notifiers.ILert.IncidentKeyTemplate, val, ConfigTypeString)
 			}
 
 			if valErr != nil {
@@ -536,6 +544,10 @@ func (c *ConsulAlertClient) AwsSnsNotifier() *notifier.AwsSnsNotifier {
 
 func (c *ConsulAlertClient) VictorOpsNotifier() *notifier.VictorOpsNotifier {
 	return c.config.Notifiers.VictorOps
+}
+
+func (c *ConsulAlertClient) ILertNotifier() *notifier.ILertNotifier {
+	return c.config.Notifiers.ILert
 }
 
 func (c *ConsulAlertClient) registerHealthCheck(key string, health *Check) {

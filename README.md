@@ -571,6 +571,19 @@ prefix: `consul-alerts/config/notifiers/victorops/`
 | api-key      | API Key                              (mandatory)    |
 | routing-key  | Routing Key                          (mandatory)    |
 
+#### iLert
+
+To enable iLert built-in notifier, set
+`consul-alerts/config/notifiers/ilert/enabled` to `true`. Service API
+key needs to be configured.
+
+prefix: `consul-alerts/config/notifiers/ilert/`
+
+| key                   | description                                                               |
+|-----------------------|---------------------------------------------------------------------------|
+| enabled               | Enable the iLert notifier. [Default: false]                               |
+| api-key               | The API key of the alert source. (mandatory)                              |
+| incident-key-template | Format of the incident key. [Default: `{{.Node}}:{{.Service}}:{{.Check}}` |
 
 Health Check via API
 --------------------
