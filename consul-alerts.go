@@ -249,6 +249,7 @@ func builtinNotifiers() map[string]notifier.Notifier {
 	opsgenieNotifier := consulClient.OpsGenieNotifier()
 	awssnsNotifier := consulClient.AwsSnsNotifier()
 	victoropsNotifier := consulClient.VictorOpsNotifier()
+	httpEndpointNotifier := consulClient.HttpEndpointNotifier()
 	ilertNotifier := consulClient.ILertNotifier()
 
 	notifiers := map[string]notifier.Notifier{}
@@ -285,6 +286,9 @@ func builtinNotifiers() map[string]notifier.Notifier {
 	if victoropsNotifier.Enabled {
 		notifiers[victoropsNotifier.NotifierName()] = victoropsNotifier
 	}
+	if httpEndpointNotifier.Enabled {
+		notifiers[httpEndpointNotifier.NotifierName()] = httpEndpointNotifier
+  }
 	if ilertNotifier.Enabled {
 		notifiers[ilertNotifier.NotifierName()] = ilertNotifier
 	}

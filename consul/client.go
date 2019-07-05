@@ -21,6 +21,7 @@ const (
 	ConfigTypeString
 	ConfigTypeInt
 	ConfigTypeStrArray
+	ConfigTypeStrMap
 )
 
 type configType int
@@ -240,6 +241,18 @@ func (c *ConsulAlertClient) LoadConfig() {
 			case "consul-alerts/config/notifiers/victorops/routing-key":
 				valErr = loadCustomValue(&config.Notifiers.VictorOps.RoutingKey, val, ConfigTypeString)
 
+			// http endpoint notfier config
+			case "consul-alerts/config/notifiers/http-endpoint/enabled":
+				valErr = loadCustomValue(&config.Notifiers.HttpEndpoint.Enabled, val, ConfigTypeBool)
+			case "consul-alerts/config/notifiers/http-endpoint/cluster-name":
+				valErr = loadCustomValue(&config.Notifiers.HttpEndpoint.ClusterName, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/http-endpoint/base-url":
+				valErr = loadCustomValue(&config.Notifiers.HttpEndpoint.BaseURL, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/http-endpoint/endpoint":
+				valErr = loadCustomValue(&config.Notifiers.HttpEndpoint.Endpoint, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/http-endpoint/payload":
+				valErr = loadCustomValue(&config.Notifiers.HttpEndpoint.Payload, val, ConfigTypeStrMap)
+
 			// iLert notfier config
 			case "consul-alerts/config/notifiers/ilert/enabled":
 				valErr = loadCustomValue(&config.Notifiers.ILert.Enabled, val, ConfigTypeBool)
@@ -280,6 +293,9 @@ func loadCustomValue(configVariable interface{}, data []byte, cType configType) 
 	case ConfigTypeStrArray:
 		arrConfig := configVariable.(*[]string)
 		err = json.Unmarshal(data, arrConfig)
+	case ConfigTypeStrMap:
+		mapConfig := configVariable.(*map[string]string)
+		err = json.Unmarshal(data, mapConfig)
 	}
 	return err
 }
@@ -544,6 +560,10 @@ func (c *ConsulAlertClient) AwsSnsNotifier() *notifier.AwsSnsNotifier {
 
 func (c *ConsulAlertClient) VictorOpsNotifier() *notifier.VictorOpsNotifier {
 	return c.config.Notifiers.VictorOps
+}
+
+func (c *ConsulAlertClient) HttpEndpointNotifier() *notifier.HttpEndpointNotifier {
+	return c.config.Notifiers.HttpEndpoint
 }
 
 func (c *ConsulAlertClient) ILertNotifier() *notifier.ILertNotifier {
