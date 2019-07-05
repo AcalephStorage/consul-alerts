@@ -83,13 +83,13 @@ func (c *ConsulAlertClient) LoadConfig() {
 			case "consul-alerts/config/checks/change-threshold":
 				valErr = loadCustomValue(&config.Checks.ChangeThreshold, val, ConfigTypeInt)
 
-			// events config
+				// events config
 			case "consul-alerts/config/events/enabled":
 				valErr = loadCustomValue(&config.Events.Enabled, val, ConfigTypeBool)
 			case "consul-alerts/config/events/handlers":
 				valErr = loadCustomValue(&config.Events.Handlers, val, ConfigTypeStrArray)
 
-			// email notifier config
+				// email notifier config
 			case "consul-alerts/config/notifiers/email/cluster-name":
 				valErr = loadCustomValue(&config.Notifiers.Email.ClusterName, val, ConfigTypeString)
 			case "consul-alerts/config/notifiers/email/template":
@@ -115,13 +115,13 @@ func (c *ConsulAlertClient) LoadConfig() {
 			case "consul-alerts/config/notifiers/email/one-per-node":
 				valErr = loadCustomValue(&config.Notifiers.Email.OnePerNode, val, ConfigTypeBool)
 
-			// log notifier config
+				// log notifier config
 			case "consul-alerts/config/notifiers/log/enabled":
 				valErr = loadCustomValue(&config.Notifiers.Log.Enabled, val, ConfigTypeBool)
 			case "consul-alerts/config/notifiers/log/path":
 				valErr = loadCustomValue(&config.Notifiers.Log.Path, val, ConfigTypeString)
 
-			// influxdb notifier config
+				// influxdb notifier config
 			case "consul-alerts/config/notifiers/influxdb/enabled":
 				valErr = loadCustomValue(&config.Notifiers.Influxdb.Enabled, val, ConfigTypeBool)
 			case "consul-alerts/config/notifiers/influxdb/host":
@@ -135,7 +135,7 @@ func (c *ConsulAlertClient) LoadConfig() {
 			case "consul-alerts/config/notifiers/influxdb/series-name":
 				valErr = loadCustomValue(&config.Notifiers.Influxdb.SeriesName, val, ConfigTypeString)
 
-			// slack notfier config
+				// slack notfier config
 			case "consul-alerts/config/notifiers/slack/enabled":
 				valErr = loadCustomValue(&config.Notifiers.Slack.Enabled, val, ConfigTypeBool)
 			case "consul-alerts/config/notifiers/slack/cluster-name":
@@ -153,7 +153,7 @@ func (c *ConsulAlertClient) LoadConfig() {
 			case "consul-alerts/config/notifiers/slack/detailed":
 				valErr = loadCustomValue(&config.Notifiers.Slack.Detailed, val, ConfigTypeBool)
 
-			// mattermost notfier config
+				// mattermost notfier config
 			case "consul-alerts/config/notifiers/mattermost/enabled":
 				valErr = loadCustomValue(&config.Notifiers.Mattermost.Enabled, val, ConfigTypeBool)
 			case "consul-alerts/config/notifiers/mattermost/cluster-name":
@@ -171,7 +171,7 @@ func (c *ConsulAlertClient) LoadConfig() {
 			case "consul-alerts/config/notifiers/mattermost/detailed":
 				valErr = loadCustomValue(&config.Notifiers.Mattermost.Detailed, val, ConfigTypeBool)
 
-			// mattermost webhook notifier config
+				// mattermost webhook notifier config
 			case "consul-alerts/config/notifiers/mattermost-webhook/enabled":
 				valErr = loadCustomValue(&config.Notifiers.MattermostWebhook.Enabled, val, ConfigTypeBool)
 			case "consul-alerts/config/notifiers/mattermost-webhook/cluster-name":
@@ -185,7 +185,7 @@ func (c *ConsulAlertClient) LoadConfig() {
 			case "consul-alerts/config/notifiers/mattermost-webhook/icon-url":
 				valErr = loadCustomValue(&config.Notifiers.MattermostWebhook.IconUrl, val, ConfigTypeString)
 
-			// pager-duty notfier config
+				// pager-duty notfier config
 			case "consul-alerts/config/notifiers/pagerduty/enabled":
 				valErr = loadCustomValue(&config.Notifiers.PagerDuty.Enabled, val, ConfigTypeBool)
 			case "consul-alerts/config/notifiers/pagerduty/service-key":
@@ -194,8 +194,12 @@ func (c *ConsulAlertClient) LoadConfig() {
 				valErr = loadCustomValue(&config.Notifiers.PagerDuty.ClientName, val, ConfigTypeString)
 			case "consul-alerts/config/notifiers/pagerduty/client-url":
 				valErr = loadCustomValue(&config.Notifiers.PagerDuty.ClientUrl, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/pagerduty/max-retry":
+				valErr = loadCustomValue(&config.Notifiers.PagerDuty.MaxRetry, val, ConfigTypeInt)
+			case "consul-alerts/config/notifiers/pagerduty/retry-base-interval":
+				valErr = loadCustomValue(&config.Notifiers.PagerDuty.RetryBaseInterval, val, ConfigTypeInt)
 
-			// hipchat notfier config
+				// hipchat notfier config
 			case "consul-alerts/config/notifiers/hipchat/enabled":
 				valErr = loadCustomValue(&config.Notifiers.HipChat.Enabled, val, ConfigTypeBool)
 			case "consul-alerts/config/notifiers/hipchat/cluster-name":
@@ -209,7 +213,7 @@ func (c *ConsulAlertClient) LoadConfig() {
 			case "consul-alerts/config/notifiers/hipchat/from":
 				valErr = loadCustomValue(&config.Notifiers.HipChat.From, val, ConfigTypeString)
 
-			// OpsGenie notifier config
+				// OpsGenie notifier config
 			case "consul-alerts/config/notifiers/opsgenie/enabled":
 				valErr = loadCustomValue(&config.Notifiers.OpsGenie.Enabled, val, ConfigTypeBool)
 			case "consul-alerts/config/notifiers/opsgenie/cluster-name":
@@ -217,7 +221,7 @@ func (c *ConsulAlertClient) LoadConfig() {
 			case "consul-alerts/config/notifiers/opsgenie/api-key":
 				valErr = loadCustomValue(&config.Notifiers.OpsGenie.ApiKey, val, ConfigTypeString)
 
-			// AwsSns notifier config
+				// AwsSns notifier config
 			case "consul-alerts/config/notifiers/awssns/cluster-name":
 				valErr = loadCustomValue(&config.Notifiers.AwsSns.ClusterName, val, ConfigTypeString)
 			case "consul-alerts/config/notifiers/awssns/enabled":
@@ -229,7 +233,7 @@ func (c *ConsulAlertClient) LoadConfig() {
 			case "consul-alerts/config/notifiers/awssns/template":
 				valErr = loadCustomValue(&config.Notifiers.AwsSns.Template, val, ConfigTypeString)
 
-			// VictorOps notfier config
+				// VictorOps notfier config
 			case "consul-alerts/config/notifiers/victorops/enabled":
 				valErr = loadCustomValue(&config.Notifiers.VictorOps.Enabled, val, ConfigTypeBool)
 			case "consul-alerts/config/notifiers/victorops/api-key":
@@ -248,6 +252,14 @@ func (c *ConsulAlertClient) LoadConfig() {
 				valErr = loadCustomValue(&config.Notifiers.HttpEndpoint.Endpoint, val, ConfigTypeString)
 			case "consul-alerts/config/notifiers/http-endpoint/payload":
 				valErr = loadCustomValue(&config.Notifiers.HttpEndpoint.Payload, val, ConfigTypeStrMap)
+
+			// iLert notfier config
+			case "consul-alerts/config/notifiers/ilert/enabled":
+				valErr = loadCustomValue(&config.Notifiers.ILert.Enabled, val, ConfigTypeBool)
+			case "consul-alerts/config/notifiers/ilert/api-key":
+				valErr = loadCustomValue(&config.Notifiers.ILert.ApiKey, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/ilert/incident-key-template":
+				valErr = loadCustomValue(&config.Notifiers.ILert.IncidentKeyTemplate, val, ConfigTypeString)
 			}
 
 			if valErr != nil {
@@ -309,25 +321,29 @@ func (c *ConsulAlertClient) UpdateCheckData() {
 	kvApi := c.api.KV()
 
 	healths, _, _ := healthApi.State("any", nil)
-	reminderkeys, _, _ := c.api.KV().List("consul-alerts/reminders/", nil)
+	reminderKeys, _, _ := c.api.KV().List("consul-alerts/reminders/", nil)
+	remindersSubsLevel := 4
 
-	for index := range reminderkeys {
+	for index := range reminderKeys {
 		log.Printf("checking for stale reminders")
-		s := strings.Split(reminderkeys[index].Key, "/")
-		node, check := s[2], s[3]
+		s := strings.Split(reminderKeys[index].Key, "/")
+		// check if the consul-alerts/reminders/ folder has sub folders
+		if len(s) >= remindersSubsLevel {
+			node, check := s[2], s[3]
 
-		nodecat, _, _ := c.api.Health().Node(node, nil)
-		settodelete := true
+			nodecat, _, _ := c.api.Health().Node(node, nil)
+			settodelete := true
 
-		for j := range nodecat {
-			if nodecat[j].CheckID == check {
-				settodelete = false
-				break
+			for j := range nodecat {
+				if nodecat[j].CheckID == check {
+					settodelete = false
+					break
+				}
 			}
-		}
-		if settodelete {
-			log.Printf("Reminder %s %s needs to be deleted, stale", node, check)
-			c.DeleteReminder(node, check)
+			if settodelete {
+				log.Printf("Reminder %s %s needs to be deleted, stale", node, check)
+				c.DeleteReminder(node, check)
+			}
 		}
 	}
 
@@ -550,6 +566,10 @@ func (c *ConsulAlertClient) HttpEndpointNotifier() *notifier.HttpEndpointNotifie
 	return c.config.Notifiers.HttpEndpoint
 }
 
+func (c *ConsulAlertClient) ILertNotifier() *notifier.ILertNotifier {
+	return c.config.Notifiers.ILert
+}
+
 func (c *ConsulAlertClient) registerHealthCheck(key string, health *Check) {
 
 	log.Printf(
@@ -743,8 +763,13 @@ func (c *ConsulAlertClient) getProfileForNode(node string) string {
 	return c.getProfileForEntity("host", node)
 }
 
+func (c *ConsulAlertClient) getProfileForStatus(status string) string {
+	// Appends s to folder.
+	return c.getProfileForEntity("statu", status)
+}
+
 // GetProfileInfo returns profile info for check
-func (c *ConsulAlertClient) GetProfileInfo(node, serviceID, checkID string) ProfileInfo {
+func (c *ConsulAlertClient) GetProfileInfo(node, serviceID, checkID, status string) ProfileInfo {
 	log.Println("Getting profile for node: ", node, " service: ", serviceID, " check: ", checkID)
 
 	var profile string
@@ -755,6 +780,9 @@ func (c *ConsulAlertClient) GetProfileInfo(node, serviceID, checkID string) Prof
 	}
 	if profile == "" {
 		profile = c.getProfileForNode(node)
+	}
+	if profile == "" {
+		profile = c.getProfileForStatus(status)
 	}
 	if profile == "" {
 		profile = "default"
@@ -809,10 +837,20 @@ func (c *ConsulAlertClient) IsBlacklisted(check *Check) bool {
 		return c.CheckKeyExists(checkCheckKey) || c.CheckKeyMatchesRegexp("consul-alerts/config/checks/blacklist/checks", checkID)
 	}
 
+	status := "_"
+	statusBlacklisted := func() bool { return false }
+	if check.Status != "" {
+		status = check.Status
+		statusCheckKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/status/%s", status)
+		statusBlacklisted = func() bool {
+			return c.CheckKeyExists(statusCheckKey) || c.CheckKeyMatchesRegexp("consul-alerts/config/checks/blacklist/status", status)
+		}
+	}
+
 	singleKey := fmt.Sprintf("consul-alerts/config/checks/blacklist/single/%s/%s/%s", node, service, checkID)
 	singleBlacklisted := func() bool { return c.CheckKeyExists(singleKey) }
 
-	return blacklistExist() && (nodeBlacklisted() || serviceBlacklisted() || checkBlacklisted() || singleBlacklisted())
+	return blacklistExist() && (nodeBlacklisted() || serviceBlacklisted() || checkBlacklisted() || statusBlacklisted() || singleBlacklisted())
 }
 
 // GetChangeThreshold gets the node/service/check specific override for change threshold

@@ -170,10 +170,10 @@ func daemonMode(arguments map[string]interface{}) {
 	log.Println("Started Consul-Alerts API")
 
 	if watchChecks {
-		go runWatcher(consulAddr, consulDc, addr, loglevelString, "checks")
+		go runWatcher(consulAddr, consulDc, addr, loglevelString, consulAclToken, "checks")
 	}
 	if watchEvents {
-		go runWatcher(consulAddr, consulDc, addr, loglevelString, "event")
+		go runWatcher(consulAddr, consulDc, addr, loglevelString, consulAclToken, "event")
 	}
 
 	ch := make(chan os.Signal)
@@ -250,6 +250,7 @@ func builtinNotifiers() map[string]notifier.Notifier {
 	awssnsNotifier := consulClient.AwsSnsNotifier()
 	victoropsNotifier := consulClient.VictorOpsNotifier()
 	httpEndpointNotifier := consulClient.HttpEndpointNotifier()
+	ilertNotifier := consulClient.ILertNotifier()
 
 	notifiers := map[string]notifier.Notifier{}
 	if emailNotifier.Enabled {
@@ -287,6 +288,9 @@ func builtinNotifiers() map[string]notifier.Notifier {
 	}
 	if httpEndpointNotifier.Enabled {
 		notifiers[httpEndpointNotifier.NotifierName()] = httpEndpointNotifier
+  }
+	if ilertNotifier.Enabled {
+		notifiers[ilertNotifier.NotifierName()] = ilertNotifier
 	}
 
 	return notifiers
