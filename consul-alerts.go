@@ -170,10 +170,10 @@ func daemonMode(arguments map[string]interface{}) {
 	log.Println("Started Consul-Alerts API")
 
 	if watchChecks {
-		go runWatcher(consulAddr, consulDc, addr, loglevelString, "checks")
+		go runWatcher(consulAddr, consulDc, addr, loglevelString, consulAclToken, "checks")
 	}
 	if watchEvents {
-		go runWatcher(consulAddr, consulDc, addr, loglevelString, "event")
+		go runWatcher(consulAddr, consulDc, addr, loglevelString, consulAclToken, "event")
 	}
 
 	ch := make(chan os.Signal)
@@ -243,11 +243,14 @@ func builtinNotifiers() map[string]notifier.Notifier {
 	influxdbNotifier := consulClient.InfluxdbNotifier()
 	slackNotifier := consulClient.SlackNotifier()
 	mattermostNotifier := consulClient.MattermostNotifier()
+	mattermostWebhookNotifier := consulClient.MattermostWebhookNotifier()
 	pagerdutyNotifier := consulClient.PagerDutyNotifier()
 	hipchatNotifier := consulClient.HipChatNotifier()
 	opsgenieNotifier := consulClient.OpsGenieNotifier()
 	awssnsNotifier := consulClient.AwsSnsNotifier()
 	victoropsNotifier := consulClient.VictorOpsNotifier()
+	httpEndpointNotifier := consulClient.HttpEndpointNotifier()
+	ilertNotifier := consulClient.ILertNotifier()
 
 	notifiers := map[string]notifier.Notifier{}
 	if emailNotifier.Enabled {
@@ -265,6 +268,9 @@ func builtinNotifiers() map[string]notifier.Notifier {
 	if mattermostNotifier.Enabled {
 		notifiers[mattermostNotifier.NotifierName()] = mattermostNotifier
 	}
+	if mattermostWebhookNotifier.Enabled {
+		notifiers[mattermostWebhookNotifier.NotifierName()] = mattermostWebhookNotifier
+	}
 	if pagerdutyNotifier.Enabled {
 		notifiers[pagerdutyNotifier.NotifierName()] = pagerdutyNotifier
 	}
@@ -277,9 +283,14 @@ func builtinNotifiers() map[string]notifier.Notifier {
 	if awssnsNotifier.Enabled {
 		notifiers[awssnsNotifier.NotifierName()] = awssnsNotifier
 	}
-
 	if victoropsNotifier.Enabled {
 		notifiers[victoropsNotifier.NotifierName()] = victoropsNotifier
+	}
+	if httpEndpointNotifier.Enabled {
+		notifiers[httpEndpointNotifier.NotifierName()] = httpEndpointNotifier
+  }
+	if ilertNotifier.Enabled {
+		notifiers[ilertNotifier.NotifierName()] = ilertNotifier
 	}
 
 	return notifiers

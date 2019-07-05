@@ -75,11 +75,14 @@ type Consul interface {
 	InfluxdbNotifier() *notifier.InfluxdbNotifier
 	SlackNotifier() *notifier.SlackNotifier
 	MattermostNotifier() *notifier.MattermostNotifier
+	MattermostWebhookNotifier() *notifier.MattermostWebhookNotifier
 	PagerDutyNotifier() *notifier.PagerDutyNotifier
 	HipChatNotifier() *notifier.HipChatNotifier
 	OpsGenieNotifier() *notifier.OpsGenieNotifier
 	AwsSnsNotifier() *notifier.AwsSnsNotifier
 	VictorOpsNotifier() *notifier.VictorOpsNotifier
+	HttpEndpointNotifier() *notifier.HttpEndpointNotifier
+	ILertNotifier() *notifier.ILertNotifier
 
 	CheckChangeThreshold() int
 	UpdateCheckData()
@@ -93,7 +96,7 @@ type Consul interface {
 	CheckStatus(node, statusId, checkId string) (status, output string)
 	CheckKeyExists(key string) bool
 
-	GetProfileInfo(node, serviceID, checkID string) ProfileInfo
+	GetProfileInfo(node, serviceID, checkID, status string) ProfileInfo
 
 	GetReminders() []notifier.Message
 	SetReminder(m notifier.Message)
@@ -140,6 +143,11 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 		ClusterName: "Consul-Alerts",
 	}
 
+	mattermostWebhook := &notifier.MattermostWebhookNotifier{
+		Enabled:     false,
+		ClusterName: "Consul-Alerts",
+	}
+
 	pagerduty := &notifier.PagerDutyNotifier{
 		Enabled: false,
 	}
@@ -163,18 +171,31 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 		Enabled: false,
 	}
 
+	httpEndpoint := &notifier.HttpEndpointNotifier{
+		Enabled:     false,
+		ClusterName: "Consul-Alerts",
+  }
+    
+	ilert := &notifier.ILertNotifier{
+		Enabled:             false,
+		IncidentKeyTemplate: "{{.Node}}:{{.Service}}:{{.Check}}",
+	}
+
 	notifiers := &notifier.Notifiers{
-		Email:      email,
-		Log:        log,
-		Influxdb:   influxdb,
-		Slack:      slack,
-		Mattermost: mattermost,
-		PagerDuty:  pagerduty,
-		HipChat:    hipchat,
-		OpsGenie:   opsgenie,
-		AwsSns:     awsSns,
-		VictorOps:  victorOps,
-		Custom:     []string{},
+		Email:             email,
+		Log:               log,
+		Influxdb:          influxdb,
+		Slack:             slack,
+		Mattermost:        mattermost,
+		MattermostWebhook: mattermostWebhook,
+		PagerDuty:         pagerduty,
+		HipChat:           hipchat,
+		OpsGenie:          opsgenie,
+		AwsSns:            awsSns,
+		VictorOps:         victorOps,
+		HttpEndpoint:      httpEndpoint,
+		ILert:             ilert,
+		Custom:            []string{},
 	}
 
 	return &ConsulAlertConfig{

@@ -126,7 +126,7 @@ func (vo *VictorOpsNotifier) Notify(messages Messages) bool {
 
 		if response.StatusCode != 200 {
 			ok = false
-			log.Error(fmt.Sprintf("Expected VictorOps endpoint to return 200, but it returned %d"), response.StatusCode)
+			log.Error(fmt.Sprintf("Expected VictorOps endpoint to return 200, but it returned %d", response.StatusCode))
 			continue
 		}
 	}

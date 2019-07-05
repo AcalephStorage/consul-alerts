@@ -2,119 +2,62 @@ package client
 
 import (
 	"errors"
-	"fmt"
-	goreq "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/franela/goreq"
+
 	integration "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/opsgenie/opsgenie-go-sdk/integration"
-	"time"
+	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/opsgenie/opsgenie-go-sdk/logging"
 )
 
 const (
-	ENABLE_INTEGRATION_URL  = ENDPOINT_URL + "/v1/json/integration/enable"
-	DISABLE_INTEGRATION_URL = ENDPOINT_URL + "/v1/json/integration/disable"
+	enableIntegrationURL  = "/v1/json/integration/enable"
+	disableIntegrationURL = "/v1/json/integration/disable"
 )
 
+// OpsGenieIntegrationClient is the data type to make Integration API requests.
 type OpsGenieIntegrationClient struct {
-	apiKey  string
-	proxy   string
-	retries int
+	OpsGenieClient
 }
 
-func (cli *OpsGenieIntegrationClient) buildRequest(method string, uri string, body interface{}) goreq.Request {
-	req := goreq.Request{}
-	req.Method = method
-	req.Uri = uri
-	if body != nil {
-		req.Body = body
-	}
-	if cli.proxy != "" {
-		req.Proxy = cli.proxy
-	}
-	req.UserAgent = userAgentParam.ToString()
-	return req
+// SetOpsGenieClient sets the embedded OpsGenieClient type of the OpsGenieIntegrationClient.
+func (cli *OpsGenieIntegrationClient) SetOpsGenieClient(ogCli OpsGenieClient) {
+	cli.OpsGenieClient = ogCli
 }
 
-func (cli *OpsGenieIntegrationClient) SetConnectionTimeout(timeoutInSeconds time.Duration) {
-	goreq.SetConnectTimeout(timeoutInSeconds * time.Second)
-}
-
-func (cli *OpsGenieIntegrationClient) SetMaxRetryAttempts(retries int) {
-	cli.retries = retries
-}
-
+// Enable method enables an Integration at OpsGenie.
 func (cli *OpsGenieIntegrationClient) Enable(req integration.EnableIntegrationRequest) (*integration.EnableIntegrationResponse, error) {
-	req.ApiKey = cli.apiKey
-	// validate mandatory fields: id/name, apiKey
-	if req.ApiKey == "" && req.Id == "" {
-		return nil, errors.New("Api Key or Id should be provided")
+	req.APIKey = cli.apiKey
+	resp, err := cli.sendRequest(cli.buildPostRequest(enableIntegrationURL, req))
+
+	if resp == nil {
+		return nil, err
 	}
-	if req.ApiKey != "" && req.Id != "" {
-		return nil, errors.New("Either Api Key or Id should be provided, not both")
-	}
-	// send the request
-	var resp *goreq.Response
-	var err error
-	for i := 0; i < cli.retries; i++ {
-		resp, err = cli.buildRequest("POST", ENABLE_INTEGRATION_URL, req).Do()
-		if err == nil {
-			break
-		}
-		time.Sleep(TIME_SLEEP_BETWEEN_REQUESTS)
-	}
-	if err != nil {
-		return nil, errors.New("Can not enable the integration, unable to send the request")
-	}
-	// check for the returning http status, 4xx: client errors, 5xx: server errors
-	statusCode := resp.StatusCode
-	if statusCode >= 400 && statusCode < 500 {
-		return nil, errors.New(fmt.Sprintf("Client error %d occured", statusCode))
-	}
-	if statusCode >= 500 {
-		return nil, errors.New(fmt.Sprintf("Server error %d occured", statusCode))
-	}
-	// try to parse the returning JSON into the response
+	defer resp.Body.Close()
+
 	var enableIntegrationResp integration.EnableIntegrationResponse
 	if err = resp.Body.FromJsonTo(&enableIntegrationResp); err != nil {
-		return nil, errors.New("Server response can not be parsed")
+		message := "Server response can not be parsed, " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
 	}
-	// parsed successfuly with no errors
+
 	return &enableIntegrationResp, nil
 }
 
+// Disable method disables an Integration at OpsGenie.
 func (cli *OpsGenieIntegrationClient) Disable(req integration.DisableIntegrationRequest) (*integration.DisableIntegrationResponse, error) {
-	req.ApiKey = cli.apiKey
-	// validate mandatory fields: id/name, apiKey
-	if req.ApiKey == "" && req.Id == "" {
-		return nil, errors.New("Api Key or Id should be provided")
+	req.APIKey = cli.apiKey
+	resp, err := cli.sendRequest(cli.buildPostRequest(disableIntegrationURL, req))
+
+	if resp == nil {
+		return nil, err
 	}
-	if req.ApiKey != "" && req.Id != "" {
-		return nil, errors.New("Either Api Key or Id should be provided, not both")
-	}
-	// send the request
-	var resp *goreq.Response
-	var err error
-	for i := 0; i < cli.retries; i++ {
-		resp, err = cli.buildRequest("POST", DISABLE_INTEGRATION_URL, req).Do()
-		if err == nil {
-			break
-		}
-		time.Sleep(TIME_SLEEP_BETWEEN_REQUESTS)
-	}
-	if err != nil {
-		return nil, errors.New("Can not disable the integration, unable to send the request")
-	}
-	// check for the returning http status, 4xx: client errors, 5xx: server errors
-	statusCode := resp.StatusCode
-	if statusCode >= 400 && statusCode < 500 {
-		return nil, errors.New(fmt.Sprintf("Client error %d occured", statusCode))
-	}
-	if statusCode >= 500 {
-		return nil, errors.New(fmt.Sprintf("Server error %d occured", statusCode))
-	}
-	// try to parse the returning JSON into the response
+	defer resp.Body.Close()
+
 	var disableIntegrationResp integration.DisableIntegrationResponse
 	if err = resp.Body.FromJsonTo(&disableIntegrationResp); err != nil {
-		return nil, errors.New("Server response can not be parsed")
+		message := "Server response can not be parsed, " + err.Error()
+		logging.Logger().Warn(message)
+		return nil, errors.New(message)
 	}
-	// parsed successfuly with no errors
+
 	return &disableIntegrationResp, nil
 }

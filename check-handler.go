@@ -58,6 +58,21 @@ func (c *CheckProcessor) reminderRun() {
 	messages := consulClient.GetReminders()
 	filteredMessages := make(notifier.Messages, 0)
 	for _, message := range messages {
+		check := &consul.Check{
+			Node:        message.Node,
+			CheckID:     message.CheckId,
+			Name:        message.Check,
+			Status:      message.Status,
+			Notes:       message.Notes,
+			Output:      message.Output,
+			ServiceID:   message.ServiceId,
+			ServiceName: message.Service,
+		}
+		if consulClient.IsBlacklisted(check) {
+			log.Printf("%s:%s:%s is blacklisted, deleting reminder", check.Node, check.ServiceID, check.CheckID)
+			consulClient.DeleteReminder(check.Node, check.CheckID)
+			continue
+		}
 		duration := time.Since(message.RmdCheck)
 		durMins := int(math.Ceil(duration.Minutes()))
 		log.Println("Reminder message duration minutes: ", durMins)
@@ -108,7 +123,7 @@ func (c *CheckProcessor) handleChecks(checks []consul.Check) {
 func (c *CheckProcessor) notify(alerts []consul.Check) {
 	messages := make([]notifier.Message, len(alerts))
 	for i, alert := range alerts {
-		profileInfo := consulClient.GetProfileInfo(alert.Node, alert.ServiceID, alert.CheckID)
+		profileInfo := consulClient.GetProfileInfo(alert.Node, alert.ServiceID, alert.CheckID, alert.Status)
 		messages[i] = notifier.Message{
 			Node:          alert.Node,
 			ServiceId:     alert.ServiceID,
