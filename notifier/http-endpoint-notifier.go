@@ -2,9 +2,10 @@ package notifier
 
 import (
 	"fmt"
+	"bytes"
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 
 	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
 )
@@ -38,17 +39,25 @@ func (notifier *HttpEndpointNotifier) Notify(messages Messages) bool {
 		PassCount:    pass,
 		Nodes:        mapByNodes(messages),
 	}
-	values := url.Values{}
+	values := map[string]string{}
+
 	for key, val := range notifier.Payload {
 		data, err := renderTemplate(t, "", val)
 		if err != nil {
 			log.Println("Error rendering template: ", err)
 			return false
 		}
-		values.Set(key, string(data))
+		values[key] = string(data)
 	}
+
+	requestBody, err := json.Marshal(values)
+	if err != nil {
+		log.Println("Unable to encode POST data")
+		return false
+	}
+
 	endpoint := fmt.Sprintf("%s%s", notifier.BaseURL, notifier.Endpoint)
-	if res, err := http.PostForm(endpoint, values); err != nil {
+	if res, err := http.Post(endpoint, "application/json", bytes.NewBuffer(requestBody)); err != nil {
 		log.Println("Unable to send data to HTTP endpoint:", err)
 		return false
 	} else {
