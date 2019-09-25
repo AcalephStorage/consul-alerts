@@ -607,6 +607,35 @@ prefix: `consul-alerts/config/notifiers/ilert/`
 | api-key               | The API key of the alert source. (mandatory)                              |
 | incident-key-template | Format of the incident key. [Default: `{{.Node}}:{{.Service}}:{{.Check}}` |
 
+#### Prometheus
+
+To enable the Prometheus built-in notifier, set
+`consul-alerts/config/notifiers/prometheus/enabled` to `true`. Prometheus details
+needs to be configured.
+
+prefix: `consul-alerts/config/notifiers/prometheus/`
+
+| key          | description                                                           |
+|--------------|-----------------------------------------------------------------------|
+| enabled      | Enable the prometheus notifier.            [Default: false]           |
+| cluster-name | The name of the cluster.                   [Default: "Consul Alerts"] |
+| base-urls    | Base URLs of the Prometheus cluster        (mandatory)                |
+| endpoint     | The endpoint to append to the end of each base-url                    |
+| payload      | The payload to send to the Prometheus server (mandatory)              |
+
+The value of 'payload' must be a json map of type string. Value will be rendered as a template.
+```
+{
+  "alertName": "{{ .Check }}/{{ .Service }}/{{ .Node }}",
+  "host": "{{ .Node }}",
+  "service": "{{ .Service }}",
+  "severity": "{{ .Status }}",
+  "output": "{{ .Output }}",
+  "notes": "{{ .Notes }}",
+  "time": "{{ .Timestamp }}"
+}
+```
+
 Health Check via API
 --------------------
 

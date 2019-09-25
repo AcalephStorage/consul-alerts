@@ -253,6 +253,18 @@ func (c *ConsulAlertClient) LoadConfig() {
 			case "consul-alerts/config/notifiers/http-endpoint/payload":
 				valErr = loadCustomValue(&config.Notifiers.HttpEndpoint.Payload, val, ConfigTypeStrMap)
 
+			// Prometheus notifier config
+			case "consul-alerts/config/notifiers/prometheus/enabled":
+				valErr = loadCustomValue(&config.Notifiers.Prometheus.Enabled, val, ConfigTypeBool)
+			case "consul-alerts/config/notifiers/prometheus/cluster-name":
+				valErr = loadCustomValue(&config.Notifiers.Prometheus.ClusterName, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/prometheus/base-urls":
+				valErr = loadCustomValue(&config.Notifiers.Prometheus.BaseURLs, val, ConfigTypeStrArray)
+			case "consul-alerts/config/notifiers/prometheus/endpoint":
+				valErr = loadCustomValue(&config.Notifiers.Prometheus.Endpoint, val, ConfigTypeString)
+			case "consul-alerts/config/notifiers/prometheus/payload":
+				valErr = loadCustomValue(&config.Notifiers.Prometheus.Payload, val, ConfigTypeStrMap)
+
 			// iLert notfier config
 			case "consul-alerts/config/notifiers/ilert/enabled":
 				valErr = loadCustomValue(&config.Notifiers.ILert.Enabled, val, ConfigTypeBool)
@@ -564,6 +576,10 @@ func (c *ConsulAlertClient) VictorOpsNotifier() *notifier.VictorOpsNotifier {
 
 func (c *ConsulAlertClient) HttpEndpointNotifier() *notifier.HttpEndpointNotifier {
 	return c.config.Notifiers.HttpEndpoint
+}
+
+func (c *ConsulAlertClient) PrometheusNotifier() *notifier.PrometheusNotifier {
+	return c.config.Notifiers.Prometheus
 }
 
 func (c *ConsulAlertClient) ILertNotifier() *notifier.ILertNotifier {

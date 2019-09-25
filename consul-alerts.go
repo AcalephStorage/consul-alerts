@@ -250,6 +250,7 @@ func builtinNotifiers() map[string]notifier.Notifier {
 	awssnsNotifier := consulClient.AwsSnsNotifier()
 	victoropsNotifier := consulClient.VictorOpsNotifier()
 	httpEndpointNotifier := consulClient.HttpEndpointNotifier()
+	prometheusNotifier := consulClient.PrometheusNotifier()
 	ilertNotifier := consulClient.ILertNotifier()
 
 	notifiers := map[string]notifier.Notifier{}
@@ -288,7 +289,10 @@ func builtinNotifiers() map[string]notifier.Notifier {
 	}
 	if httpEndpointNotifier.Enabled {
 		notifiers[httpEndpointNotifier.NotifierName()] = httpEndpointNotifier
-  }
+	}
+	if prometheusNotifier.Enabled {
+		notifiers[prometheusNotifier.NotifierName()] = prometheusNotifier
+	}
 	if ilertNotifier.Enabled {
 		notifiers[ilertNotifier.NotifierName()] = ilertNotifier
 	}
