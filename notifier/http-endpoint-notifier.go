@@ -85,7 +85,9 @@ func sendHTTPWithHeaderAuthorization(url, contentType string, token string, body
 	}
 	client := &http.Client{}
 	req.Header.Set("Content-Type", contentType)
-	req.Header.Set("Authorization", token)
+	if len(token) > 0 {
+		req.Header.Set("Authorization", token)
 
+	}
 	return client.Do(req)
 }
