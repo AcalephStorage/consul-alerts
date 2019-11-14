@@ -1,9 +1,10 @@
 package notifier
 
 import (
-	"fmt"
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 
@@ -12,10 +13,11 @@ import (
 
 type HttpEndpointNotifier struct {
 	Enabled     bool
-	ClusterName string `json:"cluster-name"`
-	BaseURL     string `json:"base-url"`
-	Endpoint    string `json:"endpoint"`
+	ClusterName string            `json:"cluster-name"`
+	BaseURL     string            `json:"base-url"`
+	Endpoint    string            `json:"endpoint"`
 	Payload     map[string]string `json:"payload"`
+	Token       string            `json:"token"`
 }
 
 // NotifierName provides name for notifier selection
@@ -57,7 +59,7 @@ func (notifier *HttpEndpointNotifier) Notify(messages Messages) bool {
 	}
 
 	endpoint := fmt.Sprintf("%s%s", notifier.BaseURL, notifier.Endpoint)
-	if res, err := http.Post(endpoint, "application/json", bytes.NewBuffer(requestBody)); err != nil {
+	if res, err := sendHTTPWithHeaderAuthorization(endpoint, "application/json", notifier.Token, bytes.NewBuffer(requestBody)); err != nil {
 		log.Println("Unable to send data to HTTP endpoint:", err)
 		return false
 	} else {
@@ -73,4 +75,17 @@ func (notifier *HttpEndpointNotifier) Notify(messages Messages) bool {
 		}
 	}
 
+}
+
+// sendHTTPWithHeaderAuthorization ...
+func sendHTTPWithHeaderAuthorization(url, contentType string, token string, body io.Reader) (resp *http.Response, err error) {
+	req, err := http.NewRequest("POST", url, body)
+	if err != nil {
+		return nil, err
+	}
+	client := &http.Client{}
+	req.Header.Set("Content-Type", contentType)
+	req.Header.Set("Authorization", token)
+
+	return client.Do(req)
 }
