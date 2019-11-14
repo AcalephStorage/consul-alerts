@@ -1,5 +1,4 @@
-consul-alerts
-=============
+# consul-alerts
 
 [![Join the chat at https://gitter.im/AcalephStorage/consul-alerts](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/AcalephStorage/consul-alerts?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -9,29 +8,27 @@ Under the covers, consul-alerts leverages Consul's own leadership election and K
 
 consul-alerts provides a high degree of configuration including:
 
--  Several built-in [Notifiers](#notifiers) for distribution of health check alerts (email, sns, pagerduty, etc.)
--  The ability to create Notification Profiles, sets of Notifiers which will respond to the given alert when a configurable threshold is exceeded
--  Multiple degrees of customization for Notifiers and Blacklisting of alerts (service, check id or host)
-
+- Several built-in [Notifiers](#notifiers) for distribution of health check alerts (email, sns, pagerduty, etc.)
+- The ability to create Notification Profiles, sets of Notifiers which will respond to the given alert when a configurable threshold is exceeded
+- Multiple degrees of customization for Notifiers and Blacklisting of alerts (service, check id or host)
 
 ## Requirement
 
 1. Consul 0.4+. Get it [here](http://consul.io).
 2. Configured `GOPATH`.
 
-Releases
---------
+## Releases
 
 Stable release are [here](https://github.com/AcalephStorage/consul-alerts/releases).
 
 Latest release are found here:
- - [darwin-amd64](https://bintray.com/artifact/download/darkcrux/generic/consul-alerts-latest-darwin-amd64.tar)
- - [FreeBSD-amd64](https://bintray.com/artifact/download/darkcrux/generic/consul-alerts-latest-FreeBSD-amd64.tar)
- - [linux-386](https://bintray.com/artifact/download/darkcrux/generic/consul-alerts-latest-linux-386.tar)
- - [linux-amd64](https://bintray.com/artifact/download/darkcrux/generic/consul-alerts-latest-linux-amd64.tar)
 
-Installation
-------------
+- [darwin-amd64](https://bintray.com/artifact/download/darkcrux/generic/consul-alerts-latest-darwin-amd64.tar)
+- [FreeBSD-amd64](https://bintray.com/artifact/download/darkcrux/generic/consul-alerts-latest-FreeBSD-amd64.tar)
+- [linux-386](https://bintray.com/artifact/download/darkcrux/generic/consul-alerts-latest-linux-386.tar)
+- [linux-amd64](https://bintray.com/artifact/download/darkcrux/generic/consul-alerts-latest-linux-amd64.tar)
+
+## Installation
 
 ```
 $ go get github.com/AcalephStorage/consul-alerts
@@ -47,8 +44,7 @@ $ docker pull acaleph/consul-alerts
 
 ```
 
-Usage
------
+## Usage
 
 ```
 $ consul-alerts start
@@ -73,8 +69,7 @@ or run the watchers on the agent the daemon connects by adding the following fla
 $ consul-alerts start --watch-events --watch-checks
 ```
 
-Usage - Docker
---------------
+## Usage - Docker
 
 There are a few options for running in docker.
 
@@ -91,13 +86,14 @@ docker run -ti \
   acaleph/consul-alerts \
   agent -data-dir /data -server -bootstrap -client=0.0.0.0
 ```
+
 Then in a separate terminal start consul-alerts:
 
 ```
 $ docker exec -ti consul-alerts /bin/consul-alerts start --alert-addr=0.0.0.0:9000 --log-level=info --watch-events --watch-checks
 ```
 
-The second option is to link to an existing consul container through docker networking and --link option.  This method can more easily
+The second option is to link to an existing consul container through docker networking and --link option. This method can more easily
 share the consul instance with other containers such as vault.
 
 First launch consul container:
@@ -140,8 +136,7 @@ $ docker run -ti \
 
 **NOTE:** Don't change --alert-addr when using the docker container.
 
-Configuration
--------------
+## Configuration
 
 To assure consistency between instances, configuration is stored in Consul's KV with the prefix: `consul-alerts/config/`. consul-alerts works out of the box without any customizations by using the defaults documented below and leverages the KV settings as overrides.
 
@@ -174,14 +169,14 @@ Health checking is enabled by default and is at the core what consul-alerts prov
 **Configuration Options:**
 The default Health Check configuration can be customized by setting kv with the prefix: `consul-alerts/config/checks/`
 
-| key              | description                                                                                        |
-|------------------|----------------------------------------------------------------------------------------------------|
-| enabled          | Globally enable the Health Check functionality. [Default: true]                                    |
-| change-threshold | The time, in seconds, that a check must be in a given status before an alert is sent [Default: 60] |
+| key                                                              | description                                                                                                         |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| enabled                                                          | Globally enable the Health Check functionality. [Default: true]                                                     |
+| change-threshold                                                 | The time, in seconds, that a check must be in a given status before an alert is sent [Default: 60]                  |
 | single/{{ node }}/{{ serviceID }}/{{ checkID }}/change-threshold | Overrides `change-threshold` for a specific check associated with a particular service running on a particular node |
-| check/{{ checkID }}/change-threshold | Overrides `change-threshold` for a specific check |
-| service/{{ serviceID }}/change-threshold | Overrides `change-threshold` for a specific service |
-| node/{{ node }}/change-threshold | Overrides `change-threshold` for a specific node |
+| check/{{ checkID }}/change-threshold                             | Overrides `change-threshold` for a specific check                                                                   |
+| service/{{ serviceID }}/change-threshold                         | Overrides `change-threshold` for a specific service                                                                 |
+| node/{{ node }}/change-threshold                                 | Overrides `change-threshold` for a specific node                                                                    |
 
 When `change-threshold` is overridden multiple times, the most specific condition will be used based on the following order: (most specific) `single` > `check` > `service` > `node` > `global settings` > `default settings` (least specific).
 
@@ -236,11 +231,13 @@ Ex. `emailer_only` would be located at `consul-alerts/config/notif-profiles/emai
 ```
 
 #### Notification Profile Examples
+
 **Notification Profile to only send Emails with reminders every 10 minutes:**
 
 **Key:** `consul-alerts/config/notif-profiles/emailer_only`
 
 **Value:**
+
 ```
 {
   "Interval": 10,
@@ -251,13 +248,14 @@ Ex. `emailer_only` would be located at `consul-alerts/config/notif-profiles/emai
 }
 ```
 
-**NOTE:** While it is completely valid to explicitly disable a Notifier in a Notifier Profile, it is not necessary.  In the event that a Notification Profile is used, only Notifiers which are explicitly defined and enabled will be used.  In the example above then, we could have omitted the `"log": false` in the `NotifList` and achieved the same results.
+**NOTE:** While it is completely valid to explicitly disable a Notifier in a Notifier Profile, it is not necessary. In the event that a Notification Profile is used, only Notifiers which are explicitly defined and enabled will be used. In the example above then, we could have omitted the `"log": false` in the `NotifList` and achieved the same results.
 
 **Example - Notification Profile to only send to PagerDuty but never send reminders:**
 
 **Key:** `consul-alerts/config/notif-profiles/pagerduty_no_reminders`
 
 **Value:**
+
 ```
 {
   "Interval": 0,
@@ -267,13 +265,14 @@ Ex. `emailer_only` would be located at `consul-alerts/config/notif-profiles/emai
 }
 ```
 
-**NOTE:** The Interval being set to 0 **disables** Reminders from being sent for a given alert.  If the service stays in a critical status for an extended period, only that first notification will be sent.
+**NOTE:** The Interval being set to 0 **disables** Reminders from being sent for a given alert. If the service stays in a critical status for an extended period, only that first notification will be sent.
 
 **Example - Notification Profile to only send Emails to the overridden receivers:**
 
 **Key:** `consul-alerts/config/notif-profiles/emailer_overridden`
 
 **Value:**
+
 ```
 {
   "Interval": 10,
@@ -293,6 +292,7 @@ Ex. `emailer_only` would be located at `consul-alerts/config/notif-profiles/emai
 **Key:** `consul-alerts/config/notif-profiles/slack_off`
 
 **Value:**
+
 ```
 {
   "Interval": 0,
@@ -314,6 +314,7 @@ To activate a Notification Profile for a set of entities matching a regular expr
 **Key:** `consul-alerts/config/notif-selection/services`
 
 **Value:**
+
 ```
 {
   "^infra-.*$": "infra-support-profile"
@@ -326,7 +327,7 @@ To activate a Notification Profile for a set of entities matching a regular expr
 
 **Value:** `slack_off`
 
-In addition to the service, check and host specific Notification Profiles, the operator can setup a default Notification Profile by creating a Notification Profile kv `consul-alerts/config/notif-profiles/default`, which acts as a fallback in the event a specific Notification Profile is not found.  If there are no Notification Profiles matching the criteria, consul-alerts will send the notification to the full list of enabled Notifiers and no reminders will be sent.
+In addition to the service, check and host specific Notification Profiles, the operator can setup a default Notification Profile by creating a Notification Profile kv `consul-alerts/config/notif-profiles/default`, which acts as a fallback in the event a specific Notification Profile is not found. If there are no Notification Profiles matching the criteria, consul-alerts will send the notification to the full list of enabled Notifiers and no reminders will be sent.
 
 As consul-alerts attempts to process a given notification, it has a series of lookups it does to associate an event with a given Notification Profile by matching on:
 
@@ -338,7 +339,7 @@ As consul-alerts attempts to process a given notification, it has a series of lo
 
 **NOTE:** An event will only trigger notification for the FIRST Notification Profile that meets it's criteria.
 
-Reminders resend the notifications at programmable intervals until they are resolved or added to the blacklist. Reminders are processed every five minutes therefore Interval values should be a multiple of five.  If the Interval value is 0 or not set then reminders will not be sent.
+Reminders resend the notifications at programmable intervals until they are resolved or added to the blacklist. Reminders are processed every five minutes therefore Interval values should be a multiple of five. If the Interval value is 0 or not set then reminders will not be sent.
 
 #### Enable/Disable Specific Health Checks
 
@@ -380,9 +381,10 @@ Handlers can be configured by adding them to `consul-alerts/config/events/handle
 
 ### Notifiers
 
-There are several built-in notifiers. Only the *Log* notifier is enabled by default. Details on enabling and configuration these are documented for each Notifier.
+There are several built-in notifiers. Only the _Log_ notifier is enabled by default. Details on enabling and configuration these are documented for each Notifier.
 
 #### Custom Notifiers
+
 It is also possible to add custom notifiers similar to custom event handlers. Custom notifiers can be added as keys with command path string values in `consul-alerts/config/notifiers/custom/`. The keys will be used as notifier names in the profiles.
 
 #### Logger
@@ -399,20 +401,20 @@ The email and smtp details needs to be configured:
 
 prefix: `consul-alerts/config/notifiers/email/`
 
-| key          | description                                                                      |
-|--------------|----------------------------------------------------------------------------------|
-| enabled      | Enable the email notifier. [Default: false]                                      |
-| cluster-name | The name of the cluster. [Default: "Consul Alerts"]                              |
-| url          | The SMTP server url                                                              |
-| port         | The SMTP server port                                                             |
-| username     | The SMTP username                                                                |
-| password     | The SMTP password                                                                |
-| sender-alias | The sender alias. [Default: "Consul Alerts"]                                     |
-| sender-email | The sender email                                                                 |
-| receivers    | The emails of the receivers. JSON array of string                                |
-| template     | Path to custom email template. [Default: internal template]                      |
-| one-per-alert| Whether to send one email per alert [Default: false]                             |
-| one-per-node | Whether to send one email per node [Default: false] (overriden by one-per-alert) |
+| key           | description                                                                      |
+| ------------- | -------------------------------------------------------------------------------- |
+| enabled       | Enable the email notifier. [Default: false]                                      |
+| cluster-name  | The name of the cluster. [Default: "Consul Alerts"]                              |
+| url           | The SMTP server url                                                              |
+| port          | The SMTP server port                                                             |
+| username      | The SMTP username                                                                |
+| password      | The SMTP password                                                                |
+| sender-alias  | The sender alias. [Default: "Consul Alerts"]                                     |
+| sender-email  | The sender email                                                                 |
+| receivers     | The emails of the receivers. JSON array of string                                |
+| template      | Path to custom email template. [Default: internal template]                      |
+| one-per-alert | Whether to send one email per alert [Default: false]                             |
+| one-per-node  | Whether to send one email per node [Default: false] (overriden by one-per-alert) |
 
 The template can be any go html template. An `TemplateData` instance will be passed to the template.
 
@@ -423,7 +425,7 @@ This sends the notifications as series points in influxdb. Set `consul-alerts/co
 prefix: `consul-alerts/config/notifiers/influxdb/`
 
 | key         | description                                    |
-|-------------|------------------------------------------------|
+| ----------- | ---------------------------------------------- |
 | enabled     | Enable the influxdb notifier. [Default: false] |
 | host        | The influxdb host. (eg. localhost:8086)        |
 | username    | The influxdb username                          |
@@ -439,16 +441,16 @@ be configured.
 
 prefix: `consul-alerts/config/notifiers/slack/`
 
-| key          | description                                                                                |
-|--------------|-----------------------------------------------------                                       |
-| enabled      | Enable the Slack notifier. [Default: false]                                                |
-| cluster-name | The name of the cluster. [Default: `Consul Alerts`]                                        |
-| url          | The incoming-webhook url (mandatory) [eg: `https://hooks.slack.com...`]                    |
-| channel      | The channel to post the notification (mandatory) [eg: `#consul-alerts` or `@consul-alerts`]|
-| username     | The username to appear on the post [eg: `Consul Alerts`]                                   |
-| icon-url     | URL of a custom image for the notification [eg: `http://someimage.com/someimage.png`]      |
-| icon-emoji   | Emoji (if not using icon-url) for the notification [eg: `:ghost:`]                         |
-| detailed     | Enable "pretty" Slack notifications [Default: false]                                       |
+| key          | description                                                                                 |
+| ------------ | ------------------------------------------------------------------------------------------- |
+| enabled      | Enable the Slack notifier. [Default: false]                                                 |
+| cluster-name | The name of the cluster. [Default: `Consul Alerts`]                                         |
+| url          | The incoming-webhook url (mandatory) [eg: `https://hooks.slack.com...`]                     |
+| channel      | The channel to post the notification (mandatory) [eg: `#consul-alerts` or `@consul-alerts`] |
+| username     | The username to appear on the post [eg: `Consul Alerts`]                                    |
+| icon-url     | URL of a custom image for the notification [eg: `http://someimage.com/someimage.png`]       |
+| icon-emoji   | Emoji (if not using icon-url) for the notification [eg: `:ghost:`]                          |
+| detailed     | Enable "pretty" Slack notifications [Default: false]                                        |
 
 In order to enable slack integration, you have to create a new
 [_Incoming WebHooks_](https://my.slack.com/services/new/incoming-webhook). Then use the
@@ -463,7 +465,7 @@ be configured.
 prefix: `consul-alerts/config/notifiers/mattermost/`
 
 | key          | description                                         |
-|--------------|-----------------------------------------------------|
+| ------------ | --------------------------------------------------- |
 | enabled      | Enable the Mattermost notifier. [Default: false]    |
 | cluster-name | The name of the cluster. [Default: "Consul Alerts"] |
 | url          | The mattermost url (mandatory)                      |
@@ -480,14 +482,14 @@ the previous step.
 
 prefix: `consul-alerts/config/notifiers/mattermost-webhook/`
 
-| key          | description                                                                                |
-|--------------|-----------------------------------------------------                                       |
-| enabled      | Enable the Mattermost Webhook notifier. [Default: false]                                   |
-| cluster-name | The name of the cluster. [Default: `Consul Alerts`]                                        |
-| url          | The incoming-webhook url (mandatory) [eg: `https://mattermost.com/hooks/...`]              |
-| channel      | The channel to post the notification (mandatory) [eg: `consul-alerts`]                     |
-| username     | The username to appear on the post [eg: `Consul Alerts`]                                   |
-| icon-url     | URL of a custom image for the notification [eg: `http://someimage.com/someimage.png`]      |
+| key          | description                                                                           |
+| ------------ | ------------------------------------------------------------------------------------- |
+| enabled      | Enable the Mattermost Webhook notifier. [Default: false]                              |
+| cluster-name | The name of the cluster. [Default: `Consul Alerts`]                                   |
+| url          | The incoming-webhook url (mandatory) [eg: `https://mattermost.com/hooks/...`]         |
+| channel      | The channel to post the notification (mandatory) [eg: `consul-alerts`]                |
+| username     | The username to appear on the post [eg: `Consul Alerts`]                              |
+| icon-url     | URL of a custom image for the notification [eg: `http://someimage.com/someimage.png`] |
 
 #### PagerDuty
 
@@ -496,7 +498,7 @@ To enable PagerDuty built-in notifier, set `consul-alerts/config/notifiers/pager
 prefix: `consul-alerts/config/notifiers/pagerduty/`
 
 | key                 | description                                                          |
-|---------------------|----------------------------------------------------------------------|
+| ------------------- | -------------------------------------------------------------------- |
 | enabled             | Enable the PagerDuty notifier. [Default: false]                      |
 | service-key         | Service key to access PagerDuty                                      |
 | client-name         | The monitoring client name                                           |
@@ -513,13 +515,13 @@ needs to be configured.
 prefix: `consul-alerts/config/notifiers/hipchat/`
 
 | key          | description                                               |
-|--------------|-----------------------------------------------------------|
+| ------------ | --------------------------------------------------------- |
 | enabled      | Enable the HipChat notifier. [Default: false]             |
-| from         | The name to send notifications as  (optional)             |
+| from         | The name to send notifications as (optional)              |
 | cluster-name | The name of the cluster. [Default: "Consul Alerts"]       |
 | base-url     | HipChat base url [Default: `https://api.hipchat.com/v2/`] |
-| room-id      | The room to post to                  (mandatory)          |
-| auth-token   | Authentication token                 (mandatory)          |
+| room-id      | The room to post to (mandatory)                           |
+| auth-token   | Authentication token (mandatory)                          |
 
 The `auth-token` needs to be a room notification token for the `room-id`
 being posted to.
@@ -537,10 +539,10 @@ needs to be configured.
 prefix: `consul-alerts/config/notifiers/opsgenie/`
 
 | key          | description                                         |
-|--------------|-----------------------------------------------------|
+| ------------ | --------------------------------------------------- |
 | enabled      | Enable the OpsGenie notifier. [Default: false]      |
 | cluster-name | The name of the cluster. [Default: "Consul Alerts"] |
-| api-key      | API Key                              (mandatory)    |
+| api-key      | API Key (mandatory)                                 |
 
 #### Amazon Web Services Simple Notification Service ("SNS")
 
@@ -550,13 +552,14 @@ needs to be configured.
 
 prefix: `consul-alerts/config/notifiers/awssns/`
 
-| key          | description                                                  |
-|--------------|--------------------------------------------------------------|
-| enabled      | Enable the AWS SNS notifier.   [Default: false]              |
-| cluster-name | The name of the cluster.       [Default: "Consul Alerts"]    |
-| region       | AWS Region                     (mandatory)                   |
-| topic-arn    | Topic ARN to publish to.       (mandatory)                   |
-| template     | Path to custom template.       [Default: internal template]  |
+| key          | description                                           |
+| ------------ | ----------------------------------------------------- |
+| enabled      | Enable the AWS SNS notifier. [Default: false]         |
+| cluster-name | The name of the cluster. [Default: "Consul Alerts"]   |
+| region       | AWS Region (mandatory)                                |
+| topic-arn    | Topic ARN to publish to. (mandatory)                  |
+| template     | Path to custom template. [Default: internal template] |
+
 #### VictorOps
 
 To enable the VictorOps built-in notifier, set
@@ -565,11 +568,11 @@ needs to be configured.
 
 prefix: `consul-alerts/config/notifiers/victorops/`
 
-| key          | description                                         |
-|--------------|-----------------------------------------------------|
-| enabled      | Enable the VictorOps notifier. [Default: false]     |
-| api-key      | API Key                              (mandatory)    |
-| routing-key  | Routing Key                          (mandatory)    |
+| key         | description                                     |
+| ----------- | ----------------------------------------------- |
+| enabled     | Enable the VictorOps notifier. [Default: false] |
+| api-key     | API Key (mandatory)                             |
+| routing-key | Routing Key (mandatory)                         |
 
 #### HTTP Endpoint
 
@@ -579,20 +582,23 @@ needs to be configured.
 
 prefix: `consul-alerts/config/notifiers/http-endpoint/`
 
-| key          | description                                                           |
-|--------------|-----------------------------------------------------------------------|
-| enabled      | Enable the http-endpoint notifier.         [Default: false]           |
-| cluster-name | The name of the cluster.                   [Default: "Consul Alerts"] |
-| base-url     | Base URL of the HTTP endpoint              (mandatory)                |
-| endpoint     | The endpoint to append to the end of base-url                         |
-| payload      | The payload to send to the HTTP endpoint   (mandatory)                |
+| key          | description                                          |
+| ------------ | ---------------------------------------------------- |
+| enabled      | Enable the http-endpoint notifier. [Default: false]  |
+| cluster-name | The name of the cluster. [Default: "Consul Alerts"]  |
+| base-url     | Base URL of the HTTP endpoint (mandatory)            |
+| endpoint     | The endpoint to append to the end of base-url        |
+| payload      | The payload to send to the HTTP endpoint (mandatory) |
+| token        | Token to set on the 'Authorization' header           |
 
 The value of 'payload' must be a json map of type string. Value will be rendered as a template.
+
 ```
 {
   "message": "{{ range $name, $checks := .Nodes }}{{ range $check := $checks }}{{ $name }}:{{$check.Service}}:{{$check.Check}} is {{$check.Status}}.{{ end }}{{ end }}"
 }
 ```
+
 #### iLert
 
 To enable iLert built-in notifier, set
@@ -602,13 +608,12 @@ key needs to be configured.
 prefix: `consul-alerts/config/notifiers/ilert/`
 
 | key                   | description                                                               |
-|-----------------------|---------------------------------------------------------------------------|
+| --------------------- | ------------------------------------------------------------------------- |
 | enabled               | Enable the iLert notifier. [Default: false]                               |
 | api-key               | The API key of the alert source. (mandatory)                              |
 | incident-key-template | Format of the incident key. [Default: `{{.Node}}:{{.Service}}:{{.Check}}` |
 
-Health Check via API
---------------------
+## Health Check via API
 
 Health status can also be queried via the API. This can be used for compatibility with nagios, sensu, or other monitoring tools. To get the status of a specific check, use the following entrypoint.
 
@@ -617,7 +622,7 @@ Health status can also be queried via the API. This can be used for compatibilit
 This will return the output of the check and the following HTTP codes:
 
 | Status   | Code |
-|----------|------|
+| -------- | ---- |
 | passing  | 200  |
 | warning  | 503  |
 | critical | 503  |
@@ -629,20 +634,20 @@ This will return the output of the check and the following HTTP codes:
 Additional params are ignoreBlacklist and alwaysOk which forces status code to 200 regardless of checks status.
 
 ## Operations
+
 Configuration may be set manually through consul UI or API, using configuration management tools such as [chef](https://github.com/dpetzel/consul_alerts-cookbook), puppet or Ansible, or backed up and restored using [consulate](https://github.com/gmr/consulate).
 
 Consulate Example:
+
 ```
 consulate kv backup consul-alerts/config -f consul-alerts-config.json
 consulate kv restore consul-alerts/config -f consul-alerts-config.json --prune
 ```
 
-Contribution
-------------
+## Contribution
 
 PRs are more than welcome. Just fork, create a feature branch, and open a PR. We love PRs. :)
 
-TODO
-----
+## TODO
 
 Needs better doc and some cleanup too. :)

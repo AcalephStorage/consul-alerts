@@ -252,6 +252,8 @@ func (c *ConsulAlertClient) LoadConfig() {
 				valErr = loadCustomValue(&config.Notifiers.HttpEndpoint.Endpoint, val, ConfigTypeString)
 			case "consul-alerts/config/notifiers/http-endpoint/payload":
 				valErr = loadCustomValue(&config.Notifiers.HttpEndpoint.Payload, val, ConfigTypeStrMap)
+			case "consul-alerts/config/notifiers/http-endpoint/token":
+				valErr = loadCustomValue(&config.Notifiers.HttpEndpoint.Token, val, ConfigTypeString)
 
 			// iLert notfier config
 			case "consul-alerts/config/notifiers/ilert/enabled":
