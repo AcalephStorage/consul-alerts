@@ -33,10 +33,14 @@ func (opsgenie *OpsGenieNotifier) Notify(messages Messages) bool {
 
     client := new(ogcli.OpsGenieClient)
     client.SetAPIKey(opsgenie.ApiKey)
-    log.Println(fmt.Sprintf("ApiUrl is: %s", opsgenie.ApiUrl))
+    log.Println(fmt.Sprintf("Before: ApiUrl is: %s", opsgenie.ApiUrl))
+    log.Println(fmt.Sprintf("Before: ApiKey is: %s", opsgenie.ApiKey))
+    log.Println(fmt.Sprintf("Current: Url by method is: %s", client.OpsGenieAPIUrl()))
     client.SetOpsGenieAPIUrl(opsgenie.ApiUrl)
 
     alertCli, cliErr := client.AlertV2()
+
+    log.Println(fmt.Sprintf("After: sending alertCli url is: %s", alertCli.OpsGenieAPIUrl()))
 
     if cliErr != nil {
         log.Println("Opsgenie notification trouble with client")
