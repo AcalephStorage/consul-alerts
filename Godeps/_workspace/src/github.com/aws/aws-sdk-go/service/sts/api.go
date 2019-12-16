@@ -5,9 +5,9 @@ package sts
 import (
 	"time"
 
-	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws"
-	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws/awsutil"
-	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws/request"
+	"github.com/uchiru/consul-alerts/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws"
+	"github.com/uchiru/consul-alerts/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws/awsutil"
+	"github.com/uchiru/consul-alerts/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws/request"
 )
 
 const opAssumeRole = "AssumeRole"

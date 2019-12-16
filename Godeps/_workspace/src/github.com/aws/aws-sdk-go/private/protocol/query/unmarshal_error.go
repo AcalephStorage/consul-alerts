@@ -4,8 +4,8 @@ import (
 	"encoding/xml"
 	"io/ioutil"
 
-	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws/request"
+	"github.com/uchiru/consul-alerts/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/uchiru/consul-alerts/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws/request"
 )
 
 type xmlErrorResponse struct {

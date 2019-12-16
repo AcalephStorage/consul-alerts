@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws"
+	"github.com/uchiru/consul-alerts/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws"
 )
 
 // EscapeMode is the mode that should be use for escaping a value

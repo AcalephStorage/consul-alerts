@@ -10,7 +10,7 @@ package logging
 import (
 	"fmt"
 
-	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/cihub/seelog"
+	"github.com/uchiru/consul-alerts/Godeps/_workspace/src/github.com/cihub/seelog"
 )
 
 // logger is the internal logger object.

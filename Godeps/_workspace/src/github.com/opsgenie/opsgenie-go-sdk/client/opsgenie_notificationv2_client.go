@@ -1,7 +1,7 @@
 package client
 
 import (
-	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/opsgenie/opsgenie-go-sdk/notificationv2"
+	"github.com/uchiru/consul-alerts/Godeps/_workspace/src/github.com/opsgenie/opsgenie-go-sdk/notificationv2"
 )
 
 // OpsGenieNotificationV2Client is the data type to make Notification rule API requests.

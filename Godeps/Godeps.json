@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/AcalephStorage/consul-alerts",
+	"ImportPath": "github.com/uchiru/consul-alerts",
 	"GoVersion": "go1.5.1",
 	"GodepVersion": "v80",
 	"Deps": [

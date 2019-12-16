@@ -4,7 +4,7 @@ import (
 	"io"
 	"sync"
 
-	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/aws/aws-sdk-go/internal/sdkio"
+	"github.com/uchiru/consul-alerts/Godeps/_workspace/src/github.com/aws/aws-sdk-go/internal/sdkio"
 )
 
 // offsetReader is a thread-safe io.ReadCloser to prevent racing

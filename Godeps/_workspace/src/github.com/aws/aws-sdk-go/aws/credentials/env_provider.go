@@ -3,7 +3,7 @@ package credentials
 import (
 	"os"
 
-	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/uchiru/consul-alerts/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws/awserr"
 )
 
 // EnvProviderName provides a name of Env provider

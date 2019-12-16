@@ -1,7 +1,7 @@
 package client
 
 import (
-	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/opsgenie/opsgenie-go-sdk/schedulev2"
+	"github.com/uchiru/consul-alerts/Godeps/_workspace/src/github.com/opsgenie/opsgenie-go-sdk/schedulev2"
 )
 
 // OpsGenieScheduleOverrideV2Client is the data type to make Schedule rule API requests.

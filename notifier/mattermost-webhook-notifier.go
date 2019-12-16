@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"net/url"
 
-	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
+	log "github.com/uchiru/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
 )
 
 type MattermostWebhookNotifier struct {

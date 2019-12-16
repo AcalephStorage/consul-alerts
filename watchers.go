@@ -9,7 +9,7 @@ import (
 	"io/ioutil"
 	"os/exec"
 
-	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
+	log "github.com/uchiru/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
 )
 
 func runWatcher(consulAddr, datacenter, alertAddr, logLevel, consulAclToken, watchType string) {

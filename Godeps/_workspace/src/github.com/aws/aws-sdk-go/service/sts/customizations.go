@@ -1,6 +1,6 @@
 package sts
 
-import "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws/request"
+import "github.com/uchiru/consul-alerts/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws/request"
 
 func init() {
 	initRequest = func(r *request.Request) {

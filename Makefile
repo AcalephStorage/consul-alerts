@@ -58,4 +58,4 @@ endif
 	@curl -s -X POST -u ${ACCESS_KEY} https://api.bintray.com/content/darkcrux/generic/${APP_NAME}/${VERSION}/publish
 	@echo
 	@echo "Github Release"
-	@gh-release create AcalephStorage/consul-alerts ${VERSION}
+	@gh-release create uchiru/consul-alerts ${VERSION}

@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	consulapi "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/hashicorp/consul/api"
+	consulapi "github.com/uchiru/consul-alerts/Godeps/_workspace/src/github.com/hashicorp/consul/api"
 )
 
 func testClient() (*ConsulAlertClient, error) {

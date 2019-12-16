@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/aws/aws-sdk-go/private/protocol"
+	"github.com/uchiru/consul-alerts/Godeps/_workspace/src/github.com/aws/aws-sdk-go/private/protocol"
 )
 
 // Parse parses an object i and fills a url.Values object. The isEC2 flag

@@ -1,6 +1,6 @@
 package aws
 
-import "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws/awserr"
+import "github.com/uchiru/consul-alerts/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws/awserr"
 
 var (
 	// ErrMissingRegion is an error that is returned if region configuration is

@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/go-ini/ini"
+	"github.com/uchiru/consul-alerts/Godeps/_workspace/src/github.com/go-ini/ini"
 
-	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/aws/aws-sdk-go/internal/shareddefaults"
+	"github.com/uchiru/consul-alerts/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/uchiru/consul-alerts/Godeps/_workspace/src/github.com/aws/aws-sdk-go/internal/shareddefaults"
 )
 
 // SharedCredsProviderName provides a name of SharedCreds provider
