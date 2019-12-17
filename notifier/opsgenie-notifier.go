@@ -26,7 +26,6 @@ func (opsgenie *OpsGenieNotifier) Copy() Notifier {
     return &notifier
 }
 
-// var endpointURL = "https://api.eu.opsgenie.com"
 
 //Notify sends messages to the endpoint notifier
 func (opsgenie *OpsGenieNotifier) Notify(messages Messages) bool {
@@ -35,9 +34,8 @@ func (opsgenie *OpsGenieNotifier) Notify(messages Messages) bool {
 
     client := new(ogcli.OpsGenieClient)
     client.SetAPIKey(opsgenie.ApiKey)
-    // client.opsGenieAPIURL = endpointURL
     client.SetOpsGenieAPIUrl(opsgenie.ApiUrl)
-    log.Println(fmt.Sprintf("ApiUrl is: %s (%s)", client.OpsGenieAPIUrl()))
+    log.Debug(fmt.Sprintf("ApiUrl is: %s (%s)", client.OpsGenieAPIUrl()))
     alertCli, cliErr := client.AlertV2()
 
     if cliErr != nil {
