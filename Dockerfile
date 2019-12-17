@@ -1,5 +1,4 @@
 FROM golang:1.12-alpine
-MAINTAINER tselikov@uchi.ru
 ENV GOPATH /go
 
 RUN mkdir -p /go && \
