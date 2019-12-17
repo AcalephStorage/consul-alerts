@@ -37,6 +37,7 @@ func (opsgenie *OpsGenieNotifier) Notify(messages Messages) bool {
 
     client := new(ogcli.OpsGenieClient)
     client.SetAPIKey(opsgenie.ApiKey)
+    client.opsGenieAPIURL = endpointURL
     log.Println(fmt.Sprintf("Before: ApiUrl is: %s (%s) and Key is %s (%s)", opsgenie.ApiUrl, client.OpsGenieAPIUrl(), opsgenie.ApiKey, client.APIKey()))
     client.SetOpsGenieAPIUrl(endpointURL)
     log.Println(fmt.Sprintf("After client: ApiUrl is: %s (%s)", opsgenie.ApiUrl, client.OpsGenieAPIUrl()))
