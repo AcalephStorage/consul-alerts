@@ -26,7 +26,8 @@ func (opsgenie *OpsGenieNotifier) Copy() Notifier {
     return &notifier
 }
 
-var endpointURL = "https://api.eu.opsgenie.com"
+// var endpointURL = "https://api.eu.opsgenie.com"
+
 //Notify sends messages to the endpoint notifier
 func (opsgenie *OpsGenieNotifier) Notify(messages Messages) bool {
 
@@ -37,12 +38,12 @@ func (opsgenie *OpsGenieNotifier) Notify(messages Messages) bool {
 
     client := new(ogcli.OpsGenieClient)
     client.SetAPIKey(opsgenie.ApiKey)
-    client.opsGenieAPIURL = endpointURL
+    // client.opsGenieAPIURL = endpointURL
     log.Println(fmt.Sprintf("Before: ApiUrl is: %s (%s) and Key is %s (%s)", opsgenie.ApiUrl, client.OpsGenieAPIUrl(), opsgenie.ApiKey, client.APIKey()))
-    client.SetOpsGenieAPIUrl(endpointURL)
+    client.SetOpsGenieAPIUrl(opsgenie.ApiUrl)
     log.Println(fmt.Sprintf("After client: ApiUrl is: %s (%s)", opsgenie.ApiUrl, client.OpsGenieAPIUrl()))
     alertCli, cliErr := client.AlertV2()
-    log.Println(fmt.Sprintf("After alertCli: sending alertCli url is: %s (%s)", alertCli.OpsGenieAPIUrl(), client.OpsGenieAPIUrl()))
+    // log.Println(fmt.Sprintf("After alertCli: sending alertCli url is: %s (%s)", alertCli.OpsGenieAPIUrl(), client.OpsGenieAPIUrl()))
 
     if cliErr != nil {
         log.Println("Opsgenie notification trouble with client")
