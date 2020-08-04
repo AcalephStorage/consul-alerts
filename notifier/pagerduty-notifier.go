@@ -1,8 +1,8 @@
 package notifier
 
 import (
-	log "github.com/sirupsen/logrus"
 	"github.com/darkcrux/gopherduty"
+	log "github.com/sirupsen/logrus"
 )
 
 const defaultRetryBaseInterval = 30

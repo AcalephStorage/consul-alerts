@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"os/exec"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/imdario/mergo"
 	"github.com/mitchellh/hashstructure"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/YOwatari/consul-alerts/notifier"
 )

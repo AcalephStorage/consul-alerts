@@ -1,8 +1,8 @@
 package main
 
 import (
-	log "github.com/sirupsen/logrus"
 	consulapi "github.com/hashicorp/consul/api"
+	log "github.com/sirupsen/logrus"
 	"time"
 )
 

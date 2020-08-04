@@ -1,9 +1,9 @@
 package notifier
 
 import (
-	"fmt"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -12,9 +12,9 @@ import (
 
 type HttpEndpointNotifier struct {
 	Enabled     bool
-	ClusterName string `json:"cluster-name"`
-	BaseURL     string `json:"base-url"`
-	Endpoint    string `json:"endpoint"`
+	ClusterName string            `json:"cluster-name"`
+	BaseURL     string            `json:"base-url"`
+	Endpoint    string            `json:"endpoint"`
 	Payload     map[string]string `json:"payload"`
 }
 

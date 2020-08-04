@@ -173,8 +173,8 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 	httpEndpoint := &notifier.HttpEndpointNotifier{
 		Enabled:     false,
 		ClusterName: "Consul-Alerts",
-  }
-    
+	}
+
 	ilert := &notifier.ILertNotifier{
 		Enabled:             false,
 		IncidentKeyTemplate: "{{.Node}}:{{.Service}}:{{.Check}}",
