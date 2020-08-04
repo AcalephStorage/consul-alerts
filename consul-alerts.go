@@ -13,10 +13,10 @@ import (
 	"encoding/json"
 	"io/ioutil"
 
-	"github.com/AcalephStorage/consul-alerts/consul"
-	"github.com/AcalephStorage/consul-alerts/notifier"
+	"github.com/YOwatari/consul-alerts/consul"
+	"github.com/YOwatari/consul-alerts/notifier"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/docopt/docopt-go"
 )
 

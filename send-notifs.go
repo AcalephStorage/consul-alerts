@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"os/exec"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/imdario/mergo"
 	"github.com/mitchellh/hashstructure"
 
-	"github.com/AcalephStorage/consul-alerts/notifier"
+	"github.com/YOwatari/consul-alerts/notifier"
 )
 
 // NotifEngine handles notifications.

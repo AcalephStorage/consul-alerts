@@ -1,8 +1,8 @@
 package notifier
 
 import (
-	log "github.com/Sirupsen/logrus"
-	"github.com/influxdb/influxdb/client"
+	log "github.com/sirupsen/logrus"
+	"github.com/influxdata/influxdb-client-go"
 )
 
 type InfluxdbNotifier struct {

@@ -9,7 +9,7 @@ import (
 
 	"github.com/tbruyelle/hipchat-go/hipchat"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 type HipChatNotifier struct {

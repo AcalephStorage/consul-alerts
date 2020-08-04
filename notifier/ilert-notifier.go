@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"text/template"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 const apiEndpoint string = "https://ilertnow.com/api/v1/events"

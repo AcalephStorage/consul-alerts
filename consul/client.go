@@ -10,9 +10,9 @@ import (
 
 	"encoding/json"
 
-	notifier "github.com/AcalephStorage/consul-alerts/notifier"
+	notifier "github.com/YOwatari/consul-alerts/notifier"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	consulapi "github.com/hashicorp/consul/api"
 )
 
