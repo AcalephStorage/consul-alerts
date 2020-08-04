@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"os/exec"
 
-	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
-	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/imdario/mergo"
-	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/mitchellh/hashstructure"
+	log "github.com/Sirupsen/logrus"
+	"github.com/imdario/mergo"
+	"github.com/mitchellh/hashstructure"
 
 	"github.com/AcalephStorage/consul-alerts/notifier"
 )

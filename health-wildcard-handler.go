@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
+	log "github.com/Sirupsen/logrus"
 	"net/http"
 	"strings"
 )

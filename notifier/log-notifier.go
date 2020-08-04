@@ -6,7 +6,7 @@ import (
 	"os"
 	"path"
 
-	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
+	"github.com/Sirupsen/logrus"
 )
 
 type LogNotifier struct {
