@@ -57,7 +57,7 @@ var consulClient consul.Consul
 
 func main() {
 	log.SetLevel(log.InfoLevel)
-	args, _ := docopt.Parse(usage, nil, true, fmt.Sprintf("v%s (%s) at %s by %s", version,commit, date, buildBy), false)
+	args, _ := docopt.Parse(usage, nil, true, fmt.Sprintf("v%s (%s) at %s by %s", version, commit, date, buildBy), false)
 
 	switch {
 	case args["start"].(bool):
