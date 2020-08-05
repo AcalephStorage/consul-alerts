@@ -28,3 +28,5 @@ _testmain.go
 .DS_Store
 /consul-alerts
 .vagrant
+
+/dist
