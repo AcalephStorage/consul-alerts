@@ -20,7 +20,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const version = "Consul Alerts 0.5.0"
 const usage = `Consul Alerts.
 
 Usage:
@@ -43,6 +42,13 @@ Options:
 
 `
 
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+	buildBy = "unknown"
+)
+
 type stopable interface {
 	stop()
 }
@@ -51,7 +57,7 @@ var consulClient consul.Consul
 
 func main() {
 	log.SetLevel(log.InfoLevel)
-	args, _ := docopt.Parse(usage, nil, true, version, false)
+	args, _ := docopt.Parse(usage, nil, true, fmt.Sprintf("v%s (%s) at %s by %s", version,commit, date, buildBy), false)
 
 	switch {
 	case args["start"].(bool):
