@@ -30,8 +30,8 @@ build:
 build-all:
 	goreleaser build
 
-export GITHUB_TOKEN :=
+export GITHUB_TOKEN := $(shell cat ~/.goreleaser)
 
 release:
 	@echo "Github Release"
-	goreleaser
+	goreleaser --rm-dist
