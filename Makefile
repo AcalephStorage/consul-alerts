@@ -49,7 +49,6 @@ package: build-all
 release: package
 	@echo "--> Releasing version: ${VERSION}"
 ifneq ($(VERSION),latest)
-	@for arch in ${BUILD_ARCHES}; do \
 	@echo "Github Release"
 	@gh-release create YOwatari/consul-alerts ${VERSION}
 endif
