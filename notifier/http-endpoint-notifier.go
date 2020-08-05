@@ -1,20 +1,20 @@
 package notifier
 
 import (
-	"fmt"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
-	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 type HttpEndpointNotifier struct {
 	Enabled     bool
-	ClusterName string `json:"cluster-name"`
-	BaseURL     string `json:"base-url"`
-	Endpoint    string `json:"endpoint"`
+	ClusterName string            `json:"cluster-name"`
+	BaseURL     string            `json:"base-url"`
+	Endpoint    string            `json:"endpoint"`
 	Payload     map[string]string `json:"payload"`
 }
 

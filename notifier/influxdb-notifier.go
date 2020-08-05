@@ -1,8 +1,9 @@
 package notifier
 
 import (
-	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
-	"github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/influxdb/influxdb/client"
+	_ "github.com/influxdata/influxdb1-client"
+	client "github.com/influxdata/influxdb1-client/v2"
+	log "github.com/sirupsen/logrus"
 )
 
 type InfluxdbNotifier struct {
@@ -26,61 +27,50 @@ func (influxdb *InfluxdbNotifier) Copy() Notifier {
 
 //Notify sends messages to the endpoint notifier
 func (influxdb *InfluxdbNotifier) Notify(messages Messages) bool {
-	config := &client.ClientConfig{
-		Host:     influxdb.Host,
+	c, err := client.NewHTTPClient(client.HTTPConfig{
+		Addr:     influxdb.Host,
 		Username: influxdb.Username,
 		Password: influxdb.Password,
-		Database: influxdb.Database,
-	}
+	})
 
-	influxdbClient, err := client.New(config)
+	defer c.Close()
+
 	if err != nil {
-		log.Println("unable to access influxdb. can't send notification. ", err)
+		log.Println("invalid configure. ", err)
 		return false
 	}
 
-	seriesList := influxdb.toSeries(messages)
-	err = influxdbClient.WriteSeries(seriesList)
-
+	bp, err := client.NewBatchPoints(client.BatchPointsConfig{
+		Database:  influxdb.Database,
+		Precision: "s",
+	})
 	if err != nil {
+		log.Println("invalid precision. ", err)
+		return false
+	}
+
+	for _, m := range messages {
+		pt, err := client.NewPoint(influxdb.SeriesName, nil, map[string]interface{}{
+			"node":    m.Node,
+			"service": m.Service,
+			"checks":  m.Check,
+			"notes":   m.Notes,
+			"output":  m.Output,
+			"status":  m.Status,
+		}, m.Timestamp)
+		if err != nil {
+			log.Println("unable to send notifications: ", err)
+			return false
+		}
+
+		bp.AddPoint(pt)
+	}
+
+	if err = c.Write(bp); err != nil {
 		log.Println("unable to send notifications: ", err)
 		return false
 	}
 
 	log.Println("influxdb notification sent.")
 	return true
-}
-
-func (influxdb InfluxdbNotifier) toSeries(messages Messages) []*client.Series {
-
-	seriesName := influxdb.SeriesName
-	columns := []string{
-		"node",
-		"service",
-		"checks",
-		"notes",
-		"output",
-		"status",
-	}
-
-	seriesList := make([]*client.Series, len(messages))
-	for index, message := range messages {
-
-		point := []interface{}{
-			message.Node,
-			message.Service,
-			message.Check,
-			message.Notes,
-			message.Output,
-			message.Status,
-		}
-
-		series := &client.Series{
-			Name:    seriesName,
-			Columns: columns,
-			Points:  [][]interface{}{point},
-		}
-		seriesList[index] = series
-	}
-	return seriesList
 }

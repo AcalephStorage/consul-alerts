@@ -10,10 +10,10 @@ import (
 
 	"encoding/json"
 
-	notifier "github.com/AcalephStorage/consul-alerts/notifier"
+	notifier "github.com/YOwatari/consul-alerts/notifier"
 
-	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
-	consulapi "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/hashicorp/consul/api"
+	consulapi "github.com/hashicorp/consul/api"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -360,7 +360,15 @@ func (c *ConsulAlertClient) UpdateCheckData() {
 		status, _, _ := kvApi.Get(key, nil)
 		existing := status != nil
 
-		localHealth := Check(*health)
+		localHealth := Check{
+			Node:        health.Node,
+			CheckID:     health.CheckID,
+			Name:        health.Name,
+			Status:      health.Status,
+			Output:      health.Output,
+			ServiceID:   health.ServiceID,
+			ServiceName: health.ServiceName,
+		}
 
 		if c.IsBlacklisted(&localHealth) {
 			log.Printf("%s:%s:%s is blacklisted.", node, service, check)

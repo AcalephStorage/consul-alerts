@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"os/exec"
 
-	"github.com/AcalephStorage/consul-alerts/consul"
+	"github.com/YOwatari/consul-alerts/consul"
 
-	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 type EventProcessor struct {

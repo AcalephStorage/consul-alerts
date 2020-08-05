@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-go get -u github.com/AcalephStorage/consul-alerts
-make clean release
