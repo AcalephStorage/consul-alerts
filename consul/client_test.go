@@ -10,7 +10,7 @@ import (
 )
 
 func testClient() (*ConsulAlertClient, error) {
-	return NewClient("127.0.0.1:8500", "dc1", "")
+	return NewClient("192.168.10.10:8500", "dc1", "")
 }
 
 func clearKVPath(t *testing.T, c *ConsulAlertClient, path string) {
