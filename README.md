@@ -1,3 +1,5 @@
+This project is no longer supported by AcalephStorage. Please use https://github.com/fusiondog/consul-alerts for active development going forward.
+
 consul-alerts
 =============
 
