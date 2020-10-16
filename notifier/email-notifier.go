@@ -14,16 +14,16 @@ var sendMail = smtp.SendMail
 type EmailNotifier struct {
 	ClusterName string `json:"cluster-name"`
 	Enabled     bool
-	Template    string   `json:"template"`
-	Url         string   `json:"url"`
-	Port        int      `json:"port"`
-	Username    string   `json:"username"`
-	Password    string   `json:"password"`
-	SenderAlias string   `json:"sender-alias"`
-	SenderEmail string   `json:"sender-email"`
-	Receivers   []string `json:"receivers"`
-	OnePerAlert bool     `json:"one-per-alert"`
-	OnePerNode  bool     `json:"one-per-node"`
+	Template    string              `json:"template"`
+	Url         string              `json:"url"`
+	Port        int                 `json:"port"`
+	Username    string              `json:"username"`
+	Password    string              `json:"password"`
+	SenderAlias string              `json:"sender-alias"`
+	SenderEmail string              `json:"sender-email"`
+	Receivers   map[string][]string `json:"receivers"`
+	OnePerAlert bool                `json:"one-per-alert"`
+	OnePerNode  bool                `json:"one-per-node"`
 }
 
 // NotifierName provides name for notifier selection
@@ -39,68 +39,47 @@ func (emailNotifier *EmailNotifier) Copy() Notifier {
 //Notify sends messages to the endpoint notifier
 func (emailNotifier *EmailNotifier) Notify(alerts Messages) bool {
 
-	overAllStatus, pass, warn, fail := alerts.Summary()
-	nodeMap := mapByNodes(alerts)
-
-	var emailDataList []TemplateData
-
-	if emailNotifier.OnePerAlert {
-		log.Println("Going to send one email per alert")
-		emailDataList = []TemplateData{}
-		for _, check := range alerts {
-
-			singleAlertChecks := make(Messages, 0)
-			singleAlertChecks = append(singleAlertChecks, check)
-			singleAlertMap := mapByNodes(singleAlertChecks)
-
-			alertStatus, alertPassing, alertWarnings, alertFailures := singleAlertChecks.Summary()
-
-			alertClusterName := emailNotifier.ClusterName + " " + check.Node + " - " + check.CheckId
-
-			e := TemplateData{
-				ClusterName:  alertClusterName,
-				SystemStatus: alertStatus,
-				FailCount:    alertFailures,
-				WarnCount:    alertWarnings,
-				PassCount:    alertPassing,
-				Nodes:        singleAlertMap,
-			}
-			emailDataList = append(emailDataList, e)
+	// Get a unique list of all email NotifTypeList values found in Messages.
+	// These should correspond to the keys nested under notifiers/email/receivers/
+	emailTypes := make(map[string]bool)
+	for _, alert := range alerts {
+		for _, emailType := range alert.NotifTypeList["email"] {
+			emailTypes[emailType] = true
 		}
-	} else if emailNotifier.OnePerNode {
-		log.Println("Going to send one email per node")
-		emailDataList = []TemplateData{}
-		for nodeName, checks := range nodeMap {
-			singleNodeMap := mapByNodes(checks)
-			nodeStatus, nodePassing, nodeWarnings, nodeFailures := checks.Summary()
-
-			nodeClusterName := emailNotifier.ClusterName + " " + nodeName
-
-			e := TemplateData{
-				ClusterName:  nodeClusterName,
-				SystemStatus: nodeStatus,
-				FailCount:    nodeFailures,
-				WarnCount:    nodeWarnings,
-				PassCount:    nodePassing,
-				Nodes:        singleNodeMap,
-			}
-			emailDataList = append(emailDataList, e)
-		}
-	} else {
-		log.Println("Going to send one email for many alerts")
-		e := TemplateData{
-			ClusterName:  emailNotifier.ClusterName,
-			SystemStatus: overAllStatus,
-			FailCount:    fail,
-			WarnCount:    warn,
-			PassCount:    pass,
-			Nodes:        nodeMap,
-		}
-
-		emailDataList = []TemplateData{e}
 	}
 
 	success := true
+
+	// Filter on each email receiver type, and send emails
+	for emailType, _ := range emailTypes {
+		success = success && emailNotifier.notifyByType(alerts, emailType)
+	}
+
+	return success
+}
+
+func (emailNotifier *EmailNotifier) notifyByType(alerts Messages, emailType string) bool {
+
+	success := true
+
+	filteredAlerts := filterMessagesByType(alerts, emailType)
+	emailTo := emailNotifier.filterReceiversByType(emailType)
+
+	//overAllStatus, pass, warn, fail := filteredAlerts.Summary()
+	nodeMap := mapByNodes(filteredAlerts)
+
+	var emailDataList []EmailData
+
+	if emailNotifier.OnePerAlert {
+		log.Println("Going to send one email per alert")
+		emailDataList = emailNotifier.buildEmailDataOnePerAlert(filteredAlerts)
+	} else if emailNotifier.OnePerNode {
+		log.Println("Going to send one email per node")
+		emailDataList = emailNotifier.buildEmailDataOnePerNode(filteredAlerts, nodeMap)
+	} else {
+		log.Println("Going to send one email for many alerts")
+		emailDataList = emailNotifier.buildEmailDataOneForManyAlerts(filteredAlerts, nodeMap)
+	}
 
 	for _, e := range emailDataList {
 
@@ -124,22 +103,97 @@ Content-Type: text/html; charset="UTF-8";
 `,
 			emailNotifier.SenderAlias,
 			emailNotifier.SenderEmail,
-			strings.Join(emailNotifier.Receivers, ", "),
+			strings.Join(emailTo, ", "),
 			e.ClusterName,
 			e.SystemStatus,
 			renderedTemplate)
 
 		addr := fmt.Sprintf("%s:%d", emailNotifier.Url, emailNotifier.Port)
 		auth := smtp.PlainAuth("", emailNotifier.Username, emailNotifier.Password, emailNotifier.Url)
-		if err := sendMail(addr, auth, emailNotifier.SenderEmail, emailNotifier.Receivers, []byte(msg)); err != nil {
+		if err := sendMail(addr, auth, emailNotifier.SenderEmail, emailTo, []byte(msg)); err != nil {
 			log.Println("Unable to send notification:", err)
 			continue
 		}
 		log.Println("Email notification sent.")
 		success = success && true
 	}
-
 	return success
+}
+
+func filterMessagesByType(alerts Messages, emailType string) Messages {
+	filteredAlerts := make(Messages, 0)
+	for _, alert := range alerts {
+		for _, nt := range alert.NotifTypeList["email"] {
+			if nt == emailType {
+				filteredAlerts = append(filteredAlerts, alert)
+				break
+			}
+		}
+	}
+	return filteredAlerts
+}
+
+func (emailNotifier *EmailNotifier) filterReceiversByType(emailType string) []string {
+	return emailNotifier.Receivers[emailType]
+}
+
+func (emailNotifier *EmailNotifier) buildEmailDataOnePerAlert(filteredAlerts Messages) []EmailData {
+	emailDataList := []EmailData{}
+	for _, check := range filteredAlerts {
+
+		singleAlertChecks := make(Messages, 0)
+		singleAlertChecks = append(singleAlertChecks, check)
+		singleAlertMap := mapByNodes(singleAlertChecks)
+
+		alertStatus, alertPassing, alertWarnings, alertFailures := singleAlertChecks.Summary()
+
+		alertClusterName := emailNotifier.ClusterName + " " + check.Node + " - " + check.CheckId
+
+		e := EmailData{
+			ClusterName:  alertClusterName,
+			SystemStatus: alertStatus,
+			FailCount:    alertFailures,
+			WarnCount:    alertWarnings,
+			PassCount:    alertPassing,
+			Nodes:        singleAlertMap,
+		}
+		emailDataList = append(emailDataList, e)
+	}
+	return emailDataList
+}
+
+func (emailNotifier *EmailNotifier) buildEmailDataOnePerNode(filteredAlerts Messages, nodeMap map[string]Messages) []EmailData {
+	emailDataList := []EmailData{}
+	for nodeName, checks := range nodeMap {
+		singleNodeMap := mapByNodes(checks)
+		nodeStatus, nodePassing, nodeWarnings, nodeFailures := checks.Summary()
+
+		nodeClusterName := emailNotifier.ClusterName + " " + nodeName
+
+		e := EmailData{
+			ClusterName:  nodeClusterName,
+			SystemStatus: nodeStatus,
+			FailCount:    nodeFailures,
+			WarnCount:    nodeWarnings,
+			PassCount:    nodePassing,
+			Nodes:        singleNodeMap,
+		}
+		emailDataList = append(emailDataList, e)
+	}
+	return emailDataList
+}
+
+func (emailNotifier *EmailNotifier) buildEmailDataOneForManyAlerts(filteredAlerts Messages, nodeMap map[string]Messages) []EmailData {
+	overAllStatus, pass, warn, fail := filteredAlerts.Summary()
+	e := EmailData{
+		ClusterName:  emailNotifier.ClusterName,
+		SystemStatus: overAllStatus,
+		FailCount:    fail,
+		WarnCount:    warn,
+		PassCount:    pass,
+		Nodes:        nodeMap,
+	}
+	return []EmailData{e}
 }
 
 func mapByNodes(alerts Messages) map[string]Messages {

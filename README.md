@@ -221,6 +221,11 @@ Ex. `emailer_only` would be located at `consul-alerts/config/notif-profiles/emai
         ".{1,}" : { "type" : "string" }
       }
     },
+    "NotifTypeList": {
+      "type": "object",
+      "title": "Hash of types for a given Notifier.",
+      "description": "A listing of Notifier names with a listing value indicating the types for that Notifier to use.  (e.g. EmailNotifier can have receiver types like 'admins' that refer to a list of email addresses)"
+    },
     "VarOverrides": {
       "type": "object",
       "title": "Hash of Notifier variables to override.",
@@ -249,6 +254,9 @@ Ex. `emailer_only` would be located at `consul-alerts/config/notif-profiles/emai
   "NotifList": {
     "log":false,
     "email":true
+  },
+  "NotifTypeList": {
+    "email": ["admins", "users"]
   }
 }
 ```
@@ -401,20 +409,56 @@ The email and smtp details needs to be configured:
 
 prefix: `consul-alerts/config/notifiers/email/`
 
-| key          | description                                                                      |
-|--------------|----------------------------------------------------------------------------------|
-| enabled      | Enable the email notifier. [Default: false]                                      |
-| cluster-name | The name of the cluster. [Default: "Consul Alerts"]                              |
-| url          | The SMTP server url                                                              |
-| port         | The SMTP server port                                                             |
-| username     | The SMTP username                                                                |
-| password     | The SMTP password                                                                |
-| sender-alias | The sender alias. [Default: "Consul Alerts"]                                     |
-| sender-email | The sender email                                                                 |
-| receivers    | The emails of the receivers. JSON array of string                                |
-| template     | Path to custom email template. [Default: internal template]                      |
-| one-per-alert| Whether to send one email per alert [Default: false]                             |
-| one-per-node | Whether to send one email per node [Default: false] (overriden by one-per-alert) |
+| key          | description                                                                                           |
+|--------------|-------------------------------------------------------------------------------------------------------|
+| enabled      | Enable the email notifier. [Default: false]                                                           |
+| cluster-name | The name of the cluster. [Default: "Consul Alerts"]                                                   |
+| url          | The SMTP server url                                                                                   |
+| port         | The SMTP server port                                                                                  |
+| username     | The SMTP username                                                                                     |
+| password     | The SMTP password                                                                                     |
+| sender-alias | The sender alias. [Default: "Consul Alerts"]                                                          |
+| sender-email | The sender email                                                                                      |
+| receivers    | Types of email receivers and associated email addresses.  Expanded below since receivers is a folder. |
+| template     | Path to custom email template. [Default: internal template]                                           |
+| one-per-alert| Whether to send one email per alert [Default: false]                                                  |
+| one-per-node | Whether to send one email per node [Default: false] (overriden by one-per-alert)                      |
+
+This email receivers configuration allows custom keys nested under:
+
+prefix: `consul-alerts/config/notifiers/email/receivers/`
+
+|key         | description                                                                                                                         |
+|------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| any-string | A list of email addresses that will be used when the corresponding key is used in the NotifTypeList of a NotifProfile.  JSON array. |
+| any-string | Another list of email addresses as above.  Any number of such key/value pairs can be nested under receivers.  See example below.    |
+
+**Example email configuration:**
+
+**Key:** `consul-alerts/config/notifiers/emailer/`
+
+**Value:**
+```
+{
+  "enabled": true,
+  "url": "smtp.example.com",
+  "port": 587,
+  "username": "someuser",
+  "password": "password1",
+  "sender-email": "no-reply@example.com",
+  "receivers/"
+}
+```
+
+**Example email receivers configuration (note the keys can be whatever you want, and you refer to the keys in NotifProfile under NotifTypeList):**
+**Key:** `consul-alerts/config/notifiers/emailer/receivers/`
+```
+{
+  "admins": ["admin1@example.com", "admin2@example.com"],
+  "users": ["user1@ample.com", "user2@example.com"],
+  "any-collection-of-emails-you-want": ["a@example.com", "b@example.com", "c@example.com"]
+}
+```
 
 The template can be any go html template. An `TemplateData` instance will be passed to the template.
 

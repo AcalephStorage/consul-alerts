@@ -100,8 +100,16 @@ func (c *ConsulAlertClient) LoadConfig() {
 				valErr = loadCustomValue(&config.Notifiers.Email.Password, val, ConfigTypeString)
 			case "consul-alerts/config/notifiers/email/port":
 				valErr = loadCustomValue(&config.Notifiers.Email.Port, val, ConfigTypeInt)
-			case "consul-alerts/config/notifiers/email/receivers":
-				valErr = loadCustomValue(&config.Notifiers.Email.Receivers, val, ConfigTypeStrArray)
+			case "consul-alerts/config/notifiers/email/receivers/":
+				kvmTemp := c.KvMap("consul-alerts/config/notifiers/email/receivers")
+				// only want the key at the end, so split on slashes and take the last item
+				kvm := make(map[string][]string, len(kvmTemp))
+				for k, v := range kvmTemp {
+					kSplit := strings.Split(k, "/")
+					kvm[kSplit[len(kSplit)-1]] = v
+				}
+				convertedVal, _ := json.Marshal(kvm)
+				valErr = loadCustomValue(&config.Notifiers.Email.Receivers, convertedVal, ConfigTypeStrMap)
 			case "consul-alerts/config/notifiers/email/sender-alias":
 				valErr = loadCustomValue(&config.Notifiers.Email.SenderAlias, val, ConfigTypeString)
 			case "consul-alerts/config/notifiers/email/sender-email":
@@ -294,7 +302,7 @@ func loadCustomValue(configVariable interface{}, data []byte, cType configType) 
 		arrConfig := configVariable.(*[]string)
 		err = json.Unmarshal(data, arrConfig)
 	case ConfigTypeStrMap:
-		mapConfig := configVariable.(*map[string]string)
+		mapConfig := configVariable.(*map[string][]string)
 		err = json.Unmarshal(data, mapConfig)
 	}
 	return err
@@ -473,6 +481,22 @@ func (c *ConsulAlertClient) CustomNotifiers() (customNotifs map[string]string) {
 		}
 	}
 	return customNotifs
+}
+
+// KvMap returns a map of KV pairs found directly inside the passed path
+func (c *ConsulAlertClient) KvMap(kvPath string) (kvMap map[string][]string) {
+	if kvPairs, _, err := c.api.KV().List(kvPath, nil); err == nil {
+		kvMap = make(map[string][]string)
+		for _, kvPair := range kvPairs {
+			if strings.HasSuffix(kvPair.Key, "/") {
+				continue
+			}
+			itemList := []string{}
+			json.Unmarshal(kvPair.Value, &itemList)
+			kvMap[string(kvPair.Key)] = itemList
+		}
+	}
+	return kvMap
 }
 
 func (c *ConsulAlertClient) NewAlertsWithFilter(nodeName string, serviceName string, checkName string, statuses []string, ignoreBlacklist bool) []Check {

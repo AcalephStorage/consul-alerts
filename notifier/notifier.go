@@ -17,19 +17,20 @@ Fail: %d, Warn: %d, Pass: %d
 `
 
 type Message struct {
-	Node         string
-	ServiceId    string
-	Service      string
-	CheckId      string
-	Check        string
-	Status       string
-	Output       string
-	Notes        string
-	Interval     int
-	RmdCheck     time.Time
-	NotifList    map[string]bool
-	VarOverrides Notifiers
-	Timestamp    time.Time
+	Node          string
+	ServiceId     string
+	Service       string
+	CheckId       string
+	Check         string
+	Status        string
+	Output        string
+	Notes         string
+	Interval      int
+	RmdCheck      time.Time
+	NotifList     map[string]bool
+	NotifTypeList map[string][]string
+	VarOverrides  Notifiers
+	Timestamp     time.Time
 }
 
 type Messages []Message

@@ -125,19 +125,20 @@ func (c *CheckProcessor) notify(alerts []consul.Check) {
 	for i, alert := range alerts {
 		profileInfo := consulClient.GetProfileInfo(alert.Node, alert.ServiceID, alert.CheckID, alert.Status)
 		messages[i] = notifier.Message{
-			Node:         alert.Node,
-			ServiceId:    alert.ServiceID,
-			Service:      alert.ServiceName,
-			CheckId:      alert.CheckID,
-			Check:        alert.Name,
-			Status:       alert.Status,
-			Output:       alert.Output,
-			Notes:        alert.Notes,
-			Interval:     profileInfo.Interval,
-			RmdCheck:     time.Now(),
-			NotifList:    profileInfo.NotifList,
-			VarOverrides: profileInfo.VarOverrides,
-			Timestamp:    time.Now(),
+			Node:          alert.Node,
+			ServiceId:     alert.ServiceID,
+			Service:       alert.ServiceName,
+			CheckId:       alert.CheckID,
+			Check:         alert.Name,
+			Status:        alert.Status,
+			Output:        alert.Output,
+			Notes:         alert.Notes,
+			Interval:      profileInfo.Interval,
+			RmdCheck:      time.Now(),
+			NotifList:     profileInfo.NotifList,
+			//NotifTypeList: profileInfo.NotifTypeList,
+			VarOverrides:  profileInfo.VarOverrides,
+			Timestamp:     time.Now(),
 		}
 		if profileInfo.Interval > 0 {
 			switch alert.Status {

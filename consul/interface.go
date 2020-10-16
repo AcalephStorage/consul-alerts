@@ -56,9 +56,10 @@ type Status struct {
 
 // ProfileInfo is for reading in JSON from profile keys
 type ProfileInfo struct {
-	Interval     int
-	NotifList    map[string]bool
-	VarOverrides notifier.Notifiers
+	Interval      int
+	NotifList     map[string]bool
+	NotifTypeList map[string][]string
+	VarOverrides  notifier.Notifiers
 }
 
 // Consul interface provides access to consul client
@@ -119,7 +120,7 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 		ClusterName: "Consul-Alerts",
 		Enabled:     false,
 		SenderAlias: "Consul Alerts",
-		Receivers:   []string{},
+		Receivers:   map[string][]string{},
 	}
 
 	log := &notifier.LogNotifier{
