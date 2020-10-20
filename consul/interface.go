@@ -81,6 +81,7 @@ type Consul interface {
 	AwsSnsNotifier() *notifier.AwsSnsNotifier
 	VictorOpsNotifier() *notifier.VictorOpsNotifier
 	HttpEndpointNotifier() *notifier.HttpEndpointNotifier
+	PrometheusNotifier() *notifier.PrometheusNotifier
 	ILertNotifier() *notifier.ILertNotifier
 
 	CheckChangeThreshold() int
@@ -173,7 +174,12 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 	httpEndpoint := &notifier.HttpEndpointNotifier{
 		Enabled:     false,
 		ClusterName: "Consul-Alerts",
-  }
+	}
+
+	prometheus := &notifier.PrometheusNotifier{
+		Enabled:     false,
+		ClusterName: "Consul-Alerts",
+	}
     
 	ilert := &notifier.ILertNotifier{
 		Enabled:             false,
@@ -193,6 +199,7 @@ func DefaultAlertConfig() *ConsulAlertConfig {
 		AwsSns:            awsSns,
 		VictorOps:         victorOps,
 		HttpEndpoint:      httpEndpoint,
+		Prometheus:        prometheus,
 		ILert:             ilert,
 		Custom:            []string{},
 	}
