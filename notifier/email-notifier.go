@@ -5,8 +5,9 @@ import (
 
 	"net/smtp"
 
-	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
 	"strings"
+
+	log "github.com/AcalephStorage/consul-alerts/Godeps/_workspace/src/github.com/Sirupsen/logrus"
 )
 
 var sendMail = smtp.SendMail
@@ -55,7 +56,7 @@ func (emailNotifier *EmailNotifier) Notify(alerts Messages) bool {
 
 			alertStatus, alertPassing, alertWarnings, alertFailures := singleAlertChecks.Summary()
 
-			alertClusterName := emailNotifier.ClusterName + " " + check.Node + " - " + check.CheckId
+			alertClusterName := check.Node + " - " + check.CheckId
 
 			e := TemplateData{
 				ClusterName:  alertClusterName,
