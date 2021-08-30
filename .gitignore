@@ -30,3 +30,5 @@ _testmain.go
 .vagrant
 
 /dist
+.github_token
+

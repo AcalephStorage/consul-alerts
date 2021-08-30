@@ -6,6 +6,11 @@ before:
 builds:
 - env:
   - CGO_ENABLED=0
+  goos:
+  - linux
+  goarch:
+  - amd64
+  - arm64
 archives:
 - replacements:
     darwin: Darwin
@@ -23,3 +28,6 @@ changelog:
     exclude:
     - '^docs:'
     - '^test:'
+env_files:
+  github_token: ./.github_token
+
