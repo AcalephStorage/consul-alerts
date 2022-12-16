@@ -1,0 +1,16 @@
+github.com/Sirupsen/logrus v0.8.3-0.20150608235533-e3eccfaeb58b/go.mod h1:rmk17hk6i8ZSAJkSDa7nOxamrG+SP4P0mm+DAvExv4U=
+github.com/aws/aws-sdk-go v1.14.22-0.20180706225419-23e3775971f2/go.mod h1:ZRmQr0FajVIyZ4ZzBYKG5P3ZqPz9IHG41ZoMu1ADI3k=
+github.com/cihub/seelog v0.0.0-20151216153121-3549fbb0ea07/go.mod h1:9d6lWj8KzO/fd/NrVaLscBKmPigpZpn5YawRPw+e3Yo=
+github.com/darkcrux/gopherduty v0.0.0-20141111074048-4109bd05b098/go.mod h1:Px51KpRFI7ywT/kE9MFTe0PmCQrFISuHY4Chf3UvWy0=
+github.com/docopt/docopt-go v0.0.0-20140806175443-c5dac5363019/go.mod h1:WwZ+bS3ebgob9U8Nd0kOddGdZWjyMGR8Wziv+TBNwSE=
+github.com/franela/goreq v0.0.0-20150617052128-41f8ae0dfac5/go.mod h1:ZhphrRTfi2rbfLwlschooIH4+wKKDR4Pdxhh+TRoA20=
+github.com/go-ini/ini v1.37.1-0.20180615003539-cec2bdc49009/go.mod h1:ByCAeIL28uOIIG0E3PJtZPDL8WnHpFKFOtgjp+3Ies8=
+github.com/google/go-querystring v0.0.0-20150414214848-547ef5ac9797/go.mod h1:odCYkC5MyYFN7vkCjXpyrEuKhc/BUO6wN/zVPAxq5ck=
+github.com/hashicorp/consul v0.5.3-0.20150609223947-5aa90455ce78/go.mod h1:mFrjN1mfidgJfYP1xrJCF+AfRhr6Eaqhb2+sfyn/OOI=
+github.com/hashicorp/golang-lru v1.0.1/go.mod h1:iADmTwqILo4mZ8BN3D2Q6+9jd8WM5uGBxy+E8yxSoD4=
+github.com/imdario/mergo v0.0.0-20160517064435-50d4dbd4eb0e/go.mod h1:2EnlNZ0deacrJVfApfmtdGgDfMuh/nq6Ok1EcJh5FfA=
+github.com/influxdb/influxdb v0.8.5/go.mod h1:GpjLgHRqWhDGlPAg7+Rj6NAYuzPojBM8XLG5Ouvvq+Q=
+github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af/go.mod h1:Nht3zPeWKUH0NzdCt2Blrr5ys8VGpn0CEB0cQHVjt7k=
+github.com/mitchellh/hashstructure v0.0.0-20160609170929-b098c52ef6be/go.mod h1:QjSHrPWS+BGUVBYkbTZWEnOh3G1DutKwClXU/ABz6AQ=
+github.com/opsgenie/opsgenie-go-sdk v0.0.0-20180619084527-6d5c78d9f21e/go.mod h1:dNDIBlBIGnkrpaLz1o4idoRV9L27SRBGd7p8PL5YDpM=
+github.com/tbruyelle/hipchat-go v0.0.0-20160120154433-55738d370904/go.mod h1:CJEWrlDz1qHCF/nywogFd3AqHUWbKCdpu9pSAdf1OzY=
